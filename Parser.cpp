@@ -21,9 +21,12 @@
 
 typedef enum {
     NONE,
+    TOKEN,
     TRACK,
     TRACKNAME,
-    SEQUENCE
+    SEQUENCE,
+    EUCLID,
+    STOP
 } States;
 
 Parser::Parser(QObject *parent)
@@ -35,7 +38,7 @@ Parser::Parser(QObject *parent)
 void Parser::parseCode(QString code){
     States state = NONE;
     QChar ch;
-    QString trackName;
+    QString trackName,stopToken;
     Track *currentTrack;
     PatternType *currentPattern;
     SequencesType *sequences;
@@ -47,12 +50,23 @@ void Parser::parseCode(QString code){
             trackName.clear();
             continue;
         }
+        if (ch == 's' && state == NONE){
+            state = STOP;
+            stopToken.clear();
+            stopToken.append(ch);
+            continue;
+        }
         if (ch == '[') {
             state = SEQUENCE;
             currentPattern = new PatternType();
             continue;
         }
-        if (state == SEQUENCE){
+        if (ch == '{') {
+            state = EUCLID;
+            currentPattern = new PatternType();
+            continue;
+        }
+        if (state == SEQUENCE || state == EUCLID){
             if (ch.isNumber()) {
                 PatternEvent p;
                 p.instrumentNumber = (double) ch.digitValue();
@@ -60,11 +74,23 @@ void Parser::parseCode(QString code){
                 continue;
             }
         }
-        if (ch == ']') {
+        if (ch == '}') {
             state = TRACK;
             if ((currentPattern != nullptr) && (sequences != nullptr)){
             Sequence seq;
             fillPattern(currentPattern);
+            seq.setPattern(*currentPattern);
+            sequences->append(seq);
+            }
+            else {
+                qDebug()<<"error creating sequence";
+            }
+            continue;
+        }
+        if (ch == ']') {
+            state = TRACK;
+            if ((currentPattern != nullptr) && (sequences != nullptr)){
+            Sequence seq;
             seq.setPattern(*currentPattern);
             sequences->append(seq);
             }
@@ -91,13 +117,21 @@ void Parser::parseCode(QString code){
                 else {
                     currentTrack = new Track();
                     currentTrack->name = trackName;
-                    //tracks[trackName] = *currentTrack;
                 }
                 sequences = new SequencesType();
                 continue;
             }
             trackName.append(ch);
             continue;
+        }
+        if (state == STOP){
+            if (ch== ';') {
+                if (stopToken == "stop") {
+                    tracks.clear();
+                    break;
+                }
+            }
+            stopToken.append(ch);
         }
     }
 }
@@ -122,6 +156,6 @@ void Parser::fillPattern(PatternType *pattern){
                 finalPattern.append(e);
             }
         }
-        pattern =  &finalPattern;
+        *pattern =  finalPattern;
     }
 }

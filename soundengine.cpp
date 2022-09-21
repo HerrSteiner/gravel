@@ -25,8 +25,7 @@ SoundEngine::SoundEngine(QObject *parent)
     : QObject{parent}
 {
     Csound *csound = new Csound();//csoundCreate(0);
-    std::string csd = "/Users/herrsteiner/Documents/csound/Notstandskomitee/fm1.csd";
-    //const char csd[] = "./fm1f.csd";
+    std::string csd = "/Users/herrsteiner/Projects/gravel/csoundIntruments.csd";
     int result = csound->CompileCsd(csd.c_str());
     //int result = csoundCompileCsd(csound, csd);
     this->csound = csound;

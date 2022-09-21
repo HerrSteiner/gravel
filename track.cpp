@@ -24,16 +24,15 @@ Track::Track()
 }
 
 void Track::setSequences(SequencesType sequences){
-    sequencesA = sequences;
-    playSequencesA = true;
-    /*
+    //sequencesA = sequences;
+    //playSequencesA = true;
+
     if (playSequencesA) sequencesB = sequences;
     else sequencesA = sequences;
-    swapSequences = true;*/
+    swapSequences = true;
 }
 
 QList<PatternEvent>Track::getNextEvents() {
-    playSequencesA = true;
     SequencesType sequences = playSequencesA ? sequencesA : sequencesB;
     SequencesType tickedSequences;
     QList<PatternEvent> currentEvents;
@@ -54,12 +53,13 @@ QList<PatternEvent>Track::getNextEvents() {
     else {
         sequencesB.swap(tickedSequences);
     }
-    /*
+
     if (canSwapSequences && swapSequences) {
-        if (sequencesA->empty() && sequencesB->empty()) return currentEvents;
+        if (sequencesA.empty() && sequencesB.empty()) return currentEvents;
 
         playSequencesA = !playSequencesA;
         swapSequences = false;
-    }*/
+    }
+
     return currentEvents;
 }
