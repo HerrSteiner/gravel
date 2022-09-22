@@ -26,7 +26,8 @@ typedef enum {
     TRACKNAME,
     SEQUENCE,
     EUCLID,
-    STOP
+    STOP,
+    STOPPARAMETER
 } States;
 
 Parser::Parser(QObject *parent)
@@ -38,7 +39,8 @@ Parser::Parser(QObject *parent)
 void Parser::parseCode(QString code){
     States state = NONE;
     QChar ch;
-    QString trackName,stopToken;
+    QString trackName,stopToken,stopParameter;
+    QStringList stopParameters;
     Track *currentTrack;
     PatternType *currentPattern;
     SequencesType *sequences;
@@ -77,10 +79,10 @@ void Parser::parseCode(QString code){
         if (ch == '}') {
             state = TRACK;
             if ((currentPattern != nullptr) && (sequences != nullptr)){
-            Sequence seq;
-            fillPattern(currentPattern);
-            seq.setPattern(*currentPattern);
-            sequences->append(seq);
+                Sequence seq;
+                fillPattern(currentPattern);
+                seq.setPattern(*currentPattern);
+                sequences->append(seq);
             }
             else {
                 qDebug()<<"error creating sequence";
@@ -90,9 +92,9 @@ void Parser::parseCode(QString code){
         if (ch == ']') {
             state = TRACK;
             if ((currentPattern != nullptr) && (sequences != nullptr)){
-            Sequence seq;
-            seq.setPattern(*currentPattern);
-            sequences->append(seq);
+                Sequence seq;
+                seq.setPattern(*currentPattern);
+                sequences->append(seq);
             }
             else {
                 qDebug()<<"error creating sequence";
@@ -112,7 +114,7 @@ void Parser::parseCode(QString code){
             if (ch == ':'){
                 state = TRACK;
                 if (tracks.contains(trackName)){
-                currentTrack = &tracks[trackName];
+                    currentTrack = &tracks[trackName];
                 }
                 else {
                     currentTrack = new Track();
@@ -125,13 +127,42 @@ void Parser::parseCode(QString code){
             continue;
         }
         if (state == STOP){
+            stopToken.append(ch);
+            if (stopToken == "stop"){
+                state = STOPPARAMETER;
+                stopParameter.clear();
+                stopParameters.clear();
+            }
+            continue;
+        }
+        if (state == STOPPARAMETER){
             if (ch== ';') {
-                if (stopToken == "stop") {
+                if (stopParameter.length() > 0){ // taking the last stopparameter into account
+                    stopParameters.append(stopParameter);
+                    stopParameter.clear();
+                }
+                if (stopParameters.empty()){ // general stop
                     tracks.clear();
-                    break;
+                    break;// no need to go further
+                }
+                else {
+                    QStringListIterator trackname(stopParameters);
+                    while (trackname.hasNext()){
+                        tracks.remove(trackname.next()); // stop that track be removing it from the tracks
+                    }
+                    continue;
                 }
             }
-            stopToken.append(ch);
+            if (ch == ','){
+                stopParameters.append(stopParameter);
+                stopParameter.clear();
+                continue;
+            }
+            if (ch == ' '){ // ignoring space
+                continue;
+            }
+            stopParameter.append(ch);
+            continue;
         }
     }
 }

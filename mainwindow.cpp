@@ -19,6 +19,8 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
 #include "QtCore/QDebug"
+#include <QMessageBox>
+#include <QFileDialog>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -62,10 +64,55 @@ void MainWindow::evaluate() {
 /*
 void MainWindow::actionAbout_gravel()
 {
-    QMessageBox::about(this, tr("About Syntax Highlighter"),
-                tr("<p>The <b>Syntax Highlighter</b> example shows how " \
-                   "to perform simple syntax highlighting by subclassing " \
-                   "the QSyntaxHighlighter class and describing " \
-                   "highlighting rules using regular expressions.</p>"));
+
 }
 */
+
+void MainWindow::on_actionAbout_gravel_triggered()
+{
+    QMessageBox::about(this, tr("gravel"),
+                tr("<h2>g<span style='color:#666;'>rave</span>l</h2><h3>live coding music system</h3>\
+<p>© 2022 by Malte Steiner<br>Tina Mariane Krogh Madsen</p>\
+<p>see also <a href='https://www.block4.com'>https://www.block4.com</a></p>\
+<p>gravel is free open source software distributed under GPL3 license</p>"));
+}
+
+
+void MainWindow::on_actionsave_code_triggered()
+{
+    QString fileName = QFileDialog::getSaveFileName(this,tr("Save Code"),QDir::homePath(), tr("Text files (*.txt)"));
+    QFile file(fileName);
+       if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+           return;
+
+       QTextStream out(&file);
+       out << ui->textEdit->toPlainText();
+       file.close();
+}
+
+
+void MainWindow::on_actionopen_code_triggered()
+{
+   loadCode(false);
+}
+
+void MainWindow::on_actionmerge_code_triggered()
+{
+    loadCode(true);
+}
+
+void MainWindow::loadCode(bool merge){
+    QString fileName = QFileDialog::getOpenFileName(this,tr("Load Code"),QDir::homePath(), tr("Text files (*.txt)"));
+    QFile file(fileName);
+       if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+           return;
+       QTextStream in(&file);
+       QString code = in.readAll();
+       if (!merge) ui->textEdit->clear();
+       ui->textEdit->append(code);
+       file.close();
+}
+
+
+
+

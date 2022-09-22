@@ -24,9 +24,6 @@ Track::Track()
 }
 
 void Track::setSequences(SequencesType sequences){
-    //sequencesA = sequences;
-    //playSequencesA = true;
-
     if (playSequencesA) sequencesB = sequences;
     else sequencesA = sequences;
     swapSequences = true;

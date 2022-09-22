@@ -134,12 +134,39 @@
     </property>
     <addaction name="actionAbout_gravel"/>
    </widget>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionopen_code"/>
+    <addaction name="actionmerge_code"/>
+    <addaction name="actionsave_code"/>
+   </widget>
    <addaction name="menuAbout"/>
+   <addaction name="menuFile"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionAbout_gravel">
    <property name="text">
     <string>About gravel</string>
+   </property>
+  </action>
+  <action name="actionopen_code">
+   <property name="text">
+    <string>open code</string>
+   </property>
+  </action>
+  <action name="actionsave_code">
+   <property name="text">
+    <string>save code</string>
+   </property>
+  </action>
+  <action name="actionmerge_code">
+   <property name="text">
+    <string>merge code</string>
+   </property>
+   <property name="toolTip">
+    <string>merge code from file to current code</string>
    </property>
   </action>
  </widget>
