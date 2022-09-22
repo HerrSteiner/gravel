@@ -23,6 +23,7 @@ typedef enum {
     NONE,
     TOKEN,
     TRACK,
+    TRACKPARAMETER,
     TRACKNAME,
     SEQUENCE,
     EUCLID,
@@ -39,7 +40,7 @@ Parser::Parser(QObject *parent)
 void Parser::parseCode(QString code){
     States state = NONE;
     QChar ch;
-    QString trackName,stopToken,stopParameter;
+    QString trackName,stopToken,stopParameter,divisor;
     QStringList stopParameters;
     Track *currentTrack;
     PatternType *currentPattern;
@@ -77,17 +78,14 @@ void Parser::parseCode(QString code){
             }
         }
         if (ch == '}') {
-            state = TRACK;
-            if ((currentPattern != nullptr) && (sequences != nullptr)){
-                Sequence seq;
-                fillPattern(currentPattern);
-                seq.setPattern(*currentPattern);
-                sequences->append(seq);
-            }
-            else {
-                qDebug()<<"error creating sequence";
-            }
+            state = TRACKPARAMETER;
             continue;
+        }
+        if (state == TRACKPARAMETER){
+            if (ch=='$'){
+                divisor.clear();
+                continue;
+            }
         }
         if (ch == ']') {
             state = TRACK;
@@ -101,13 +99,57 @@ void Parser::parseCode(QString code){
             }
             continue;
         }
+        if ( ch == ',' && state == TRACKPARAMETER){
+            if ((currentPattern != nullptr) && (sequences != nullptr)){
+                if (!divisor.isEmpty()){
+                    int divNumber = divisor.toInt();
+                    fillPattern(currentPattern,divNumber);
+                    divisor.clear();
+                }
+                else {
+                    fillPattern(currentPattern);
+                }
+                Sequence seq;
+
+                seq.setPattern(*currentPattern);
+                sequences->append(seq);
+                state = TRACK;
+            }
+            else {
+                qDebug()<<"error creating sequence";
+            }
+            continue;
+        }
         if (ch == ';'){
+            if (state == TRACKPARAMETER){
+                if ((currentPattern != nullptr) && (sequences != nullptr)){
+                    if (!divisor.isEmpty()){
+                        int divNumber = divisor.toInt();
+                        fillPattern(currentPattern,divNumber);
+                        divisor.clear();
+                    }
+                    else {
+                        fillPattern(currentPattern);
+                    }
+                    Sequence seq;
+
+                    seq.setPattern(*currentPattern);
+                    sequences->append(seq);
+                    state = TRACK;
+                }
+                else {
+                    qDebug()<<"error creating sequence";
+                }
+            }
+
             qDebug()<<"wrapping";
             if (state == TRACK){
                 state = NONE;
                 currentTrack->setSequences(*sequences);
                 tracks[trackName] = *currentTrack;
+                continue;
             }
+
         }
 
         if (state == TRACKNAME){
@@ -164,12 +206,18 @@ void Parser::parseCode(QString code){
             stopParameter.append(ch);
             continue;
         }
+
+        if (state == TRACKPARAMETER){ // should be at the end, catch all digits
+                if (ch.isDigit()){
+                   divisor.append(ch);
+                   continue;
+                }
+        }
     }
 }
 
-void Parser::fillPattern(PatternType *pattern){
+void Parser::fillPattern(PatternType *pattern, int max){
     int length = pattern->length();
-    int max = 16;
     if (length<max){
         int steps = max / length;
         PatternType finalPattern;

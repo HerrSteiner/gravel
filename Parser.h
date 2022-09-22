@@ -30,7 +30,7 @@ public:
     void parseCode(QString code);
     TracksType tracks;
 private:
-    void fillPattern(PatternType *pattern);
+    void fillPattern(PatternType *pattern,int max = 16);
 };
 
 #endif // PARSER_H
