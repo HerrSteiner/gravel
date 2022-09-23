@@ -26,6 +26,7 @@
 #include "csPerfThread.hpp"
 #include "track.h"
 #include <QThread>
+#include "instrumentdefinition.h"
 
 typedef QMap<QString,Track> TracksType;
 class SoundEngine : public QObject
@@ -34,19 +35,20 @@ class SoundEngine : public QObject
 
 public:
     explicit SoundEngine(QObject *parent = nullptr);
-    void setPattern(QList<int> pattern);
+    //void setPattern(QList<int> pattern);
     TracksType tracks;
 
 private:
     Csound *csound;
     CsoundPerformanceThread* perfThread;
     QTimer *timer;
-    QList<int> patternA;
-    QList<int> patternB;
-
-    bool playPatternA;
-    bool swapPattern;
-    int seqIndex;
+    //QList<int> patternA;
+    //QList<int> patternB;
+    QList<InstrumentDefinition> instruments;
+    //bool playPatternA;
+    //bool swapPattern;
+    //int seqIndex;
+    void parseCsound(QString fileName);
 protected:
     // void timerEvent(QTimerEvent *event) override;
 public slots:
@@ -54,6 +56,9 @@ public slots:
 
 private slots:
     void seqStep();
+
+signals:
+    void display(QString message);
 };
 
 #endif // SOUNDENGINE_H

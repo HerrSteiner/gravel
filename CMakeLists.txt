@@ -35,7 +35,7 @@ set(PROJECT_SOURCES
         track.cpp
         sequence.h sequence.cpp
         patternEvent.h patternEvent.cpp
-
+        instrumentdefinition.h instrumentdefinition.cpp
 )
 
 

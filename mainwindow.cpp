@@ -42,6 +42,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     parser = new Parser();
     QObject::connect(ui->textEdit, &Coder::evaluation, this, &MainWindow::evaluate);
+
+    QObject::connect(soundEngine,SIGNAL(display(QString)),ui->console,SLOT(append(QString)));
 }
 
 MainWindow::~MainWindow()
@@ -93,7 +95,6 @@ void MainWindow::on_actionsave_code_triggered()
     out << ui->textEdit->toPlainText();
     file.close();
 }
-
 
 void MainWindow::on_actionopen_code_triggered()
 {

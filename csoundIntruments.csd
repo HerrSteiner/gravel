@@ -9,13 +9,14 @@ ksmps = 32
 nchnls = 2
 0dbfs = 1
 
-instr 1
-aexo expon 0.5, 0.1, 0.0001
-midinoteoncps p3, p4
-kcps = 30
-kcar = p4
-kmod = 2
-kndx line 20, 0.1, 0	;intensivy sidebands
+instr 1;fm
+
+iDur = p3 ;dur 0.1
+kcps = p5 ;pitch 30
+kcar = p4 ;car 4
+kmod = p5 ;ratio 2
+kndx line 20, iDur, 0	;intensivy sidebands
+aexo expon 0.5, iDur, 0.0001
 
 asig foscili aexo, kcps, kcar, kmod, kndx, 1
      outs asig, asig
