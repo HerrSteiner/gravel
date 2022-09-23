@@ -19,44 +19,45 @@
 #include "soundengine.h"
 #include "QtCore/qcoreevent.h"
 #include "QtCore/QDebug"
-
+#include <QApplication>
 
 SoundEngine::SoundEngine(QObject *parent)
     : QObject{parent}
 {
-    Csound *csound = new Csound();//csoundCreate(0);
+
+}
+
+void SoundEngine::process(void)
+{
+    qDebug() << "worker process";       //This works
+
+    // start Csound thread
+    Csound *csound = new Csound();
     std::string csd = "/Users/herrsteiner/Projects/gravel/csoundIntruments.csd";
     int result = csound->CompileCsd(csd.c_str());
-    //int result = csoundCompileCsd(csound, csd);
+
     this->csound = csound;
     csound->SetDebug(0);
 
     if (!result) {
 
+        csound->Start();
+        CsoundPerformanceThread* perfThread = new CsoundPerformanceThread(csound->GetCsound());
+        this->perfThread = perfThread;
+        perfThread->Play();
 
-    csound->Start();
-    CsoundPerformanceThread* perfThread = new CsoundPerformanceThread(csound->GetCsound());
-    this->perfThread = perfThread;
-    perfThread->Play();
-    //perfThread->
-    /*
-    QTimer timer;
-    timer.setInterval(500);
-    timer.setTimerType(Qt::PreciseTimer);
-*/
-    /*
-    playPatternA = true;
-    swapPattern = false;
-    patternA = {1,0,2,0,1,1,0,2,1,0,0,1,0,0,1,0};
-    //this->patternA = patternA;
-    seqIndex = 0;
-    */
+        //startTimer(rate,Qt::PreciseTimer);
+        qDebug()<<"this thread "<<QThread::currentThread();
 
-    //60*4 / BPM = 1 Bar in s
-    int rate =  54;
-    startTimer(rate,Qt::PreciseTimer);
+        // setup sequencer clock
+        //60*4 / BPM = 1 Bar in s
+        int rate =  54;
+        QTimer *timer = new QTimer(this);
+        timer->setTimerType(Qt::PreciseTimer);
+        connect(timer,SIGNAL(timeout()),this,SLOT(seqStep()));
+        timer->start(rate);
 
- }
+    }
     else {
         qDebug()<<"Csound error";
     }
@@ -68,21 +69,11 @@ void SoundEngine::setPattern(QList<int> pattern){
     swapPattern = true;
 }
 
-void SoundEngine::timerEvent(QTimerEvent *event)
+//void SoundEngine::timerEvent(QTimerEvent *event)
+void SoundEngine::seqStep()
 {
     //qDebug() << "Timer ID:" << event->timerId()<<" index "<<seqIndex;
-    /*
-    int i = playPatternA ? patternA[seqIndex]: patternB[seqIndex];
-    seqIndex++;
-    if (seqIndex>15){
-        seqIndex = 0;
-        if (swapPattern){
-            playPatternA = !playPatternA;
-            swapPattern = false;
-        }
-    }
-    if (i == 0) return;
-*/
+    qDebug()<<"thread "<<QThread::currentThread()<< "main "<< QApplication::instance()->thread();
     QMapIterator<QString, Track> trackIterator(tracks);
     TracksType tickedTracks;
     while (trackIterator.hasNext()) {
@@ -102,7 +93,6 @@ void SoundEngine::timerEvent(QTimerEvent *event)
         tickedTracks[trackIterator.key()] = currentTrack;
     }
 
- tracks.swap(tickedTracks);
-
+    tracks.swap(tickedTracks);
 
 }

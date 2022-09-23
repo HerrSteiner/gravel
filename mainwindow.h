@@ -39,6 +39,7 @@ public:
 public slots:
     void evaluate();
 private:
+    QThread *soundThread;
     Ui::MainWindow *ui;
     highlighter *highlighter;
     SoundEngine *soundEngine;
