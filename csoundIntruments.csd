@@ -23,10 +23,10 @@ asig foscili aexo, kcps, kcar, kmod, kndx, 1
 
 endin
 
-instr 2
+instr 2;tam
 asig  tambourine .25, 0.01, 30, 0.5, 0.4,57,1024,223
-kcutoff1   = 2000
-kcutoff2   = 1500
+kcutoff1   = p3;cut1 2000
+kcutoff2   = p4;cut2 1500
 kfeedback1 = 0.26						;the sum of the two feedback
 kfeedback2 = 0.25						;values should not exceed  0.5
 asig wguide2 asig, 120, 1200, kcutoff1, kcutoff2, kfeedback1, kfeedback2
@@ -36,8 +36,8 @@ gaRevLeft = asig*0.25
 gaRevRight = gaRevLeft
 endin
 
-instr 3
-iDur = 0.13
+instr 3;pwm
+iDur = p3 ;dur 0.13
 kcps    expon 100, iDur, 50                   
 kpw     linseg 0.1, iDur/2, 0.9, iDur/2, 0.1        ; PWM example
 a1      vco2 0.25, kcps, 2, kpw

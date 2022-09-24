@@ -53,7 +53,7 @@ protected:
     // void timerEvent(QTimerEvent *event) override;
 public slots:
     void process();
-
+    void displayInstruments();
 private slots:
     void seqStep();
 

@@ -124,6 +124,7 @@ void SoundEngine::parseCsound(QString fileName){
 
     while (!in.atEnd()){
         line = in.readLine().trimmed();
+        if (state>PARAMETER) state = PARAMETER;
         // parse that line of csound code
         qsizetype lineLength = line.length();
         currentToken.clear();
@@ -152,21 +153,13 @@ void SoundEngine::parseCsound(QString fileName){
                 }
                 continue;
             }
-            /*
-            if (state == INSTRUMENT){
-                if (ch == ';'){
-                    state = INSTRUMENTNAME;
-                }
-                continue;
-            }*/
             if (state == INSTRUMENTNAME){
+                currentToken.append(ch);
                 if (ch == ' ' || i == lineLength - 1){
                     currentInstrument->Name = currentToken;
                     currentToken.clear();
                     state = PARAMETER;
-                    continue;
                 }
-                currentToken.append(ch);
                 continue;
             }
             if (state == PARAMETER){
@@ -212,18 +205,16 @@ void SoundEngine::parseCsound(QString fileName){
                 continue;
             }
             if (state == PARAMETERVALUE){
-                if (i == lineLength -2){
+                if (ch.isDigit() || ch == '.'){
+                    currentToken.append(ch);
+                }
+                if (i == lineLength -1){
                     currentParameter->value = currentToken.toDouble();
                     currentToken.clear();
                     state = PARAMETER;
                     if (currentParameter && currentParameter->Name != nullptr){
                         currentInstrument->parameters[currentParameter->Name] = *currentParameter;
                     }
-
-                    continue;
-                }
-                if (ch.isDigit() || ch == '.'){
-                    currentToken.append(ch);
                 }
                 continue;
             }
@@ -231,31 +222,37 @@ void SoundEngine::parseCsound(QString fileName){
         }
     }
     file.close();
+    displayInstruments();
 
+}
+
+void SoundEngine::displayInstruments(){
     QString instrumentMessage;
     QListIterator<InstrumentDefinition> iterator(instruments);
-    instrumentMessage.append("load Csound file with following instrument definitions:\n");
+    instrumentMessage.append("<html>load Csound file with following instrument definitions:<br>");
 
     while (iterator.hasNext()){
         InstrumentDefinition instrument = iterator.next();
-        instrumentMessage.append("instrument #");
+        instrumentMessage.append("<b>instrument <span style='color:#666;'>#");
 
         instrumentMessage.append(QString::number(instrument.instrNumber));
-        instrumentMessage.append(" ");
+        instrumentMessage.append("</span><span style='color:#66F;'> ");
         instrumentMessage.append(instrument.Name);
-        instrumentMessage.append(" parameters:\n");
+        instrumentMessage.append("</span> parameters:</b><br>");
         QMapIterator<QString,Parameter> parameterIterator(instrument.parameters);
         while (parameterIterator.hasNext()) {
             parameterIterator.next();
-            instrumentMessage.append("parameter ");
+            instrumentMessage.append(tr("parameter <span style='color:#66F;'>"));
             instrumentMessage.append(parameterIterator.key());
-            instrumentMessage.append(" pNumber: ");
+            instrumentMessage.append("</span> pNumber: <span style='color:#666;'>");
             Parameter parameter = parameterIterator.value();
             instrumentMessage.append(QString::number(parameter.pNumber));
-            instrumentMessage.append(" defaultValue:");
+            instrumentMessage.append("</span> defaultValue: <span style='color:#666;'>");
             instrumentMessage.append(QString::number(parameter.value));
-            instrumentMessage.append("\n");
+            instrumentMessage.append("</span><br>");
         }
+        instrumentMessage.append("<br>");
     }
+    instrumentMessage.append("</html>");
     emit display(instrumentMessage);
 }
