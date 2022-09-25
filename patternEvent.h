@@ -20,6 +20,7 @@
 #define PATTERNEVENT_H
 
 #import <QList>
+#import "instrumentdefinition.h"
 
 class PatternEvent
 {
@@ -27,8 +28,8 @@ class PatternEvent
 public:
     PatternEvent();
     double instrumentNumber;
-    QList<double> parameters;
-
+    QString instrumentName;
+    QList<Parameter> parameters;
 };
 
 #endif // PATTERNEVENT_H

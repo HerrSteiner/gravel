@@ -19,18 +19,8 @@
 #include "soundengine.h"
 #include "QtCore/QDebug"
 #include <QApplication>
+#include <QtGlobal>
 #include <QFile>
-
-typedef enum {
-    NONE,
-    INSTRUMENT,
-    INSTRUMENTNUMBER,
-    INSTRUMENTNAME,
-    PARAMETER,
-    PARAMETERNUMBER,
-    PARAMETERNAME,
-    PARAMETERVALUE
-} InstrumentStates;
 
 SoundEngine::SoundEngine(QObject *parent)
     : QObject{parent}
@@ -45,7 +35,7 @@ void SoundEngine::process(void)
     // start Csound thread
     Csound *csound = new Csound();
     QString csd = "/Users/herrsteiner/Projects/gravel/csoundIntruments.csd";
-    parseCsound(csd);
+    emit parseCsound(csd);
     int result = csound->CompileCsd(qPrintable(csd));
 
     this->csound = csound;
@@ -86,7 +76,7 @@ void SoundEngine::setPattern(QList<int> pattern){
 void SoundEngine::seqStep()
 {
     //qDebug() << "Timer ID:" << event->timerId()<<" index "<<seqIndex;
-    qDebug()<<"thread "<<QThread::currentThread()<< "main "<< QApplication::instance()->thread();
+    //qDebug()<<"thread "<<QThread::currentThread()<< "main "<< QApplication::instance()->thread();
     QMapIterator<QString, Track> trackIterator(tracks);
     TracksType tickedTracks;
     while (trackIterator.hasNext()) {
@@ -98,8 +88,44 @@ void SoundEngine::seqStep()
         while (eventIterator.hasNext()){
             PatternEvent e = eventIterator.next();
             if (e.instrumentNumber > 0) {
-                const double parameters[3] = {e.instrumentNumber,0,1.};
-                this->perfThread->ScoreEvent( false,'i', 3, parameters);
+                double duration = 1.;
+                QList<Parameter> parameters = e.parameters;
+                QListIterator<Parameter> pIterator(parameters);
+                int highestPNumber = 3;
+                while (pIterator.hasNext()){
+                    Parameter p = pIterator.next();
+
+                    if (p.pNumber == 3){ // always the duration
+                        duration = p.value;
+                        continue;
+                    }
+                    highestPNumber = qMax(highestPNumber,p.pNumber);
+                }
+                QList<double>pArray;
+                pArray.append(e.instrumentNumber);
+                pArray.append(0);
+                pArray.append(duration);
+                Parameter *p;
+                for (int pIndex = 4; pIndex <= highestPNumber;pIndex++){
+                    pIterator.toFront();
+                    p = nullptr;
+                    while (pIterator.hasNext()){
+                         Parameter pa = pIterator.next();
+                         if (pa.pNumber == pIndex){
+                          p = &pa;
+                          break;
+                         }
+                    }
+                    if (p != nullptr){
+                        pArray.append(p->value);
+                    }
+                    else {
+                        pArray.append(0);
+                    }
+                }
+
+                //const double parameters[3] = {e.instrumentNumber,0,1.};
+                this->perfThread->ScoreEvent( false,'i', pArray.count(), pArray.constData());
                 qDebug()<<"trigger instr: "<< e.instrumentNumber;
             }
         }
@@ -110,149 +136,7 @@ void SoundEngine::seqStep()
 
 }
 
-void SoundEngine::parseCsound(QString fileName){
-    QFile file(fileName);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
-        return;
-    QTextStream in(&file);
-    QString line;
-    InstrumentDefinition *currentInstrument;
-    Parameter *currentParameter;
-    QChar ch;
-    QString currentToken;
-    InstrumentStates state = NONE;
-
-    while (!in.atEnd()){
-        line = in.readLine().trimmed();
-        if (state>PARAMETER) state = PARAMETER;
-        // parse that line of csound code
-        qsizetype lineLength = line.length();
-        currentToken.clear();
-        for(int i = 0; i < lineLength; i++)
-        {
-            ch = line.at(i);
-            if (state == NONE){
-                currentToken.append(ch);
-                if (currentToken == "instr"){
-                    state = INSTRUMENTNUMBER;
-                    currentInstrument = new InstrumentDefinition();
-                    currentToken.clear();
-                }
-                continue;
-            }
-            if (state == INSTRUMENTNUMBER){
-                if (ch.isDigit()){
-                    currentToken.append(ch);
-                    continue;
-                }
-                if (ch == ';'){
-                    state = INSTRUMENTNAME;
-
-                    currentInstrument->instrNumber = currentToken.toInt();
-                    currentToken.clear();
-                }
-                continue;
-            }
-            if (state == INSTRUMENTNAME){
-                currentToken.append(ch);
-                if (ch == ' ' || i == lineLength - 1){
-                    currentInstrument->Name = currentToken;
-                    currentToken.clear();
-                    state = PARAMETER;
-                }
-                continue;
-            }
-            if (state == PARAMETER){
-                if (ch == '='){
-                    state = PARAMETERNUMBER;
-                    currentToken.clear();
-                    currentParameter = new Parameter();
-
-                    continue;
-                }
-
-                currentToken.append(ch); // actually fishing here for endin statement
-                if (currentToken == "endin"){
-                    if (currentInstrument){
-                        instruments.append(*currentInstrument);
-                        currentToken.clear();
-                        state = NONE;
-                    }
-
-                }
-                continue;
-            }
-            if (state == PARAMETERNUMBER){
-                if (ch == ';') {
-                    currentParameter->pNumber = currentToken.toInt();
-                    currentToken.clear();
-                    state = PARAMETERNAME;
-                    continue;
-                }
-                if (ch.isDigit()){
-                    currentToken.append(ch);
-                }
-                continue;
-            }
-            if (state == PARAMETERNAME){
-                if (ch == ' '){
-                    currentParameter->Name = currentToken;
-                    currentToken.clear();
-                    state = PARAMETERVALUE;
-                    continue;
-                }
-                currentToken.append(ch);
-                continue;
-            }
-            if (state == PARAMETERVALUE){
-                if (ch.isDigit() || ch == '.'){
-                    currentToken.append(ch);
-                }
-                if (i == lineLength -1){
-                    currentParameter->value = currentToken.toDouble();
-                    currentToken.clear();
-                    state = PARAMETER;
-                    if (currentParameter && currentParameter->Name != nullptr){
-                        currentInstrument->parameters[currentParameter->Name] = *currentParameter;
-                    }
-                }
-                continue;
-            }
-
-        }
-    }
-    file.close();
-    displayInstruments();
-
+void SoundEngine::setInstrumentDefinitions(QMap<QString,InstrumentDefinition>instrumentDefinitions){
+    instruments = instrumentDefinitions;
 }
 
-void SoundEngine::displayInstruments(){
-    QString instrumentMessage;
-    QListIterator<InstrumentDefinition> iterator(instruments);
-    instrumentMessage.append("<html>load Csound file with following instrument definitions:<br>");
-
-    while (iterator.hasNext()){
-        InstrumentDefinition instrument = iterator.next();
-        instrumentMessage.append("<b>instrument <span style='color:#666;'>#");
-
-        instrumentMessage.append(QString::number(instrument.instrNumber));
-        instrumentMessage.append("</span><span style='color:#66F;'> ");
-        instrumentMessage.append(instrument.Name);
-        instrumentMessage.append("</span> parameters:</b><br>");
-        QMapIterator<QString,Parameter> parameterIterator(instrument.parameters);
-        while (parameterIterator.hasNext()) {
-            parameterIterator.next();
-            instrumentMessage.append(tr("parameter <span style='color:#66F;'>"));
-            instrumentMessage.append(parameterIterator.key());
-            instrumentMessage.append("</span> pNumber: <span style='color:#666;'>");
-            Parameter parameter = parameterIterator.value();
-            instrumentMessage.append(QString::number(parameter.pNumber));
-            instrumentMessage.append("</span> defaultValue: <span style='color:#666;'>");
-            instrumentMessage.append(QString::number(parameter.value));
-            instrumentMessage.append("</span><br>");
-        }
-        instrumentMessage.append("<br>");
-    }
-    instrumentMessage.append("</html>");
-    emit display(instrumentMessage);
-}

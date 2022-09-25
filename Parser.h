@@ -29,8 +29,16 @@ public:
     explicit Parser(QObject *parent = nullptr);
     void parseCode(QString code);
     TracksType tracks;
+public slots:
+    void parseCsound(QString fileName);
 private:
     void fillPattern(PatternType *pattern,int max = 16);
+    void displayInstruments();
+    QMap<QString,InstrumentDefinition> instruments;
+
+signals:
+    void display(QString message);
+    void setInstrumentDefinitions(QMap<QString,InstrumentDefinition>instrumentDefinitions);
 };
 
 #endif // PARSER_H

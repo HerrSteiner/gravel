@@ -44,21 +44,22 @@ private:
     QTimer *timer;
     //QList<int> patternA;
     //QList<int> patternB;
-    QList<InstrumentDefinition> instruments;
+    QMap<QString,InstrumentDefinition> instruments;
     //bool playPatternA;
     //bool swapPattern;
     //int seqIndex;
-    void parseCsound(QString fileName);
+
 protected:
     // void timerEvent(QTimerEvent *event) override;
 public slots:
     void process();
-    void displayInstruments();
+
 private slots:
     void seqStep();
-
+    void setInstrumentDefinitions(QMap<QString,InstrumentDefinition>instrumentDefinitions);
 signals:
     void display(QString message);
+    void parseCsound(QString fileName);
 };
 
 #endif // SOUNDENGINE_H

@@ -43,7 +43,10 @@ MainWindow::MainWindow(QWidget *parent)
     parser = new Parser();
     QObject::connect(ui->textEdit, &Coder::evaluation, this, &MainWindow::evaluate);
 
+    QObject::connect(parser,SIGNAL(display(QString)),ui->console,SLOT(append(QString)));
     QObject::connect(soundEngine,SIGNAL(display(QString)),ui->console,SLOT(append(QString)));
+    QObject::connect(soundEngine,SIGNAL(parseCsound(QString)),parser,SLOT(parseCsound(QString)));
+    QObject::connect(soundEngine,SIGNAL(setInstrumentDefinitions(QMap<QString,InstrumentDefinition>instrumentDefinitions)),parser,SLOT(setInstrumentDefinitions(QMap<QString,InstrumentDefinition>instrumentDefinitions)));
 }
 
 MainWindow::~MainWindow()
@@ -53,7 +56,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::evaluate() {
     QString code = ui->textEdit->textCursor().selectedText();
-    ui->console->clear();
+    //ui->console->clear();
     ui->console->append("parsing:");
     ui->console->append(code);
     /*

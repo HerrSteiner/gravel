@@ -25,8 +25,8 @@ endin
 
 instr 2;tam
 asig  tambourine .25, 0.01, 30, 0.5, 0.4,57,1024,223
-kcutoff1   = p3;cut1 2000
-kcutoff2   = p4;cut2 1500
+kcutoff1   = p4;cut1 2000
+kcutoff2   = p5;cut2 1500
 kfeedback1 = 0.26						;the sum of the two feedback
 kfeedback2 = 0.25						;values should not exceed  0.5
 asig wguide2 asig, 120, 1200, kcutoff1, kcutoff2, kfeedback1, kfeedback2

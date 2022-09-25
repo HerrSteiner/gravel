@@ -32,6 +32,9 @@ void Sequence::setPattern(PatternType pattern) {
 }
 
 PatternEvent Sequence::nextStep(){
+    if (pattern.empty()){ PatternEvent pause;
+        return pause;
+    }
     PatternEvent nextEvent = pattern[this->index];
     this->index = this->index + 1;
     if (this->index == patternLength){
