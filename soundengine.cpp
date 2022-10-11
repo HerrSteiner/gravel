@@ -89,11 +89,11 @@ void SoundEngine::seqStep()
             PatternEvent e = eventIterator.next();
             if (e.instrumentNumber > 0) {
                 double duration = 1.;
-                QList<Parameter> parameters = e.parameters;
-                QListIterator<Parameter> pIterator(parameters);
+                QMap<QString,Parameter> parameters = e.parameters;
+                QMapIterator<QString,Parameter> pIterator(parameters);
                 int highestPNumber = 3;
                 while (pIterator.hasNext()){
-                    Parameter p = pIterator.next();
+                    Parameter p = pIterator.next().value();
 
                     if (p.pNumber == 3){ // always the duration
                         duration = p.value;
@@ -110,7 +110,7 @@ void SoundEngine::seqStep()
                     pIterator.toFront();
                     p = nullptr;
                     while (pIterator.hasNext()){
-                         Parameter pa = pIterator.next();
+                         Parameter pa = pIterator.next().value();
                          if (pa.pNumber == pIndex){
                           p = &pa;
                           break;

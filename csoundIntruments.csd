@@ -1,6 +1,6 @@
 <CsoundSynthesizer>
 <CsOptions>
--+rtaudio=auhal -odac2 -g -b 512
+-+rtaudio=auhal -odac3 -g -b 512
 </CsOptions>
 <CsInstruments>
 
@@ -45,7 +45,42 @@ aenv    linseg 1, iDur - 0.1, 1, 0.1, 0
 a1 = a1*aenv
         outs a1*0.25, a1*0.3
 endin
-        
+
+instr 4;bd
+iDur = p3 ;dur 0.13
+kcps = p4 ;pitch 30
+
+aboumEnv expon 0.5, iDur, 0.00001
+aboum vco2 0.5,kcps,4,0.6,0,0.33
+
+aclickEnv expon 0.5,0.1,0.00001
+kclickEnv expon 400,0.13,0.00001
+aclick vco2 0.25,kclickEnv,4,0.6,0,0.22
+
+asig = aclick*aclickEnv + aboum*aboumEnv
+	outs asig,asig
+endin
+
+instr 5;sd
+iDur = p3 ;dur 0.13
+kcps = p4 ;pitch 160
+kcut = p5 ;cut 200
+
+aboumEnv expon 0.5, iDur, 0.00001
+aboum vco2 0.5,kcps,4,0.6,0,0.33
+
+aclickEnv expon 0.5,0.1,0.00001
+kclickEnv expon 400,0.13,0.00001
+aclick vco2 0.25,kclickEnv,4,0.6,0,0.22
+
+anoiseEnv expon 0.5,0.2,0.00001
+anoise noise 0.2,-0.9
+ahp,alp,abp,abr statevar anoise, kcut, 4
+
+asig = aclick*aclickEnv + aboum*aboumEnv + ahp*anoiseEnv
+	outs asig,asig
+endin	
+      
 instr 99
         denorm gaRevLeft, gaRevRight
 aL, aR  reverbsc gaRevLeft, gaRevRight, 0.85, 12000, sr, 0.5, 1

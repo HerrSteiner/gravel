@@ -27,6 +27,9 @@ typedef enum {
     TRACKNAME,
     SEQUENCE,
     EUCLID,
+    TRIGGER,
+    INSTRUMENTPARAMETER,
+    INSTRUMENTPARAMETERVALUE,
     STOP,
     STOPPARAMETER
 } States;
@@ -51,11 +54,12 @@ Parser::Parser(QObject *parent)
 void Parser::parseCode(QString code){
     States state = NONE;
     QChar ch;
-    QString trackName,stopToken,stopParameter,divisor,instrumentName;
+    QString trackName,stopToken,stopParameter,divisor,instrumentName,instrumentParameter,instrumentParameterValue;
     QStringList stopParameters;
     Track *currentTrack;
     PatternType *currentPattern;
     SequencesType *sequences;
+    QList<Parameter> instrumentParameters;
 
     for(int i = 0; i< code.length(); i++)
     {
@@ -81,21 +85,45 @@ void Parser::parseCode(QString code){
             currentPattern = new PatternType();
             continue;
         }
-        if (state == SEQUENCE || state == EUCLID){
+        if (state == SEQUENCE || state == EUCLID || state == INSTRUMENTPARAMETERVALUE || state == TRIGGER || state == INSTRUMENTPARAMETER){
             if (ch == ',' || ch == '}' || ch == ']') {
+                // first handle possible existing intrument parameter
+                if (state == INSTRUMENTPARAMETERVALUE && !instrumentParameter.isEmpty() && !instrumentParameterValue.isEmpty()){
+                    Parameter iParameter;
+                    iParameter.Name = instrumentParameter;
+                    iParameter.value = instrumentParameterValue.toDouble();
+                    instrumentParameters.append(iParameter);
+                }
+
                 PatternEvent p;
                 if (instruments.contains(instrumentName)){
                     InstrumentDefinition instrument = instruments[instrumentName];
                     p.instrumentNumber = instrument.instrNumber;
                     p.instrumentName = instrument.Name;
-                    QMapIterator<QString,Parameter> iterator(instrument.parameters);
+                    // fill in default parameters
+                    p.parameters = instrument.parameters;
+                    //QMapIterator<QString,Parameter> iterator(instrument.parameters);
+                    /*
                     while (iterator.hasNext()){
                         p.parameters.append(iterator.next().value());
+                    }*/
+                    // replace parametervalues with possible set values
+                    QListIterator<Parameter> parameterIterator(instrumentParameters);
+                    while (parameterIterator.hasNext()){
+                        Parameter iParameter = parameterIterator.next();
+                        if (p.parameters.contains(iParameter.Name)){
+                            p.parameters[iParameter.Name].value = iParameter.value;
+                        }
                     }
                 }
 
                 instrumentName.clear();
+                instrumentParameters.clear();
                 currentPattern->append(p);
+                if (ch == ','){
+                    state = TRIGGER;
+                    continue;
+                }
                 if (ch == '}') {
                     state = TRACKPARAMETER;
                     continue;
@@ -115,10 +143,43 @@ void Parser::parseCode(QString code){
 
                 continue;
             }
-            if (ch != ' '){
+
+            if (ch != ' ') {
+                if (state == INSTRUMENTPARAMETER) {
+                    if (ch == ':'){
+                     state = INSTRUMENTPARAMETERVALUE;
+                    }
+                    else {
+                        instrumentParameter.append(ch);
+                    }
+                    continue;
+                }
+
+                else if (ch == '#'){
+                    if (state == INSTRUMENTPARAMETERVALUE && !instrumentParameter.isEmpty() && !instrumentParameterValue.isEmpty()){
+                        Parameter iParameter;
+                        iParameter.Name = instrumentParameter;
+                        iParameter.value = instrumentParameterValue.toDouble();
+                        instrumentParameters.append(iParameter);
+                    }
+                    state = INSTRUMENTPARAMETER;
+                    instrumentParameter.clear();
+                    instrumentParameterValue.clear();
+                    continue;
+                }
+                else if (state == INSTRUMENTPARAMETERVALUE) {
+                    instrumentParameterValue.append(ch);
+                    continue;
+                }
+
+
+            else {
                 instrumentName.append(ch);
+                continue;
+            }
             }
         }
+
 
         if (state == TRACKPARAMETER){
             if (ch=='$'){
@@ -388,30 +449,31 @@ void Parser::parseCsound(QString fileName){
 void Parser::displayInstruments(){
     QString instrumentMessage;
     QMapIterator<QString,InstrumentDefinition> iterator(instruments);
-    instrumentMessage.append("<html>load Csound file with following instrument definitions:<br>");
+    instrumentMessage.append("<html>load Csound file with following instrument definitions:<br><table border='1'>");
 
     while (iterator.hasNext()){
         InstrumentDefinition instrument = iterator.next().value();
-        instrumentMessage.append("<b>instrument <span style='color:#666;'>#");
+        instrumentMessage.append("<tr><td colspan=3><b>instrument <span style='color:#666;'>#");
 
         instrumentMessage.append(QString::number(instrument.instrNumber));
         instrumentMessage.append("</span><span style='color:#66F;'> ");
         instrumentMessage.append(instrument.Name);
-        instrumentMessage.append("</span> parameters:</b><br>");
+        instrumentMessage.append("</span> parameters:</b></td></tr>");
         QMapIterator<QString,Parameter> parameterIterator(instrument.parameters);
         while (parameterIterator.hasNext()) {
             parameterIterator.next();
-            instrumentMessage.append(tr("parameter <span style='color:#66F;'>"));
+            instrumentMessage.append(tr("<tr><td>parameter <span style='color:#66F;'>"));
             instrumentMessage.append(parameterIterator.key());
-            instrumentMessage.append("</span> pNumber: <span style='color:#666;'>");
+            instrumentMessage.append("</span></td><td>pNumber: <span style='color:#666;'>");
             Parameter parameter = parameterIterator.value();
             instrumentMessage.append(QString::number(parameter.pNumber));
-            instrumentMessage.append("</span> defaultValue: <span style='color:#666;'>");
+            instrumentMessage.append("</span></td><td>defaultValue: <span style='color:#666;'>");
             instrumentMessage.append(QString::number(parameter.value));
-            instrumentMessage.append("</span><br>");
+            instrumentMessage.append("</span></td></tr>");
         }
-        instrumentMessage.append("<br>");
+
     }
+    instrumentMessage.append("</table><br>");
     instrumentMessage.append("</html>");
     emit display(instrumentMessage);
 }
