@@ -20,17 +20,14 @@
 #include "QtCore/qcoreevent.h"
 #include "QtGui/qevent.h"
 
-//Coder::Coder()
-//{
-    Coder::Coder(QWidget *parent)
-        : QTextEdit(parent)
+Coder::Coder(QWidget *parent)
+    : QTextEdit(parent)
 
-    {
-        //EnterEater *keyPressEater = new EnterEater(this);
+{
+    //EnterEater *keyPressEater = new EnterEater(this);
 
-        this->installEventFilter(this);
-    }
-//}
+    this->installEventFilter(this);
+}
 
 bool Coder::eventFilter(QObject *obj, QEvent *event)
 {
@@ -38,6 +35,12 @@ bool Coder::eventFilter(QObject *obj, QEvent *event)
         //qDebug()<<"------";
         QKeyEvent* key = static_cast<QKeyEvent*>(event);
         if ((key->modifiers() & Qt::ShiftModifier) && ( (key->key()==Qt::Key_Enter) || (key->key()==Qt::Key_Return) )) {
+            // in case no selection was made, the current line shall be selected and parsed
+            QTextCursor cursor = textCursor();
+            if (!cursor.hasSelection()){
+                cursor.select(QTextCursor::LineUnderCursor);
+                setTextCursor(cursor);
+            }
             emit evaluation();
             //ui->console->clear();
             //ui->console->append(ui->textEdit->textCursor().selectedText());
