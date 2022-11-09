@@ -59,7 +59,8 @@ void Parser::parseCode(QString code){
     Track *currentTrack;
     PatternType *currentPattern;
     SequencesType *sequences;
-    QList<Parameter> instrumentParameters;
+    QMap<QString,Parameter> instrumentParameters;
+    QMap<QString, QMap<QString,Parameter> > formerParametersByInstrumentName;
 
     for(int i = 0; i< code.length(); i++)
     {
@@ -92,7 +93,12 @@ void Parser::parseCode(QString code){
                     Parameter iParameter;
                     iParameter.Name = instrumentParameter;
                     iParameter.value = instrumentParameterValue.toDouble();
-                    instrumentParameters.append(iParameter);
+                    instrumentParameters[instrumentParameter] = iParameter;
+                    //if (formerParametersByInstrumentName.contains(instrumentName)){
+                        QMap<QString,Parameter> formerParameters = formerParametersByInstrumentName[instrumentName];
+                        formerParameters[instrumentParameter] = iParameter;
+                        formerParametersByInstrumentName[instrumentName] = formerParameters;
+                    //}
                 }
 
                 PatternEvent p;
@@ -108,10 +114,11 @@ void Parser::parseCode(QString code){
                         p.parameters.append(iterator.next().value());
                     }*/
                     // replace parametervalues with possible set values
-                    QListIterator<Parameter> parameterIterator(instrumentParameters);
+                    QMapIterator<QString,Parameter> parameterIterator(instrumentParameters);
                     while (parameterIterator.hasNext()){
-                        Parameter iParameter = parameterIterator.next();
-                        if (p.parameters.contains(iParameter.Name)){
+                        parameterIterator.next();
+                        if (p.parameters.contains(parameterIterator.key())){ // only known parameters are set
+                            Parameter iParameter = parameterIterator.value();
                             p.parameters[iParameter.Name].value = iParameter.value;
                         }
                     }
@@ -149,6 +156,15 @@ void Parser::parseCode(QString code){
                     if (ch == ':'){
                      state = INSTRUMENTPARAMETERVALUE;
                     }
+
+                    else if (ch == '$') {
+                        // overide parameters with the last set ones
+                        if (formerParametersByInstrumentName.contains(instrumentName)){
+                            QMap<QString,Parameter> formerParameters = formerParametersByInstrumentName[instrumentName];
+                            instrumentParameters = formerParameters;
+                        }
+                    }
+
                     else {
                         instrumentParameter.append(ch);
                     }
@@ -160,7 +176,10 @@ void Parser::parseCode(QString code){
                         Parameter iParameter;
                         iParameter.Name = instrumentParameter;
                         iParameter.value = instrumentParameterValue.toDouble();
-                        instrumentParameters.append(iParameter);
+                        instrumentParameters[instrumentParameter] = iParameter;
+                        QMap<QString,Parameter> formerParameters = formerParametersByInstrumentName[instrumentName];
+                        formerParameters[instrumentParameter] = iParameter;
+                        formerParametersByInstrumentName[instrumentName] = formerParameters;
                     }
                     state = INSTRUMENTPARAMETER;
                     instrumentParameter.clear();
