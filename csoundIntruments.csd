@@ -13,117 +13,198 @@ nchnls = 2
 gaRevLeft 	init 0
 gaRevRight 	init 0
 
+gaBBLeft		init 0
+gaBBRight		init 0
+
 ; make random really random, rather
 seed 0
+
+giDistTable	ftgen	0,0, 257, 9, .5,1,270
 
 instr 1;fm
 
 iDur = p3 ;dur 0.1
 kcps = p4 ;pitch 30
-kvol = p5 ;vol 1
-kpan = p6 ;pan 0.5
-krev = p7 ;rev 0
-kcar = p8 ;car 4
+ivol = p5 ;vol 1
+ipan = p6 ;pan 0.5
+irev = p7 ;rev 0
+kcar = p8 ;car 1
 kmod = p9 ;ratio 2
+iBB = p10 ;bb 0
+
 kndx line 20, iDur, 0	;intensivy sidebands
 aexo expon 0.25, iDur, 0.0001
 
-asig foscili aexo, kcps, kcar, kmod, kndx, 1
-aleft, aright pan2 asig, kpan
+iphase = rnd(1)
+asig foscili aexo, kcps, kcar, kmod, kndx, 1,iphase
+aleft, aright pan2 asig*ivol*0.25, ipan
      outs aleft, aright
-gaRevLeft = gaRevLeft + aleft*krev
-gaRevRight = gaRevRight + aright*krev
+gaRevLeft = gaRevLeft + aleft*irev
+gaRevRight = gaRevRight + aright*irev
+gaBBLeft = gaBBLeft + aleft*iBB
+gaBBRight = gaBBRight + aright*iBB
+
+
 endin
 
 
 instr 2;tam
-kvol = p5 ;vol 1
-kpan = p6 ;pan 0.5
-krev = p7 ;rev 0
+ivol = p5 ;vol 1
+ipan = p6 ;pan 0.5
+irev = p7 ;rev 0
 kcutoff1   = p8;cut1 2000
 kcutoff2   = p9;cut2 1500
+iBB = p10 ;bb 0
 kfeedback1 = 0.26						;the sum of the two feedback
 kfeedback2 = 0.25						;values should not exceed  0.5
 asig tambourine .25, 0.01, 30, 0.5, 0.4,57,1024,223
 asig wguide2 asig, 120, 1200, kcutoff1, kcutoff2, kfeedback1, kfeedback2
 asig dcblock2 asig	
-asig = asig * 0.25
-aleft, aright pan2 asig, kpan
+asig = asig * 0.2 * ivol
+aleft, aright pan2 asig, ipan
      outs aleft, aright
-gaRevLeft = gaRevLeft + aleft*krev
-gaRevRight = gaRevRight + aright*krev
+gaRevLeft = gaRevLeft + aleft*irev
+gaRevRight = gaRevRight + aright*irev
+gaBBLeft = gaBBLeft + aleft*iBB
+gaBBRight = gaBBRight + aright*iBB
+
+
 endin
 
 
 instr 3;pwm
 iDur = p3 ;dur 0.13
-kcps = p4 ;pitch 30
-kvol = p5 ;vol 1
-kpan = p6 ;pan 0.5
-krev = p7 ;rev 0
+icps = p4 ;pitch 30
+ivol = p5 ;vol 1
+ipan = p6 ;pan 0.5
+irev = p7 ;rev 0
+iBB = p8 ;bb 0
 
-kdrop    expon 100, iDur, 50                   
+iphase = rnd(1)
+
+kdrop    expon icps*2, iDur, icps                   
 kpw     linseg 0.1, iDur/2, 0.9, iDur/2, 0.1        ; PWM example
-a1      vco2 0.25, kdrop, 2, kpw
+a1      vco2 0.25, kdrop, 2, kpw,iphase
 aenv    linseg 1, iDur - 0.1, 1, 0.1, 0 
-a1 = a1*aenv*0.25
-aleft, aright pan2 a1, kpan
+a1 = a1*aenv*0.20*ivol
+aleft, aright pan2 a1, ipan
      outs aleft, aright
-gaRevLeft = gaRevLeft + aleft*krev
-gaRevRight = gaRevRight + aright*krev
+gaRevLeft = gaRevLeft + aleft*irev
+gaRevRight = gaRevRight + aright*irev
+gaBBLeft = gaBBLeft + aleft*iBB
+gaBBRight = gaBBRight + aright*iBB
+
+
 endin
 
 
 
 instr 4;bd
-iDur = p3 ;dur 0.13
-kcps = p4 ;pitch 30
-kvol = p5 ;vol 1
-kpan = p6 ;pan 0.5
-krev = p7 ;rev 0
+iDur = p3 ;dur 0.70
+icps = p4 ;pitch 50
+ivol = p5 ;vol 1
+ipan = p6 ;pan 0.5
+irev = p7 ;rev 0
+idist = p8 ;dist 0
+iBB = p9 ;bb 0
 
 aboumEnv expon 0.5, iDur, 0.00001
-aboum vco2 0.25,kcps,4,0.6,0,0.33
+aboum vco2 0.25,icps,4,0.6,0,0.33
 
 aclickEnv expon 0.5,0.1,0.00001
 kclickEnv expon 400,0.13,0.00001
 aclick vco2 0.15,kclickEnv,4,0.6,0,0.22
 
 asig = aclick*aclickEnv + aboum*aboumEnv
-aleft, aright pan2 asig*0.25*kvol, kpan
+adist distort asig*0.7*ivol,idist,giDistTable
+aleft, aright pan2 adist, ipan
 	outs aleft, aright
-gaRevLeft = gaRevLeft + aleft*krev
-gaRevRight = gaRevRight + aright*krev
+gaRevLeft = gaRevLeft + aleft*irev
+gaRevRight = gaRevRight + aright*irev
+gaBBLeft = gaBBLeft + aleft*iBB
+gaBBRight = gaBBRight + aright*iBB
+
+
 endin
 
 
 
 instr 5;sd
-iDur = p3 ;dur 0.13
-kcps = p4 ;pitch 160
-kvol = p5 ;vol 1
-kpan = p6 ;pan 0.5
-krev = p7 ;rev 0
-kcut = p8 ;cut 200
+iDur = p3 ;dur 0.23
+icps = p4 ;pitch 160
+ivol = p5 ;vol 1
+ipan = p6 ;pan 0.5
+irev = p7 ;rev 0
+icut = p8 ;cut 200
+iBB = p10 ;bb 0
+iphase = rnd(1)
 
 aboumEnv expon 0.5, iDur, 0.00001
-aboum vco2 0.5,kcps,4,0.6,0,0.33
+aboum vco2 0.5,icps,4,0.6,iphase,0.33
 
 aclickEnv expon 0.5,0.1,0.00001
 kclickEnv expon 400,0.13,0.00001
+
 aclick vco2 0.25,kclickEnv,4,0.6,0,0.22
 
 anoiseEnv expon 0.5,0.2,0.00001
 anoise noise 0.2,-0.9
-ahp,alp,abp,abr statevar anoise, kcut, 4
+ahp,alp,abp,abr statevar anoise, icut, 4
 
 asig = aclick*aclickEnv + aboum*aboumEnv + ahp*anoiseEnv
-	aleft, aright pan2 asig*0.25*kvol, kpan
+asig =  asig*0.5*ivol
+	aleft, aright pan2 asig, ipan
 	outs aleft, aright
-gaRevLeft = gaRevLeft + aleft*krev
-gaRevRight = gaRevRight + aright*krev
+gaRevLeft = gaRevLeft + aleft*irev
+gaRevRight = gaRevRight + aright*irev
+
+gaBBLeft = gaBBLeft + aleft*iBB
+gaBBRight = gaBBRight + aright*iBB
+
 endin	
-      
+
+instr 6;bass
+idur = p3 ;dur 0.23
+icps = p4 ;pitch 160
+ivol = p5 ;vol 1
+ipan = p6 ;pan 0.5
+irev = p7 ;rev 0
+icut = p8 ;cut 200
+iBB = p10 ;bb 0
+iHarm = p11;harm 20
+ibuzzPhase = rnd(1)
+iphase = rnd(1)
+kfe  expon icut, idur*0.9, 30
+asig buzz  0.5, icps, iHarm, 1,ibuzzPhase
+asaw vco2  0.5,icps+0.1,0,0,iphase
+keg expon .5, idur, 0.000001
+afil moogladder asig + asaw, kfe, 0.1
+     afil =  afil*0.5*ivol
+	aleft, aright pan2 afil, ipan
+	outs aleft, aright
+gaRevLeft = gaRevLeft + aleft*irev
+gaRevRight = gaRevRight + aright*irev
+
+gaBBLeft = gaBBLeft + aleft*iBB
+gaBBRight = gaBBRight + aright*iBB
+
+endin
+
+instr 98
+
+ibps = 12
+isubdiv = 8
+ibarlength = 2
+iphrasebars = 2
+inumrepeats = 16
+
+
+aleft, aright bbcuts gaBBLeft, gaBBRight, ibps, isubdiv, ibarlength, iphrasebars, inumrepeats,1,0.7
+	      outs aleft, aright
+	      clear gaBBLeft,gaBBRight
+
+endin
+   
 instr 99
         denorm gaRevLeft, gaRevRight
 aL, aR  reverbsc gaRevLeft, gaRevRight, 0.85, 12000, sr, 0.5, 1
@@ -135,8 +216,8 @@ endin
 <CsScore>
 ; sine wave.
 f 1 0 32768 10 1
-
-i 99 0 3600
+i 98 0 36000
+i 99 0 36000
 e
 </CsScore>
 </CsoundSynthesizer>
