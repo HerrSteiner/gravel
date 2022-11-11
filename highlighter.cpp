@@ -26,7 +26,8 @@ highlighter::highlighter(QTextDocument *parent)
 
     keywordFormat.setForeground(Qt::blue);
     keywordFormat.setFontWeight(QFont::Bold);
-    const QString keywordPatterns[] = {
+    const QString keywordPatterns[] = {QStringLiteral("\\bstop\\b")};
+    /*
         QStringLiteral("\\blist\\b"), QStringLiteral("\\bclass\\b"), QStringLiteral("\\bconst\\b"),
         QStringLiteral("\\bdouble\\b"), QStringLiteral("\\benum\\b"), QStringLiteral("\\bexplicit\\b"),
         QStringLiteral("\\bfriend\\b"), QStringLiteral("\\binline\\b"), QStringLiteral("\\bint\\b"),
@@ -36,8 +37,8 @@ highlighter::highlighter(QTextDocument *parent)
         QStringLiteral("\\bslots\\b"), QStringLiteral("\\bstop\\b"), QStringLiteral("\\bstruct\\b"),
         QStringLiteral("\\btemplate\\b"), QStringLiteral("\\btypedef\\b"), QStringLiteral("\\btypename\\b"),
         QStringLiteral("\\bunion\\b"), QStringLiteral("\\bunsigned\\b"), QStringLiteral("\\bvirtual\\b"),
-        QStringLiteral("\\bvoid\\b"), QStringLiteral("\\bvolatile\\b"), QStringLiteral("\\bbool\\b")
-    };
+        QStringLiteral("\\bvolatile\\b"), QStringLiteral("\\bbool\\b")
+    };*/
     for (const QString &pattern : keywordPatterns) {
         rule.pattern = QRegularExpression(pattern);
         rule.format = keywordFormat;
@@ -48,17 +49,37 @@ highlighter::highlighter(QTextDocument *parent)
 
 //! [2]
 //!
+// track start
     patternFormat.setFontWeight(QFont::Bold);
-    patternFormat.setForeground(Qt::magenta);
-    rule.pattern = QRegularExpression(QStringLiteral("\\[[A-Za-z \\d :,\\(\\)]+\\]"));
+    patternFormat.setForeground(Qt::yellow);
+    rule.pattern = QRegularExpression(QStringLiteral("t[A-Za-z \\d]+:"));
     rule.format = patternFormat;
     highlightingRules.append(rule);
 
-    classFormat.setFontWeight(QFont::Bold);
-    classFormat.setForeground(Qt::darkMagenta);
-    rule.pattern = QRegularExpression(QStringLiteral("\\([A-Za-z \\d :,\\[\\]]+\\)"));
+    //patternFormat.setFontWeight(QFont::Bold);
+    patternFormat.setForeground(Qt::magenta);
+    rule.pattern = QRegularExpression(QStringLiteral("\\[[A-Za-z \\* \\# \\$ \\d :,.\\(\\)]+\\]"));
+    rule.format = patternFormat;
+    highlightingRules.append(rule);
+
+    //classFormat.setFontWeight(QFont::Bold);
+    classFormat.setForeground(QColor(50,255,255));
+    rule.pattern = QRegularExpression(QStringLiteral("\\{[A-Za-z \\* \\# \\$ \\d :,.\\(\\)]+\\}"));
     rule.format = classFormat;
     highlightingRules.append(rule);
+
+    // parameter
+    classFormat.setForeground(QColor(160,160,255));
+    rule.pattern = QRegularExpression(QStringLiteral("#[A-Za-z \\: . \\$ \\d]+[^# , \\] \\} ]"));
+    rule.format = classFormat;
+    highlightingRules.append(rule);
+
+
+    classFormat.setForeground(QColor(255,160,160));
+    rule.pattern = QRegularExpression(QStringLiteral("[\\: \\$ #]"));
+    rule.format = classFormat;
+    highlightingRules.append(rule);
+
 //! [2]
 
 //! [3]
