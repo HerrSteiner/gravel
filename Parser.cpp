@@ -28,6 +28,7 @@ typedef enum {
     SEQUENCE,
     EUCLID,
     TRIGGER,
+    AMOUNT,
     INSTRUMENTPARAMETER,
     INSTRUMENTPARAMETERVALUE,
     STOP,
@@ -61,6 +62,8 @@ void Parser::parseCode(QString code){
     SequencesType *sequences;
     QMap<QString,Parameter> instrumentParameters;
     QMap<QString, QMap<QString,Parameter> > formerParametersByInstrumentName;
+    int amountTriggers = 1;
+    QString amountString;
 
     for(int i = 0; i< code.length(); i++)
     {
@@ -86,7 +89,7 @@ void Parser::parseCode(QString code){
             currentPattern = new PatternType();
             continue;
         }
-        if (state == SEQUENCE || state == EUCLID || state == INSTRUMENTPARAMETERVALUE || state == TRIGGER || state == INSTRUMENTPARAMETER){
+        if (state == SEQUENCE || state == EUCLID || state == INSTRUMENTPARAMETERVALUE || state == TRIGGER || state == INSTRUMENTPARAMETER || state == AMOUNT){
             if (ch == ',' || ch == '}' || ch == ']') {
                 // first handle possible existing intrument parameter
                 if (state == INSTRUMENTPARAMETERVALUE && !instrumentParameter.isEmpty() && !instrumentParameterValue.isEmpty()){
@@ -95,13 +98,13 @@ void Parser::parseCode(QString code){
                     iParameter.value = instrumentParameterValue.toDouble();
                     instrumentParameters[instrumentParameter] = iParameter;
                     //if (formerParametersByInstrumentName.contains(instrumentName)){
-                        QMap<QString,Parameter> formerParameters = formerParametersByInstrumentName[instrumentName];
-                        formerParameters[instrumentParameter] = iParameter;
-                        formerParametersByInstrumentName[instrumentName] = formerParameters;
+                    QMap<QString,Parameter> formerParameters = formerParametersByInstrumentName[instrumentName];
+                    formerParameters[instrumentParameter] = iParameter;
+                    formerParametersByInstrumentName[instrumentName] = formerParameters;
                     //}
                 }
 
-                PatternEvent p;
+                PatternEvent p; // if no instrument is given it counts as a pause
                 if (instruments.contains(instrumentName)){
                     InstrumentDefinition instrument = instruments[instrumentName];
                     p.instrumentNumber = instrument.instrNumber;
@@ -126,11 +129,15 @@ void Parser::parseCode(QString code){
 
                 instrumentName.clear();
                 instrumentParameters.clear();
-                currentPattern->append(p);
-                if (ch == ','){
-                    state = TRIGGER;
-                    continue;
+                for (int amount = 0; amount < amountTriggers;amount++){
+                    currentPattern->append(p);
                 }
+                amountTriggers = 1; // per default only one note or pause is set
+
+                //if (ch == ','){
+                state = TRIGGER;
+                //    continue;
+                //}
                 if (ch == '}') {
                     state = TRACKPARAMETER;
                     continue;
@@ -154,7 +161,7 @@ void Parser::parseCode(QString code){
             if (ch != ' ') {
                 if (state == INSTRUMENTPARAMETER) {
                     if (ch == ':'){
-                     state = INSTRUMENTPARAMETERVALUE;
+                        state = INSTRUMENTPARAMETERVALUE;
                     }
 
                     else if (ch == '$') {
@@ -162,6 +169,8 @@ void Parser::parseCode(QString code){
                         if (formerParametersByInstrumentName.contains(instrumentName)){
                             QMap<QString,Parameter> formerParameters = formerParametersByInstrumentName[instrumentName];
                             instrumentParameters = formerParameters;
+                            state = INSTRUMENTPARAMETERVALUE;// so that other parameter still are possible after the former ones are written
+                            instrumentParameter.clear();// to make sure nothing is accidently set
                         }
                     }
 
@@ -171,8 +180,8 @@ void Parser::parseCode(QString code){
                     continue;
                 }
 
-                else if (ch == '#'){
-                    if (state == INSTRUMENTPARAMETERVALUE && !instrumentParameter.isEmpty() && !instrumentParameterValue.isEmpty()){
+                else if (ch == '#'){ // a new parameter is given
+                    if (state == INSTRUMENTPARAMETERVALUE && !instrumentParameter.isEmpty() && !instrumentParameterValue.isEmpty()){ // this parameter is precedet by another one, so store that first
                         Parameter iParameter;
                         iParameter.Name = instrumentParameter;
                         iParameter.value = instrumentParameterValue.toDouble();
@@ -190,12 +199,21 @@ void Parser::parseCode(QString code){
                     instrumentParameterValue.append(ch);
                     continue;
                 }
+                else if (ch == '*' && (state == TRIGGER || state == SEQUENCE || state == EUCLID)){
+                    state = AMOUNT;
+                    amountString.clear();
+                    continue;
+                }
+                else if (state == AMOUNT){
+                    amountString.append(ch);
+                    amountTriggers = amountString.toInt();
+                    continue;
+                }
 
-
-            else {
-                instrumentName.append(ch);
-                continue;
-            }
+                else {
+                    instrumentName.append(ch);
+                    continue;
+                }
             }
         }
 
@@ -316,10 +334,10 @@ void Parser::parseCode(QString code){
         }
 
         if (state == TRACKPARAMETER){ // should be at the end, catch all digits
-                if (ch.isDigit()){
-                   divisor.append(ch);
-                   continue;
-                }
+            if (ch.isDigit()){
+                divisor.append(ch);
+                continue;
+            }
         }
     }
 }
