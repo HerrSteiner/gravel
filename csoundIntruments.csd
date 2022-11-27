@@ -1,6 +1,6 @@
 <CsoundSynthesizer>
 <CsOptions>
--+rtaudio=auhal -odac5 -g -b 512
+-+rtaudio=auhal -odac1 -g -b 512
 </CsOptions>
 <CsInstruments>
 
@@ -19,6 +19,9 @@ gaBBRight		init 0
 gaWarpLeft	init 0
 gaWarpRight	init 0
 
+gaDelayLeft   init  0
+gaDelayRight  init  0
+
 ; make random really random, rather
 seed 0
 
@@ -33,11 +36,13 @@ ipan = p6 ;pan 0.5
 irev = p7 ;rev 0
 kcar = p8 ;car 1
 kmod = p9 ;ratio 2
-iBB = p10 ;bb 0
-iWarp = p11;warp 0
+iIndex = p10 ;index 20
+iBB = p11 ;bb 0
+iWarp = p12;warp 0
+iDelay = p13 ;delay 0
 
-kndx line 20, iDur, 0	;intensivy sidebands
-aexo expon 0.25, iDur, 0.0001
+kndx line iIndex, iDur, 0	;intensivy sidebands
+aexo expseg 0.00001, 0.01, 0.25, iDur, 0.00001
 
 iphase = rnd(1)
 asig foscili aexo, kcps, kcar, kmod, kndx, 1,iphase
@@ -49,7 +54,8 @@ gaBBLeft = gaBBLeft + aleft*iBB
 gaBBRight = gaBBRight + aright*iBB
 gaWarpLeft = gaWarpLeft + aleft*iWarp
 gaWarpRight = gaWarpRight + aright*iWarp
-
+gaDelayLeft = gaDelayLeft + aleft*iDelay
+gaDelayRight = gaDelayRight + aright*iDelay
 endin
 
 
@@ -61,6 +67,7 @@ kcutoff1   = p8;cut1 2000
 kcutoff2   = p9;cut2 1500
 iBB = p10 ;bb 0
 iWarp = p11;warp 0
+iDelay = p12 ;delay 0
 
 kfeedback1 = 0.26						;the sum of the two feedback
 kfeedback2 = 0.25						;values should not exceed  0.5
@@ -76,35 +83,48 @@ gaBBLeft = gaBBLeft + aleft*iBB
 gaBBRight = gaBBRight + aright*iBB
 gaWarpLeft = gaWarpLeft + aleft*iWarp
 gaWarpRight = gaWarpRight + aright*iWarp
+gaDelayLeft = gaDelayLeft + aleft*iDelay
+gaDelayRight = gaDelayRight + aright*iDelay
 
 endin
 
 
 instr 3;pwm
-iDur = p3 ;dur 0.13
-icps = p4 ;pitch 30
-ivol = p5 ;vol 1
-ipan = p6 ;pan 0.5
-irev = p7 ;rev 0
-iBB = p8 ;bb 0
-iWarp = p9;warp 0
+iDur = p3 ;dur 1
+icps = p4 ;pitch 40
+iCut = p5 ;cut 10000
+iAttack = p6 ;att 0.8
+iDecay = p7 ;dec 0.2
+ivol = p8 ;vol 1
+ipan = p9 ;pan 0.5
+irev = p10 ;rev 0
+iBB = p11 ;bb 0
+iWarp = p12;warp 0
+iDelay = p13 ;delay 0
 
 iphase = rnd(1)
 
 kdrop    expon icps*2, iDur, icps                   
-kpw     linseg 0.1, iDur/2, 0.9, iDur/2, 0.1        ; PWM example
-a1      vco2 0.25, kdrop, 2, kpw,iphase
+kpw     linseg 0.1, iAttack, 0.9, iDecay, 0.1        ; PWM example
+kFilter expseg 10,iAttack,iCut,iDecay,10
+
+aOsc      vco2 0.25, kdrop, 2, kpw,iphase
+
+afilter K35_lpf aOsc, kFilter, 3, 1, 1.1
 aenv    linseg 1, iDur - 0.1, 1, 0.1, 0 
-a1 = a1*aenv*0.20*ivol
-aleft, aright pan2 a1, ipan
+a1 = afilter*aenv*0.20*ivol
+
+aleft, aright pan2 a1*0.6, ipan
      outs aleft, aright
+
 gaRevLeft = gaRevLeft + aleft*irev
 gaRevRight = gaRevRight + aright*irev
 gaBBLeft = gaBBLeft + aleft*iBB
 gaBBRight = gaBBRight + aright*iBB
 gaWarpLeft = gaWarpLeft + aleft*iWarp
 gaWarpRight = gaWarpRight + aright*iWarp
-
+gaDelayLeft = gaDelayLeft + aleft*iDelay
+gaDelayRight = gaDelayRight + aright*iDelay
 endin
 
 
@@ -118,6 +138,8 @@ irev = p7 ;rev 0
 idist = p8 ;dist 0
 iBB = p9 ;bb 0
 iWarp = p10;warp 0
+iDelay = p11 ;delay 0
+
 iCompensation = ivol + ivol*(idist*2)
 
 aboumEnv expon 0.5, iDur, 0.00001
@@ -138,7 +160,8 @@ gaBBLeft = gaBBLeft + aleft*iBB
 gaBBRight = gaBBRight + aright*iBB
 gaWarpLeft = gaWarpLeft + aleft*iWarp
 gaWarpRight = gaWarpRight + aright*iWarp
-
+gaDelayLeft = gaDelayLeft + aleft*iDelay
+gaDelayRight = gaDelayRight + aright*iDelay
 endin
 
 
@@ -152,6 +175,7 @@ irev = p7 ;rev 0
 icut = p8 ;cut 200
 iBB = p10 ;bb 0
 iWarp = p11 ;warp 0
+iDelay = p12 ;delay 0
 
 iphase = rnd(1)
 
@@ -169,6 +193,7 @@ ahp,alp,abp,abr statevar anoise, icut, 4
 
 asig = aclick*aclickEnv + aboum*aboumEnv + ahp*anoiseEnv
 asig =  asig*0.5*ivol
+asig  = limit(asig, -1.0, 1.0)
 	aleft, aright pan2 asig, ipan
 	outs aleft, aright
 gaRevLeft = gaRevLeft + aleft*irev
@@ -180,27 +205,31 @@ gaBBRight = gaBBRight + aright*iBB
 gaWarpLeft = gaWarpLeft + aleft*iWarp
 gaWarpRight = gaWarpRight + aright*iWarp
 
+gaDelayLeft = gaDelayLeft + aleft*iDelay
+gaDelayRight = gaDelayRight + aright*iDelay
+
 endin	
 
 instr 6;bass
-idur = p3 ;dur 0.23
-icps = p4 ;pitch 160
+idur = p3 ;dur 0.1
+icps = p4 ;pitch 60
 ivol = p5 ;vol 1
 ipan = p6 ;pan 0.5
 irev = p7 ;rev 0
-icut = p8 ;cut 200
+icut = p8 ;cut 10000
 iBB = p10 ;bb 0
-iHarm = p11 ;harm 20
+iHarm = p11 ;harm 32
 iWarp = p12 ;warp 0
+iDelay = p13 ;delay 0
 
 ibuzzPhase = rnd(1)
 iphase = rnd(1)
-kfe  expon icut, idur*0.9, 30
+kfe  expon icut, idur*0.9, 10
 asig buzz  0.5, icps, iHarm, 1,ibuzzPhase
 asaw vco2  0.5,icps+0.1,0,0,iphase
 keg expon .5, idur, 0.000001
 afil moogladder asig + asaw, kfe, 0.1
-     afil =  afil*0.25*ivol
+     afil =  afil*0.22*ivol
 	aleft, aright pan2 afil, ipan
 	outs aleft, aright
 gaRevLeft = gaRevLeft + aleft*irev
@@ -212,8 +241,22 @@ gaBBRight = gaBBRight + aright*iBB
 gaWarpLeft = gaWarpLeft + aleft*iWarp
 gaWarpRight = gaWarpRight + aright*iWarp
 
+gaDelayLeft = gaDelayLeft + aleft*iDelay
+gaDelayRight = gaDelayRight + aright*iDelay
 endin
 
+
+instr 96
+iFdback =        0.7           ; feedback ratio
+aDelayLeft	init 0
+aDelayRight	init 0
+
+aDelayLeft  delay    gaDelayLeft+(aDelayLeft*iFdback), .5 ;delay 0.3 seconds
+aDelayRight delay    gaDelayRight+(aDelayRight*iFdback), .5
+        out      aDelayLeft, aDelayRight
+        clear gaDelayLeft,gaDelayRight
+  endin
+  
 instr 97
 
 ifftsize = 1024 * 2
@@ -238,7 +281,7 @@ aright	pvsynth fftblurRight
 	      clear gaWarpLeft,gaWarpRight
 endin
 
-
+ 
 instr 98
 
 ibps = 12
@@ -265,12 +308,21 @@ endin
 <CsScore>
 ; sine wave.
 f 1 0 32768 10 1
+i 96 0 36000
 i 97 0 36000
 i 98 0 36000
 i 99 0 36000
 e
 </CsScore>
 </CsoundSynthesizer>
+
+
+
+
+
+
+
+
 
 
 <bsbPanel>

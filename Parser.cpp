@@ -57,9 +57,9 @@ void Parser::parseCode(QString code){
     QChar ch;
     QString trackName,stopToken,stopParameter,divisor,instrumentName,instrumentParameter,instrumentParameterValue;
     QStringList stopParameters;
-    Track *currentTrack;
-    PatternType *currentPattern;
-    SequencesType *sequences;
+    Track *currentTrack = nullptr;
+    PatternType *currentPattern = nullptr;
+    SequencesType *sequences = nullptr;
     QMap<QString,Parameter> instrumentParameters;
     QMap<QString, QMap<QString,Parameter> > formerParametersByInstrumentName;
     int amountTriggers = 1;
@@ -79,17 +79,17 @@ void Parser::parseCode(QString code){
             stopToken.append(ch);
             continue;
         }
-        if (ch == '[') {
+        if (ch == '[' && !trackName.isEmpty()) {
             state = SEQUENCE;
             currentPattern = new PatternType();
             continue;
         }
-        if (ch == '{') {
+        if (ch == '{' && !trackName.isEmpty()) {
             state = EUCLID;
             currentPattern = new PatternType();
             continue;
         }
-        if (state == SEQUENCE || state == EUCLID || state == INSTRUMENTPARAMETERVALUE || state == TRIGGER || state == INSTRUMENTPARAMETER || state == AMOUNT){
+        if (!trackName.isEmpty() && (state == SEQUENCE || state == EUCLID || state == INSTRUMENTPARAMETERVALUE || state == TRIGGER || state == INSTRUMENTPARAMETER || state == AMOUNT)){
             if (ch == ',' || ch == '}' || ch == ']') {
                 // first handle possible existing intrument parameter
                 if (state == INSTRUMENTPARAMETERVALUE && !instrumentParameter.isEmpty() && !instrumentParameterValue.isEmpty()){
@@ -270,9 +270,11 @@ void Parser::parseCode(QString code){
 
             qDebug()<<"wrapping";
             if (state == TRACK){
+                if (currentTrack != nullptr){
                 state = NONE;
                 currentTrack->setSequences(*sequences);
                 tracks[trackName] = *currentTrack;
+                }
                 continue;
             }
 

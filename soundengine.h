@@ -23,7 +23,9 @@
 #include <QTimer>
 #include <QMap>
 #include <csound.hpp>
+//#include <csPerfThread.hpp>
 #include "csPerfThread.hpp"
+//#include "CsoundLib64/csPerfThread.hpp"
 #include "track.h"
 #include <QThread>
 #include "instrumentdefinition.h"
