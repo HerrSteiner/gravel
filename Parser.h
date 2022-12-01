@@ -21,6 +21,23 @@
 #include "soundengine.h"
 #include <QObject>
 #include <QMap>
+
+typedef enum {
+    NONE,
+    TOKEN,
+    TRACK,
+    TRACKPARAMETER,
+    TRACKNAME,
+    SEQUENCE,
+    EUCLID,
+    TRIGGER,
+    AMOUNT,
+    INSTRUMENTPARAMETER,
+    INSTRUMENTPARAMETERVALUE,
+    STOP,
+    STOPPARAMETER
+} States;
+
 class Parser : public QObject
 {
     Q_OBJECT
@@ -34,6 +51,11 @@ private:
     void fillPattern(PatternType *pattern,int max = 16);
     void displayInstruments();
     QMap<QString,InstrumentDefinition> instruments;
+    States state = NONE;
+    QString code;
+    int characterIndex;
+    int codeLength;
+    void parseStop();
 private slots:
     void setInstrumentDefinitions(QMap<QString,InstrumentDefinition>instrumentDefinitions);
 

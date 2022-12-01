@@ -27,8 +27,7 @@ set(PROJECT_SOURCES
         soundengine.cpp
         Parser.h
         Parser.cpp
-        Entereater.h
-        Entereater.cpp
+        csoundparser.h csoundparser.cpp
         coder.h
         coder.cpp
         track.h

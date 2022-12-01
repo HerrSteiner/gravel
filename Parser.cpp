@@ -19,21 +19,7 @@
 #include "Parser.h"
 #include "QtCore/QDebug"
 
-typedef enum {
-    NONE,
-    TOKEN,
-    TRACK,
-    TRACKPARAMETER,
-    TRACKNAME,
-    SEQUENCE,
-    EUCLID,
-    TRIGGER,
-    AMOUNT,
-    INSTRUMENTPARAMETER,
-    INSTRUMENTPARAMETERVALUE,
-    STOP,
-    STOPPARAMETER
-} States;
+
 
 Parser::Parser(QObject *parent)
     : QObject{parent}
@@ -42,9 +28,9 @@ Parser::Parser(QObject *parent)
 }
 
 void Parser::parseCode(QString code){
-    States state = NONE;
+    state = NONE;
     QChar ch;
-    QString trackName,stopToken,stopParameter,divisor,instrumentName,instrumentParameter,instrumentParameterValue;
+    QString trackName,divisor,instrumentName,instrumentParameter,instrumentParameterValue;
     QStringList stopParameters;
     Track *currentTrack = nullptr;
     PatternType *currentPattern = nullptr;
@@ -53,19 +39,21 @@ void Parser::parseCode(QString code){
     QMap<QString, QMap<QString,Parameter> > formerParametersByInstrumentName;
     int amountTriggers = 1;
     QString amountString;
+    this->code = code;
+    codeLength = code.length();
+    characterIndex = 0;
 
-    for(int i = 0; i< code.length(); i++)
-    {
-        ch = code.at(i);
+    do {
+        ch = code.at(characterIndex);
+        characterIndex++;
+
         if (ch == 't' && state == NONE){
             state = TRACKNAME;
             trackName.clear();
             continue;
         }
         if (ch == 's' && state == NONE){
-            state = STOP;
-            stopToken.clear();
-            stopToken.append(ch);
+            parseStop();
             continue;
         }
         if (ch == '[' && !trackName.isEmpty()) {
@@ -260,9 +248,9 @@ void Parser::parseCode(QString code){
             qDebug()<<"wrapping";
             if (state == TRACK){
                 if (currentTrack != nullptr){
-                state = NONE;
-                currentTrack->setSequences(*sequences);
-                tracks[trackName] = *currentTrack;
+                    state = NONE;
+                    currentTrack->setSequences(*sequences);
+                    tracks[trackName] = *currentTrack;
                 }
                 continue;
             }
@@ -285,6 +273,27 @@ void Parser::parseCode(QString code){
             trackName.append(ch);
             continue;
         }
+
+        if (state == TRACKPARAMETER){ // should be at the end, catch all digits
+            if (ch.isDigit()){
+                divisor.append(ch);
+                continue;
+            }
+        }
+    }
+while (characterIndex < codeLength);
+}
+
+void Parser::parseStop(){
+    QString stopToken,stopParameter;
+    QStringList stopParameters;
+    QChar ch;
+    state = STOP;
+    stopToken.clear();
+    stopToken.append('s');
+    do {
+        ch = code.at(characterIndex);
+        characterIndex++;
         if (state == STOP){
             stopToken.append(ch);
             if (stopToken == "stop"){
@@ -323,14 +332,7 @@ void Parser::parseCode(QString code){
             stopParameter.append(ch);
             continue;
         }
-
-        if (state == TRACKPARAMETER){ // should be at the end, catch all digits
-            if (ch.isDigit()){
-                divisor.append(ch);
-                continue;
-            }
-        }
-    }
+    }    while (characterIndex < codeLength);
 }
 
 void Parser::fillPattern(PatternType *pattern, int max){
