@@ -19,7 +19,6 @@
 #ifndef PARSER_H
 #define PARSER_H
 #include "soundengine.h"
-#include "track.h"
 #include <QObject>
 #include <QMap>
 class Parser : public QObject
@@ -30,15 +29,16 @@ public:
     void parseCode(QString code);
     TracksType tracks;
 public slots:
-    void parseCsound(QString fileName);
+    //void parseCsound(QString fileName);
 private:
     void fillPattern(PatternType *pattern,int max = 16);
     void displayInstruments();
     QMap<QString,InstrumentDefinition> instruments;
+private slots:
+    void setInstrumentDefinitions(QMap<QString,InstrumentDefinition>instrumentDefinitions);
 
 signals:
     void display(QString message);
-    void setInstrumentDefinitions(QMap<QString,InstrumentDefinition>instrumentDefinitions);
 };
 
 #endif // PARSER_H

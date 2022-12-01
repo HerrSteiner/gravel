@@ -40,13 +40,17 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(soundThread, SIGNAL(started()), soundEngine, SLOT(process()), Qt::QueuedConnection);
     soundThread->start(QThread::TimeCriticalPriority);
 
+    csoundParser = new CsoundParser();
+    QObject::connect(csoundParser,SIGNAL(display(QString)),ui->console,SLOT(append(QString)));
+
     parser = new Parser();
     QObject::connect(ui->textEdit, &Coder::evaluation, this, &MainWindow::evaluate);
 
     QObject::connect(parser,SIGNAL(display(QString)),ui->console,SLOT(append(QString)));
     QObject::connect(soundEngine,SIGNAL(display(QString)),ui->console,SLOT(append(QString)));
-    QObject::connect(soundEngine,SIGNAL(parseCsound(QString)),parser,SLOT(parseCsound(QString)));
-    QObject::connect(soundEngine,SIGNAL(setInstrumentDefinitions(QMap<QString,InstrumentDefinition>instrumentDefinitions)),parser,SLOT(setInstrumentDefinitions(QMap<QString,InstrumentDefinition>instrumentDefinitions)));
+    QObject::connect(soundEngine,SIGNAL(parseCsound(QString)),csoundParser,SLOT(parseCsound(QString)));
+    QObject::connect(csoundParser,SIGNAL(setInstrumentDefinitions(QMap<QString,InstrumentDefinition>)),parser,SLOT(setInstrumentDefinitions(QMap<QString,InstrumentDefinition>)));
+    QObject::connect(csoundParser,SIGNAL(setInstrumentDefinitions(QMap<QString,InstrumentDefinition>)),soundEngine,SLOT(setInstrumentDefinitions(QMap<QString,InstrumentDefinition>)));
 }
 
 MainWindow::~MainWindow()

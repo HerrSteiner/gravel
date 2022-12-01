@@ -23,6 +23,7 @@
 #include "highlighter.h"
 #include "soundengine.h"
 #include "Parser.h"
+#include "csoundparser.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -44,6 +45,7 @@ private:
     highlighter *highlighter;
     SoundEngine *soundEngine;
     Parser *parser;
+    CsoundParser *csoundParser;
     void loadCode(bool merge);
 private slots:
      void on_actionAbout_gravel_triggered();
