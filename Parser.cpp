@@ -28,10 +28,10 @@ Parser::Parser(QObject *parent)
 }
 
 void Parser::parseCode(QString code){
+    emit status("parsing...");
     state = NONE;
     QChar ch;
     QString trackName,divisor,instrumentName,instrumentParameter,instrumentParameterValue,error;
-    QStringList stopParameters;
 
     QMap<QString,Parameter> instrumentParameters;
     QMap<QString, QMap<QString,Parameter> > formerParametersByInstrumentName;
@@ -57,17 +57,17 @@ void Parser::parseCode(QString code){
             parseStop();
             continue;
         }
-        if (ch == '[' && !trackName.isEmpty()) {
+        if (ch == '[') {
             state = SEQUENCE;
             currentPattern = new PatternType();
             continue;
         }
-        if (ch == '{' && !trackName.isEmpty()) {
+        if (ch == '{') {
             state = EUCLID;
             currentPattern = new PatternType();
             continue;
         }
-        if (!trackName.isEmpty() && (state == SEQUENCE || state == EUCLID || state == INSTRUMENTPARAMETERVALUE || state == TRIGGER || state == INSTRUMENTPARAMETER || state == AMOUNT)){
+        if (state == SEQUENCE || state == EUCLID || state == INSTRUMENTPARAMETERVALUE || state == TRIGGER || state == INSTRUMENTPARAMETER || state == AMOUNT){
             if (ch == ',' || ch == '}' || ch == ']') {
                 // first handle possible existing intrument parameter
                 if (state == INSTRUMENTPARAMETERVALUE && !instrumentParameter.isEmpty() && !instrumentParameterValue.isEmpty()){
@@ -75,11 +75,11 @@ void Parser::parseCode(QString code){
                     iParameter.Name = instrumentParameter;
                     iParameter.value = instrumentParameterValue.toDouble();
                     instrumentParameters[instrumentParameter] = iParameter;
-                    //if (formerParametersByInstrumentName.contains(instrumentName)){
+
                     QMap<QString,Parameter> formerParameters = formerParametersByInstrumentName[instrumentName];
                     formerParameters[instrumentParameter] = iParameter;
                     formerParametersByInstrumentName[instrumentName] = formerParameters;
-                    //}
+
                 }
 
                 PatternEvent p; // if no instrument is given it counts as a pause
@@ -89,11 +89,7 @@ void Parser::parseCode(QString code){
                     p.instrumentName = instrument.Name;
                     // fill in default parameters
                     p.parameters = instrument.parameters;
-                    //QMapIterator<QString,Parameter> iterator(instrument.parameters);
-                    /*
-                    while (iterator.hasNext()){
-                        p.parameters.append(iterator.next().value());
-                    }*/
+
                     // replace parametervalues with possible set values
                     QMapIterator<QString,Parameter> parameterIterator(instrumentParameters);
                     while (parameterIterator.hasNext()){
@@ -105,17 +101,17 @@ void Parser::parseCode(QString code){
                     }
                 }
 
-                instrumentName.clear();
-                instrumentParameters.clear();
+
+                // applying the patternevent
                 for (int amount = 0; amount < amountTriggers;amount++){
                     currentPattern->append(p);
                 }
                 amountTriggers = 1; // per default only one note or pause is set
 
-                //if (ch == ','){
+                instrumentName.clear();
+                instrumentParameters.clear();
                 state = TRIGGER;
-                //    continue;
-                //}
+
                 if (ch == '}') {
                     state = TRACKPARAMETER;
                     continue;
@@ -220,7 +216,7 @@ void Parser::parseCode(QString code){
                 state = TRACK;
             }
             else {
-                qDebug()<<"error creating sequence";
+                error = "error creating sequence";
             }
             continue;
         }
@@ -242,13 +238,13 @@ void Parser::parseCode(QString code){
                     state = TRACK;
                 }
                 else {
-                    qDebug()<<"error creating sequence";
+                    error = "error creating sequence";
                 }
             }
 
             qDebug()<<"wrapping";
             if (state == TRACK){
-                if (currentTrack != nullptr){
+                if (currentTrack != nullptr && sequences != nullptr){
                     state = NONE;
                     currentTrack->setSequences(*sequences);
                     tracks[trackName] = *currentTrack;
@@ -258,8 +254,6 @@ void Parser::parseCode(QString code){
 
         }
 
-
-
         if (state == TRACKPARAMETER){ // should be at the end, catch all digits
             if (ch.isDigit()){
                 divisor.append(ch);
@@ -267,7 +261,13 @@ void Parser::parseCode(QString code){
             }
         }
     }
-while (characterIndex < codeLength && error.length() == 0);
+    while (characterIndex < codeLength && error.length() == 0);
+    if (error.length() > 0) {
+        emit status(error);
+    }
+    else {
+        emit status("parsing successful");
+    }
 }
 
 /**

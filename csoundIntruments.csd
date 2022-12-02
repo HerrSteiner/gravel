@@ -1,6 +1,6 @@
 <CsoundSynthesizer>
 <CsOptions>
--+rtaudio=auhal -odac1 -g -b 512
+-+rtaudio=auhal -odac3 -g -b 512
 </CsOptions>
 <CsInstruments>
 
@@ -315,6 +315,8 @@ i 99 0 36000
 e
 </CsScore>
 </CsoundSynthesizer>
+
+
 
 
 

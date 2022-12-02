@@ -67,6 +67,7 @@ private slots:
 
 signals:
     void display(QString message);
+    void status(QString message);
 };
 
 #endif // PARSER_H
