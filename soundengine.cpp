@@ -30,7 +30,7 @@ SoundEngine::SoundEngine(QObject *parent)
 
 void SoundEngine::process(void)
 {
-    qDebug() << "worker process";       //This works
+    //qDebug() << "worker process";       //This works
 
     // start Csound thread
     Csound *csound = new Csound();
@@ -52,17 +52,22 @@ void SoundEngine::process(void)
         qDebug()<<"this thread "<<QThread::currentThread();
 
         // setup sequencer clock
-        //60*4 / BPM = 1 Bar in s
-        int rate =  54;
-        QTimer *timer = new QTimer(this);
+        timer = new QTimer(this);
         timer->setTimerType(Qt::PreciseTimer);
         connect(timer,SIGNAL(timeout()),this,SLOT(seqStep()));
-        timer->start(rate);
+        setBPM(140);
 
     }
     else {
-        qDebug()<<"Csound error";
+        emit status("Csound error");
     }
+}
+
+void SoundEngine::setBPM(int bpm){
+
+    int rate = (int)(((60.f * 4.f) / (float)bpm) * 32.f); // clock resolution is 32 step
+    if (rate == 0) rate = 1; // precautions
+    timer->start(rate);
 }
 
 /*
@@ -82,7 +87,7 @@ void SoundEngine::seqStep()
     while (trackIterator.hasNext()) {
         trackIterator.next();
         Track currentTrack = trackIterator.value();
-        qDebug()<<"process track: "<<trackIterator.key();
+        //qDebug()<<"process track: "<<trackIterator.key();
         QList<PatternEvent> patternEvents = currentTrack.getNextEvents();
         QListIterator<PatternEvent> eventIterator(patternEvents);
         while (eventIterator.hasNext()){
@@ -126,7 +131,7 @@ void SoundEngine::seqStep()
 
                 //const double parameters[3] = {e.instrumentNumber,0,1.};
                 this->perfThread->ScoreEvent( false,'i', pArray.count(), pArray.constData());
-                qDebug()<<"trigger instr: "<< e.instrumentNumber;
+                //qDebug()<<"trigger instr: "<< e.instrumentNumber;
             }
         }
         tickedTracks[trackIterator.key()] = currentTrack;

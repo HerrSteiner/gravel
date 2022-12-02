@@ -47,6 +47,7 @@ private:
     //QList<int> patternA;
     //QList<int> patternB;
     QMap<QString,InstrumentDefinition> instruments;
+
     //bool playPatternA;
     //bool swapPattern;
     //int seqIndex;
@@ -55,12 +56,14 @@ protected:
     // void timerEvent(QTimerEvent *event) override;
 public slots:
     void process();
+    void setBPM(int bpm);
 
 private slots:
     void seqStep();
     void setInstrumentDefinitions(QMap<QString,InstrumentDefinition>instrumentDefinitions);
 signals:
     void display(QString message);
+    void status(QString message);
     void parseCsound(QString fileName);
 };
 

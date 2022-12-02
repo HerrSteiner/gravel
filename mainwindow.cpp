@@ -53,6 +53,7 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(csoundParser,SIGNAL(setInstrumentDefinitions(QMap<QString,InstrumentDefinition>)),soundEngine,SLOT(setInstrumentDefinitions(QMap<QString,InstrumentDefinition>)));
 
     QObject::connect(parser,SIGNAL(status(QString)),statusBar(),SLOT(showMessage(QString)));
+    QObject::connect(parser,SIGNAL(setBPM(int)),soundEngine,SLOT(setBPM(int)));
 }
 
 MainWindow::~MainWindow()

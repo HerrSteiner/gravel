@@ -35,7 +35,9 @@ typedef enum {
     INSTRUMENTPARAMETER,
     INSTRUMENTPARAMETERVALUE,
     STOP,
-    STOPPARAMETER
+    STOPPARAMETER,
+    BPM,
+    BPMPARAMETER
 } States;
 
 class Parser : public QObject
@@ -52,7 +54,7 @@ private:
     void displayInstruments();
     QMap<QString,InstrumentDefinition> instruments;
     States state = NONE;
-    QString code;
+    QString code,error,message;
     int characterIndex;
     int codeLength;
     Track *currentTrack = nullptr;
@@ -60,6 +62,7 @@ private:
     SequencesType *sequences = nullptr;
 
     void parseStop();
+    void parseBPM();
     QString parseTrackName();
 
 private slots:
@@ -68,6 +71,7 @@ private slots:
 signals:
     void display(QString message);
     void status(QString message);
+    void setBPM(int bpm);
 };
 
 #endif // PARSER_H

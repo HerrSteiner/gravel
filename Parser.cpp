@@ -31,7 +31,7 @@ void Parser::parseCode(QString code){
     emit status("parsing...");
     state = NONE;
     QChar ch;
-    QString trackName,divisor,instrumentName,instrumentParameter,instrumentParameterValue,error;
+    QString trackName,divisor,instrumentName,instrumentParameter,instrumentParameterValue;
 
     QMap<QString,Parameter> instrumentParameters;
     QMap<QString, QMap<QString,Parameter> > formerParametersByInstrumentName;
@@ -40,7 +40,8 @@ void Parser::parseCode(QString code){
     this->code = code;
     codeLength = code.length();
     characterIndex = 0;
-
+    error.clear();
+    message.clear();
     do {
         ch = code.at(characterIndex);
         characterIndex++;
@@ -55,6 +56,10 @@ void Parser::parseCode(QString code){
         }
         if (ch == 's' && state == NONE){
             parseStop();
+            continue;
+        }
+        if (ch == 'b' && state == NONE){
+            parseBPM();
             continue;
         }
         if (ch == '[') {
@@ -266,7 +271,8 @@ void Parser::parseCode(QString code){
         emit status(error);
     }
     else {
-        emit status("parsing successful");
+        if (message.length() == 0) message = "parsing successful";
+        emit status(message);
     }
 }
 
@@ -350,6 +356,40 @@ void Parser::parseStop(){
             continue;
         }
     }    while (characterIndex < codeLength);
+}
+
+void Parser::parseBPM(){
+    QString bpmToken,bpmParameter;
+    QChar ch;
+    state = BPM;
+    bpmToken.clear();
+    bpmToken.append('b');
+    do {
+        ch = code.at(characterIndex);
+        characterIndex++;
+        if (state == BPM){
+            bpmToken.append(ch);
+            if (bpmToken == "bpm"){
+                state = BPMPARAMETER;
+                bpmParameter.clear();
+            }
+            continue;
+        }
+        if (state == BPMPARAMETER){
+            if (ch== ';') {
+               int bpm = bpmParameter.toInt();
+               emit setBPM(bpm);
+               message = "set bpm to "+bpmParameter;
+               return;
+            }
+
+            if (ch >= '0' && ch<='9'){
+               bpmParameter.append(ch);
+            }
+            continue;
+        }
+    }    while (characterIndex < codeLength);
+    error = ("error setting the bpm");
 }
 
 void Parser::fillPattern(PatternType *pattern, int max){
