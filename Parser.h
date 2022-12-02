@@ -55,7 +55,13 @@ private:
     QString code;
     int characterIndex;
     int codeLength;
+    Track *currentTrack = nullptr;
+    PatternType *currentPattern = nullptr;
+    SequencesType *sequences = nullptr;
+
     void parseStop();
+    QString parseTrackName();
+
 private slots:
     void setInstrumentDefinitions(QMap<QString,InstrumentDefinition>instrumentDefinitions);
 

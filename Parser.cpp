@@ -30,11 +30,9 @@ Parser::Parser(QObject *parent)
 void Parser::parseCode(QString code){
     state = NONE;
     QChar ch;
-    QString trackName,divisor,instrumentName,instrumentParameter,instrumentParameterValue;
+    QString trackName,divisor,instrumentName,instrumentParameter,instrumentParameterValue,error;
     QStringList stopParameters;
-    Track *currentTrack = nullptr;
-    PatternType *currentPattern = nullptr;
-    SequencesType *sequences = nullptr;
+
     QMap<QString,Parameter> instrumentParameters;
     QMap<QString, QMap<QString,Parameter> > formerParametersByInstrumentName;
     int amountTriggers = 1;
@@ -49,7 +47,10 @@ void Parser::parseCode(QString code){
 
         if (ch == 't' && state == NONE){
             state = TRACKNAME;
-            trackName.clear();
+            trackName = parseTrackName();
+            if (trackName.isEmpty()) {
+                error = "trackname error";
+            }
             continue;
         }
         if (ch == 's' && state == NONE){
@@ -257,22 +258,7 @@ void Parser::parseCode(QString code){
 
         }
 
-        if (state == TRACKNAME){
-            if (ch == ':'){
-                state = TRACK;
-                if (tracks.contains(trackName)){
-                    currentTrack = &tracks[trackName];
-                }
-                else {
-                    currentTrack = new Track();
-                    currentTrack->name = trackName;
-                }
-                sequences = new SequencesType();
-                continue;
-            }
-            trackName.append(ch);
-            continue;
-        }
+
 
         if (state == TRACKPARAMETER){ // should be at the end, catch all digits
             if (ch.isDigit()){
@@ -281,7 +267,38 @@ void Parser::parseCode(QString code){
             }
         }
     }
-while (characterIndex < codeLength);
+while (characterIndex < codeLength && error.length() == 0);
+}
+
+/**
+ * @brief Parser::parseTrackName
+ * parses trackname and initialize further track properties in case of success
+ * @return trackname or empty string
+ */
+QString Parser::parseTrackName(){
+    state = TRACKNAME;
+    QChar ch;
+    QString trackName;
+    do {
+        ch = code.at(characterIndex);
+        characterIndex++;
+        if (ch == ':'){
+            state = TRACK;
+            if (tracks.contains(trackName)){
+                currentTrack = &tracks[trackName];
+            }
+            else {
+                currentTrack = new Track();
+                currentTrack->name = trackName;
+            }
+            sequences = new SequencesType();
+            return trackName;// we got a trackname and setup everything for things to come
+        }
+        trackName.append(ch);
+    }
+    while (characterIndex < codeLength);
+    // if we end up here then there was no valid trackname so return empty string to signalise error
+    return "";
 }
 
 void Parser::parseStop(){
