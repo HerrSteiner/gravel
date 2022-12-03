@@ -16,18 +16,37 @@
    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef INSTRUMENTDEFINITION_H
-#define INSTRUMENTDEFINITION_H
-#import <QtCore>
-#import "parameter.h"
+#ifndef PARAMETER_H
+#define PARAMETER_H
 
-class InstrumentDefinition
+#import <QRandomGenerator>
+#import <QString>
+#import <QLIST>
+
+typedef enum {
+    SINGLE,
+    ARRAY,
+    RANDOM
+} ParameterMode;
+class Parameter
 {
+
 public:
-    InstrumentDefinition();
-    QString Name; // the name used in live code score
-    int instrNumber; // the number of the Csound intrument
-    QMap<QString,Parameter> parameters; // list of parameters, mapped against their name to use in Gravel
+
+    Parameter();
+    ParameterMode mode = SINGLE;
+    QString Name;
+    int pNumber; // the number of the p in Csound
+    double value;
+    QList <double> valueArray;
+    void setRandomRange(double min,double max);
+    int arrayIndex = 0;
+    double getValue();
+private:
+    QRandomGenerator randomGenerator;
+
+    double randomMax = 1;
+    double randomMin = 0;
 };
 
-#endif // INSTRUMENTDEFINITION_H
+#endif // PARAMETER_H

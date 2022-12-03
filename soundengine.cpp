@@ -89,13 +89,14 @@ void SoundEngine::seqStep()
         Track currentTrack = trackIterator.value();
         //qDebug()<<"process track: "<<trackIterator.key();
         QList<PatternEvent> patternEvents = currentTrack.getNextEvents();
-        QListIterator<PatternEvent> eventIterator(patternEvents);
+        QMutableListIterator<PatternEvent> eventIterator(patternEvents);
+        QMap<QString,Parameter> updatedParameters;
         while (eventIterator.hasNext()){
             PatternEvent e = eventIterator.next();
             if (e.instrumentNumber > 0) {
                 double duration = 1.;
                 QMap<QString,Parameter> parameters = e.parameters;
-                QMapIterator<QString,Parameter> pIterator(parameters);
+                QMutableMapIterator<QString,Parameter> pIterator(parameters);
                 int highestPNumber = 3;
                 while (pIterator.hasNext()){
                     Parameter p = pIterator.next().value();
@@ -110,29 +111,53 @@ void SoundEngine::seqStep()
                 pArray.append(e.instrumentNumber);
                 pArray.append(0);
                 pArray.append(duration);
+
                 Parameter *p;
                 for (int pIndex = 4; pIndex <= highestPNumber;pIndex++){
                     pIterator.toFront();
+                    QMap<QString,Parameter>::const_iterator citerator;
                     p = nullptr;
+                    /*
+                    for (citerator = parameters.constBegin();citerator != parameters.constEnd();++citerator){
+                        Parameter pa = *citerator;
+                        if (pa.pNumber == pIndex){
+                         p = &pa;
+                         break;
+                        }
+                    }*/
+
                     while (pIterator.hasNext()){
-                         Parameter pa = pIterator.next().value();
+                         pIterator.next();
+                         Parameter pa = pIterator.value();
                          if (pa.pNumber == pIndex){
                           p = &pa;
                           break;
                          }
                     }
                     if (p != nullptr){
-                        pArray.append(p->value);
+                        pArray.append(p->getValue());
+                        pIterator.setValue(*p);
+                        //*citerator->arrayIndex = *p->arrayIndex;
+                        //updatedParameters[pIterator.key()] = *p;
                     }
                     else {
                         pArray.append(0);
                     }
                 }
-
+                /*
+                if (!updatedParameters.isEmpty()) {
+                    QMapIterator<QString,Parameter> updateIterator(updatedParameters);
+                    while (updateIterator.hasNext()){
+                        updateIterator.next();
+                        e.parameters[updateIterator.key()] = updateIterator.value();
+                    }
+                    updatedParameters.clear();
+                }*/
                 //const double parameters[3] = {e.instrumentNumber,0,1.};
                 this->perfThread->ScoreEvent( false,'i', pArray.count(), pArray.constData());
                 //qDebug()<<"trigger instr: "<< e.instrumentNumber;
             }
+
         }
         tickedTracks[trackIterator.key()] = currentTrack;
     }

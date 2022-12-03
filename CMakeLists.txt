@@ -35,6 +35,7 @@ set(PROJECT_SOURCES
         sequence.h sequence.cpp
         patternEvent.h patternEvent.cpp
         instrumentdefinition.h instrumentdefinition.cpp
+        parameter.h parameter.cpp
 )
 
 

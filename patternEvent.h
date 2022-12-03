@@ -19,8 +19,8 @@
 #ifndef PATTERNEVENT_H
 #define PATTERNEVENT_H
 
-#import <QList>
-#import "instrumentdefinition.h"
+#include "parameter.h"
+#import <QMap>
 
 class PatternEvent
 {

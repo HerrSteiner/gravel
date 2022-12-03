@@ -37,6 +37,8 @@ void Parser::parseCode(QString code){
     QMap<QString, QMap<QString,Parameter> > formerParametersByInstrumentName;
     int amountTriggers = 1;
     QString amountString;
+    QList<double>valueList;
+    ParameterMode parameterMode = SINGLE;
     this->code = code;
     codeLength = code.length();
     characterIndex = 0;
@@ -62,12 +64,12 @@ void Parser::parseCode(QString code){
             parseBPM();
             continue;
         }
-        if (ch == '[') {
+        if (ch == '[' && state == TRACK) {
             state = SEQUENCE;
             currentPattern = new PatternType();
             continue;
         }
-        if (ch == '{') {
+        if (ch == '{' && state == TRACK) {
             state = EUCLID;
             currentPattern = new PatternType();
             continue;
@@ -75,10 +77,20 @@ void Parser::parseCode(QString code){
         if (state == SEQUENCE || state == EUCLID || state == INSTRUMENTPARAMETERVALUE || state == TRIGGER || state == INSTRUMENTPARAMETER || state == AMOUNT){
             if (ch == ',' || ch == '}' || ch == ']') {
                 // first handle possible existing intrument parameter
-                if (state == INSTRUMENTPARAMETERVALUE && !instrumentParameter.isEmpty() && !instrumentParameterValue.isEmpty()){
+                if (state == INSTRUMENTPARAMETERVALUE && !instrumentParameter.isEmpty() && (!instrumentParameterValue.isEmpty() || !valueList.isEmpty())){
                     Parameter iParameter;
                     iParameter.Name = instrumentParameter;
-                    iParameter.value = instrumentParameterValue.toDouble();
+                    switch (parameterMode) {
+                    default:
+                    case SINGLE:
+                        iParameter.value = instrumentParameterValue.toDouble();
+                        break;
+                    case ARRAY:
+                        iParameter.valueArray = valueList;
+                        iParameter.mode = ARRAY;
+                        break;
+                    }
+
                     instrumentParameters[instrumentParameter] = iParameter;
 
                     QMap<QString,Parameter> formerParameters = formerParametersByInstrumentName[instrumentName];
@@ -101,7 +113,8 @@ void Parser::parseCode(QString code){
                         parameterIterator.next();
                         if (p.parameters.contains(parameterIterator.key())){ // only known parameters are set
                             Parameter iParameter = parameterIterator.value();
-                            p.parameters[iParameter.Name].value = iParameter.value;
+                            iParameter.pNumber = p.parameters[iParameter.Name].pNumber;// set the Csound parameter number on the new parameter
+                            p.parameters[iParameter.Name] = iParameter;
                         }
                     }
                 }
@@ -141,6 +154,7 @@ void Parser::parseCode(QString code){
                 if (state == INSTRUMENTPARAMETER) {
                     if (ch == ':'){
                         state = INSTRUMENTPARAMETERVALUE;
+                        parameterMode = SINGLE;
                     }
 
                     else if (ch == '$') {
@@ -160,10 +174,20 @@ void Parser::parseCode(QString code){
                 }
 
                 else if (ch == '#'){ // a new parameter is given
-                    if (state == INSTRUMENTPARAMETERVALUE && !instrumentParameter.isEmpty() && !instrumentParameterValue.isEmpty()){ // this parameter is precedet by another one, so store that first
+                    if (state == INSTRUMENTPARAMETERVALUE && !instrumentParameter.isEmpty()){ // this parameter is precedet by another one, so store that first
                         Parameter iParameter;
                         iParameter.Name = instrumentParameter;
-                        iParameter.value = instrumentParameterValue.toDouble();
+                        switch (parameterMode) {
+                        default:
+                        case SINGLE:
+                            iParameter.value = instrumentParameterValue.toDouble();
+                            break;
+                        case ARRAY:
+                            iParameter.valueArray = valueList;
+                            iParameter.mode = ARRAY;
+                            break;
+                        }
+
                         instrumentParameters[instrumentParameter] = iParameter;
                         QMap<QString,Parameter> formerParameters = formerParametersByInstrumentName[instrumentName];
                         formerParameters[instrumentParameter] = iParameter;
@@ -175,9 +199,19 @@ void Parser::parseCode(QString code){
                     continue;
                 }
                 else if (state == INSTRUMENTPARAMETERVALUE) {
-                    instrumentParameterValue.append(ch);
+                    if (ch=='[') {
+                        state = INSTRUMENTPARAMETERVALUELIST;
+                        valueList.clear();
+                        instrumentParameterValue.clear();
+                        parameterMode = ARRAY;
+                        continue;
+                    }
+                    if ((ch >= '0' && ch <= '9') || ch == '.'){
+                        instrumentParameterValue.append(ch);
+                    }
                     continue;
                 }
+
                 else if (ch == '*' && (state == TRIGGER || state == SEQUENCE || state == EUCLID)){
                     state = AMOUNT;
                     amountString.clear();
@@ -196,6 +230,25 @@ void Parser::parseCode(QString code){
             }
         }
 
+        if (state == INSTRUMENTPARAMETERVALUELIST){
+            if (ch == ','){
+                valueList.append(instrumentParameterValue.toDouble());
+                instrumentParameterValue.clear();
+                continue;
+            }
+            if (ch == ']'){
+                state = INSTRUMENTPARAMETERVALUE;
+                if (!instrumentParameterValue.isEmpty()){
+                    valueList.append(instrumentParameterValue.toDouble());
+                    instrumentParameterValue.clear();
+                }
+                continue;
+            }
+            if ((ch >= '0' && ch <= '9') || ch == '.'){
+                instrumentParameterValue.append(ch);
+            }
+            continue;
+        }
 
         if (state == TRACKPARAMETER){
             if (ch=='$'){
