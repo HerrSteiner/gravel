@@ -27,7 +27,7 @@ public:
     InstrumentDefinition();
     QString Name; // the name used in live code score
     int instrNumber; // the number of the Csound intrument
-    QMap<QString,Parameter> parameters; // list of parameters, mapped against their name to use in Gravel
+    QMap<QString,Parameter*> parameters; // list of parameters, mapped against their name to use in Gravel
 };
 
 #endif // INSTRUMENTDEFINITION_H

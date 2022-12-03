@@ -29,7 +29,7 @@ public:
     PatternEvent();
     double instrumentNumber;
     QString instrumentName;
-    QMap<QString,Parameter> parameters;
+    QMap<QString,Parameter*> parameters;
 };
 
 #endif // PATTERNEVENT_H

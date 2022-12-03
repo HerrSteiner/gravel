@@ -33,8 +33,8 @@ void Parser::parseCode(QString code){
     QChar ch;
     QString trackName,divisor,instrumentName,instrumentParameter,instrumentParameterValue;
 
-    QMap<QString,Parameter> instrumentParameters;
-    QMap<QString, QMap<QString,Parameter> > formerParametersByInstrumentName;
+    QMap<QString,Parameter*> instrumentParameters;
+    QMap<QString, QMap<QString,Parameter*> > formerParametersByInstrumentName;
     int amountTriggers = 1;
     QString amountString;
     QList<double>valueList;
@@ -91,10 +91,10 @@ void Parser::parseCode(QString code){
                         break;
                     }
 
-                    instrumentParameters[instrumentParameter] = iParameter;
+                    instrumentParameters[instrumentParameter] = &iParameter;
 
-                    QMap<QString,Parameter> formerParameters = formerParametersByInstrumentName[instrumentName];
-                    formerParameters[instrumentParameter] = iParameter;
+                    QMap<QString,Parameter*> formerParameters = formerParametersByInstrumentName[instrumentName];
+                    formerParameters[instrumentParameter] = &iParameter;
                     formerParametersByInstrumentName[instrumentName] = formerParameters;
 
                 }
@@ -105,16 +105,21 @@ void Parser::parseCode(QString code){
                     p.instrumentNumber = instrument.instrNumber;
                     p.instrumentName = instrument.Name;
                     // fill in default parameters
-                    p.parameters = instrument.parameters;
+                    p.parameters = instrument.parameters;// .parameters;
 
                     // replace parametervalues with possible set values
-                    QMapIterator<QString,Parameter> parameterIterator(instrumentParameters);
+                    QMapIterator<QString,Parameter*> parameterIterator(instrumentParameters);
                     while (parameterIterator.hasNext()){
                         parameterIterator.next();
                         if (p.parameters.contains(parameterIterator.key())){ // only known parameters are set
-                            Parameter iParameter = parameterIterator.value();
-                            iParameter.pNumber = p.parameters[iParameter.Name].pNumber;// set the Csound parameter number on the new parameter
-                            p.parameters[iParameter.Name] = iParameter;
+                            Parameter *iParameter = parameterIterator.value();
+                            //iParameter->pNumber = p.parameters[iParameter->Name]->pNumber;// set the Csound parameter number on the new parameter
+                            //p.parameters[iParameter->Name] = iParameter;
+
+                             p.parameters[iParameter->Name]->mode = iParameter->mode;
+                             p.parameters[iParameter->Name]->value = iParameter->value;
+                              p.parameters[iParameter->Name]->valueArray = iParameter->valueArray;
+
                         }
                     }
                 }
@@ -160,7 +165,7 @@ void Parser::parseCode(QString code){
                     else if (ch == '$') {
                         // overide parameters with the last set ones
                         if (formerParametersByInstrumentName.contains(instrumentName)){
-                            QMap<QString,Parameter> formerParameters = formerParametersByInstrumentName[instrumentName];
+                            QMap<QString,Parameter*> formerParameters = formerParametersByInstrumentName[instrumentName];
                             instrumentParameters = formerParameters;
                             state = INSTRUMENTPARAMETERVALUE;// so that other parameter still are possible after the former ones are written
                             instrumentParameter.clear();// to make sure nothing is accidently set
@@ -188,9 +193,9 @@ void Parser::parseCode(QString code){
                             break;
                         }
 
-                        instrumentParameters[instrumentParameter] = iParameter;
-                        QMap<QString,Parameter> formerParameters = formerParametersByInstrumentName[instrumentName];
-                        formerParameters[instrumentParameter] = iParameter;
+                        instrumentParameters[instrumentParameter] = &iParameter;
+                        QMap<QString,Parameter*> formerParameters = formerParametersByInstrumentName[instrumentName];
+                        formerParameters[instrumentParameter] = &iParameter;
                         formerParametersByInstrumentName[instrumentName] = formerParameters;
                     }
                     state = INSTRUMENTPARAMETER;

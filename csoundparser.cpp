@@ -138,7 +138,9 @@ void CsoundParser::parseCsound(QString fileName){
                     currentToken.clear();
                     state = PARAMETER;
                     if (currentParameter && currentParameter->Name != nullptr){
-                        currentInstrument->parameters[currentParameter->Name] = *currentParameter;
+                        //QMap<QString,Parameter*> parameters = currentInstrument->parameters;
+                        currentInstrument->parameters[currentParameter->Name] = currentParameter;
+
                     }
                 }
                 continue;
@@ -165,16 +167,16 @@ void CsoundParser::displayInstruments(){
         instrumentMessage.append("</span><span style='color:#66F;'> ");
         instrumentMessage.append(instrument.Name);
         instrumentMessage.append("</span> parameters:</b></td></tr>");
-        QMapIterator<QString,Parameter> parameterIterator(instrument.parameters);
+        QMapIterator<QString,Parameter*> parameterIterator(instrument.parameters);
         while (parameterIterator.hasNext()) {
             parameterIterator.next();
             instrumentMessage.append(tr("<tr><td>parameter <span style='color:#66F;'>"));
             instrumentMessage.append(parameterIterator.key());
             instrumentMessage.append("</span></td><td>pNumber: <span style='color:#666;'>");
-            Parameter parameter = parameterIterator.value();
-            instrumentMessage.append(QString::number(parameter.pNumber));
+            Parameter *parameter = parameterIterator.value();
+            instrumentMessage.append(QString::number(parameter->pNumber));
             instrumentMessage.append("</span></td><td>defaultValue: <span style='color:#666;'>");
-            instrumentMessage.append(QString::number(parameter.value));
+            instrumentMessage.append(QString::number(parameter->value));
             instrumentMessage.append("</span></td></tr>");
         }
 

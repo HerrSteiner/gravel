@@ -90,22 +90,22 @@ void SoundEngine::seqStep()
         //qDebug()<<"process track: "<<trackIterator.key();
         QList<PatternEvent> patternEvents = currentTrack.getNextEvents();
         QMutableListIterator<PatternEvent> eventIterator(patternEvents);
-        QMap<QString,Parameter> updatedParameters;
+        //QMap<QString,Parameter> updatedParameters;
         while (eventIterator.hasNext()){
             PatternEvent e = eventIterator.next();
             if (e.instrumentNumber > 0) {
                 double duration = 1.;
-                QMap<QString,Parameter> parameters = e.parameters;
-                QMutableMapIterator<QString,Parameter> pIterator(parameters);
+                QMap<QString,Parameter*> parameters = e.parameters;
+                QMutableMapIterator<QString,Parameter*> pIterator(parameters);
                 int highestPNumber = 3;
                 while (pIterator.hasNext()){
-                    Parameter p = pIterator.next().value();
+                    Parameter *p = pIterator.next().value();
 
-                    if (p.pNumber == 3){ // always the duration
-                        duration = p.value;
+                    if (p->pNumber == 3){ // always the duration
+                        duration = p->value;
                         continue;
                     }
-                    highestPNumber = qMax(highestPNumber,p.pNumber);
+                    highestPNumber = qMax(highestPNumber,p->pNumber);
                 }
                 QList<double>pArray;
                 pArray.append(e.instrumentNumber);
@@ -115,7 +115,7 @@ void SoundEngine::seqStep()
                 Parameter *p;
                 for (int pIndex = 4; pIndex <= highestPNumber;pIndex++){
                     pIterator.toFront();
-                    QMap<QString,Parameter>::const_iterator citerator;
+                    //QMap<QString,Parameter>::const_iterator citerator;
                     p = nullptr;
                     /*
                     for (citerator = parameters.constBegin();citerator != parameters.constEnd();++citerator){
@@ -128,20 +128,21 @@ void SoundEngine::seqStep()
 
                     while (pIterator.hasNext()){
                          pIterator.next();
-                         Parameter pa = pIterator.value();
-                         if (pa.pNumber == pIndex){
-                          p = &pa;
+                         Parameter *pa = pIterator.value();
+                         if (pa->pNumber == pIndex){
+                          p = pa;
                           break;
                          }
                     }
                     if (p != nullptr){
                         pArray.append(p->getValue());
-                        pIterator.setValue(*p);
+                        //pIterator.setValue(*p);
                         //*citerator->arrayIndex = *p->arrayIndex;
                         //updatedParameters[pIterator.key()] = *p;
                     }
                     else {
                         pArray.append(0);
+                        qDebug()<<"found nullptr parameter for csound p "<<pIndex;
                     }
                 }
                 /*
