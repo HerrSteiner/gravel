@@ -80,7 +80,7 @@ void SoundEngine::setPattern(QList<int> pattern){
 //void SoundEngine::timerEvent(QTimerEvent *event)
 void SoundEngine::seqStep()
 {
-    //qDebug() << "Timer ID:" << event->timerId()<<" index "<<seqIndex;
+     //qDebug() << "Timer ID:" << event->timerId()<<" index "<<seqIndex;
     //qDebug()<<"thread "<<QThread::currentThread()<< "main "<< QApplication::instance()->thread();
     QMapIterator<QString, Track> trackIterator(tracks);
     TracksType tickedTracks;
@@ -141,7 +141,7 @@ void SoundEngine::seqStep()
                         //updatedParameters[pIterator.key()] = *p;
                     }
                     else {
-                        pArray.append(0);
+                        pArray.append(0.00000001);
                         qDebug()<<"found nullptr parameter for csound p "<<pIndex;
                     }
                 }

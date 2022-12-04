@@ -173,9 +173,9 @@ ivol = p5 ;vol 1
 ipan = p6 ;pan 0.5
 irev = p7 ;rev 0
 icut = p8 ;cut 200
-iBB = p10 ;bb 0
-iWarp = p11 ;warp 0
-iDelay = p12 ;delay 0
+iBB = p9 ;bb 0
+iWarp = p10 ;warp 0
+iDelay = p11 ;delay 0
 
 iphase = rnd(1)
 
@@ -217,10 +217,10 @@ ivol = p5 ;vol 1
 ipan = p6 ;pan 0.5
 irev = p7 ;rev 0
 icut = p8 ;cut 10000
-iBB = p10 ;bb 0
-iHarm = p11 ;harm 32
-iWarp = p12 ;warp 0
-iDelay = p13 ;delay 0
+iBB = p9 ;bb 0
+iHarm = p10 ;harm 32
+iWarp = p11 ;warp 0
+iDelay = p12 ;delay 0
 
 ibuzzPhase = rnd(1)
 iphase = rnd(1)
@@ -315,6 +315,8 @@ i 99 0 36000
 e
 </CsScore>
 </CsoundSynthesizer>
+
+
 
 
 

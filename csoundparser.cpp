@@ -50,6 +50,7 @@ void CsoundParser::parseCsound(QString fileName){
     while (!in.atEnd()){
         line = in.readLine().trimmed();
         if (state>PARAMETER) state = PARAMETER;
+        if (state == INSTRUMENTNUMBER) state = NONEINSTRUMENT; // this was appearently a instrument which should be not included (like effects)
         // parse that line of csound code
         qsizetype lineLength = line.length();
         currentToken.clear();

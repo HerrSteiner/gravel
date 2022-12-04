@@ -94,6 +94,7 @@ void Parser::parseCode(QString code){
                     instrumentParameters[instrumentParameter] = &iParameter;
 
                     QMap<QString,Parameter*> formerParameters = formerParametersByInstrumentName[instrumentName];
+                    formerParameters.remove(instrumentParameter);
                     formerParameters[instrumentParameter] = &iParameter;
                     formerParametersByInstrumentName[instrumentName] = formerParameters;
 
@@ -166,7 +167,10 @@ void Parser::parseCode(QString code){
                         // overide parameters with the last set ones
                         if (formerParametersByInstrumentName.contains(instrumentName)){
                             QMap<QString,Parameter*> formerParameters = formerParametersByInstrumentName[instrumentName];
-                            instrumentParameters = formerParameters;
+                            if (!formerParameters.isEmpty()){
+                                qDebug()<<formerParameters;
+                                instrumentParameters.insert(formerParameters);
+                            }
                             state = INSTRUMENTPARAMETERVALUE;// so that other parameter still are possible after the former ones are written
                             instrumentParameter.clear();// to make sure nothing is accidently set
                         }
@@ -195,6 +199,7 @@ void Parser::parseCode(QString code){
 
                         instrumentParameters[instrumentParameter] = &iParameter;
                         QMap<QString,Parameter*> formerParameters = formerParametersByInstrumentName[instrumentName];
+                        formerParameters.remove(instrumentParameter);
                         formerParameters[instrumentParameter] = &iParameter;
                         formerParametersByInstrumentName[instrumentName] = formerParameters;
                     }
@@ -211,7 +216,7 @@ void Parser::parseCode(QString code){
                         parameterMode = ARRAY;
                         continue;
                     }
-                    if ((ch >= '0' && ch <= '9') || ch == '.'){
+                    if (ch.isDigit() || ch == '.'){
                         instrumentParameterValue.append(ch);
                     }
                     continue;
@@ -256,7 +261,7 @@ void Parser::parseCode(QString code){
         }
 
         if (state == TRACKPARAMETER){
-            if (ch=='$'){
+            if (ch=='/'){
                 divisor.clear();
                 continue;
             }
