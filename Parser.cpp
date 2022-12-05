@@ -78,24 +78,24 @@ void Parser::parseCode(QString code){
             if (ch == ',' || ch == '}' || ch == ']') {
                 // first handle possible existing intrument parameter
                 if (state == INSTRUMENTPARAMETERVALUE && !instrumentParameter.isEmpty() && (!instrumentParameterValue.isEmpty() || !valueList.isEmpty())){
-                    Parameter iParameter;
-                    iParameter.Name = instrumentParameter;
+                    Parameter *iParameter = new Parameter();
+                    iParameter->Name = instrumentParameter;
                     switch (parameterMode) {
                     default:
                     case SINGLE:
-                        iParameter.value = instrumentParameterValue.toDouble();
+                        iParameter->value = instrumentParameterValue.toDouble();
                         break;
                     case ARRAY:
-                        iParameter.valueArray = valueList;
-                        iParameter.mode = ARRAY;
+                        iParameter->valueArray = valueList;
+                        iParameter->mode = ARRAY;
                         break;
                     }
 
-                    instrumentParameters[instrumentParameter] = &iParameter;
+                    instrumentParameters[instrumentParameter] = iParameter;
 
                     QMap<QString,Parameter*> formerParameters = formerParametersByInstrumentName[instrumentName];
                     formerParameters.remove(instrumentParameter);
-                    formerParameters[instrumentParameter] = &iParameter;
+                    //formerParameters[instrumentParameter] = iParameter;
                     formerParametersByInstrumentName[instrumentName] = formerParameters;
 
                 }
@@ -114,12 +114,15 @@ void Parser::parseCode(QString code){
                         parameterIterator.next();
                         if (p.parameters.contains(parameterIterator.key())){ // only known parameters are set
                             Parameter *iParameter = parameterIterator.value();
-                            //iParameter->pNumber = p.parameters[iParameter->Name]->pNumber;// set the Csound parameter number on the new parameter
-                            //p.parameters[iParameter->Name] = iParameter;
+                            iParameter->pNumber = p.parameters[iParameter->Name]->pNumber;// set the Csound parameter number on the new parameter
+                            /*if (p.parameters.contains(iParameter->Name)) {
+                                p.parameters.remove(iParameter->Name);
+                            }*/
+                            p.parameters[iParameter->Name] = iParameter;
 
-                             p.parameters[iParameter->Name]->mode = iParameter->mode;
-                             p.parameters[iParameter->Name]->value = iParameter->value;
-                              p.parameters[iParameter->Name]->valueArray = iParameter->valueArray;
+                             //p.parameters[iParameter->Name]->mode = iParameter->mode;
+                             //p.parameters[iParameter->Name]->value = iParameter->value;
+                             //p.parameters[iParameter->Name]->valueArray = iParameter->valueArray;
 
                         }
                     }
