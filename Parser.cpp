@@ -187,23 +187,23 @@ void Parser::parseCode(QString code){
 
                 else if (ch == '#'){ // a new parameter is given
                     if (state == INSTRUMENTPARAMETERVALUE && !instrumentParameter.isEmpty()){ // this parameter is precedet by another one, so store that first
-                        Parameter iParameter;
-                        iParameter.Name = instrumentParameter;
+                        Parameter *iParameter = new Parameter();
+                        iParameter->Name = instrumentParameter;
                         switch (parameterMode) {
                         default:
                         case SINGLE:
-                            iParameter.value = instrumentParameterValue.toDouble();
+                            iParameter->value = instrumentParameterValue.toDouble();
                             break;
                         case ARRAY:
-                            iParameter.valueArray = valueList;
-                            iParameter.mode = ARRAY;
+                            iParameter->valueArray = valueList;
+                            iParameter->mode = ARRAY;
                             break;
                         }
 
-                        instrumentParameters[instrumentParameter] = &iParameter;
+                        instrumentParameters[instrumentParameter] = iParameter;
                         QMap<QString,Parameter*> formerParameters = formerParametersByInstrumentName[instrumentName];
                         formerParameters.remove(instrumentParameter);
-                        formerParameters[instrumentParameter] = &iParameter;
+                        formerParameters[instrumentParameter] = iParameter;
                         formerParametersByInstrumentName[instrumentName] = formerParameters;
                     }
                     state = INSTRUMENTPARAMETER;
