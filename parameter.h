@@ -38,7 +38,7 @@ public:
     ParameterMode mode = SINGLE;
     QString Name;
     int pNumber; // the number of the p in Csound
-    double value;
+    double value = 0;
     QList <double> valueArray;
     void setRandomRange(double min,double max);
     int arrayIndex = 0;

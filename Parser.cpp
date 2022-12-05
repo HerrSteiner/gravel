@@ -214,6 +214,22 @@ void Parser::parseCode(QString code){
                             iParameter->valueArray = valueList;
                             iParameter->mode = ARRAY;
                             break;
+                        case PICK:
+                            iParameter->valueArray = valueList;
+                            iParameter->mode = PICK;
+                            break;
+                        case RANDOM:
+                        {
+                            double min = 0;
+                            double max = 1;
+                            if (valueList.count()>1){
+                                min = valueList.first();
+                                max = valueList.last();
+                            }
+                            iParameter->setRandomRange(min,max);
+                            iParameter->mode = RANDOM;
+                        }
+                            break;
                         }
 
                         instrumentParameters[instrumentParameter] = iParameter;

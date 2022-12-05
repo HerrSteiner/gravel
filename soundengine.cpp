@@ -102,7 +102,7 @@ void SoundEngine::seqStep()
                     Parameter *p = pIterator.next().value();
 
                     if (p->pNumber == 3){ // always the duration
-                        duration = p->value;
+                        duration = p->getValue();
                         continue;
                     }
                     highestPNumber = qMax(highestPNumber,p->pNumber);
