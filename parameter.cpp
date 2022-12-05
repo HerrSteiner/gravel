@@ -53,11 +53,20 @@ double Parameter::getValue() {
             return valueArray[0];
         }
         break;
+    case PICK:
+        if (valueArray.isEmpty()) return 0;
+        {
+        int pick = randomGenerator.bounded(valueArray.count());
+        return valueArray[pick];
+        }
+        break;
     case RANDOM:
+        {
         double rMax = randomMax - randomMin;
         double zufall = randomGenerator.bounded(rMax);
         zufall += randomMin;
         return zufall;
+        }
         break;
     }
 }

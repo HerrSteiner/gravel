@@ -26,6 +26,7 @@
 typedef enum {
     SINGLE,
     ARRAY,
+    PICK,
     RANDOM
 } ParameterMode;
 class Parameter

@@ -89,6 +89,22 @@ void Parser::parseCode(QString code){
                         iParameter->valueArray = valueList;
                         iParameter->mode = ARRAY;
                         break;
+                    case PICK:
+                        iParameter->valueArray = valueList;
+                        iParameter->mode = PICK;
+                        break;
+                    case RANDOM:
+                    {
+                        double min = 0;
+                        double max = 1;
+                        if (valueList.count()>1){
+                            min = valueList.first();
+                            max = valueList.last();
+                        }
+                        iParameter->setRandomRange(min,max);
+                        iParameter->mode = RANDOM;
+                    }
+                        break;
                     }
 
                     instrumentParameters[instrumentParameter] = iParameter;
@@ -120,9 +136,9 @@ void Parser::parseCode(QString code){
                             }*/
                             p.parameters[iParameter->Name] = iParameter;
 
-                             //p.parameters[iParameter->Name]->mode = iParameter->mode;
-                             //p.parameters[iParameter->Name]->value = iParameter->value;
-                             //p.parameters[iParameter->Name]->valueArray = iParameter->valueArray;
+                            //p.parameters[iParameter->Name]->mode = iParameter->mode;
+                            //p.parameters[iParameter->Name]->value = iParameter->value;
+                            //p.parameters[iParameter->Name]->valueArray = iParameter->valueArray;
 
                         }
                     }
@@ -219,6 +235,15 @@ void Parser::parseCode(QString code){
                         parameterMode = ARRAY;
                         continue;
                     }
+                    if (ch=='?') {
+                        state = INSTRUMENTPARAMETERVALUERANDOM;
+                        valueList.clear();
+                        instrumentParameterValue.clear();
+                        parameterMode = RANDOM;
+                        continue;
+                    }
+
+
                     if (ch.isDigit() || ch == '.'){
                         instrumentParameterValue.append(ch);
                     }
@@ -257,7 +282,54 @@ void Parser::parseCode(QString code){
                 }
                 continue;
             }
-            if ((ch >= '0' && ch <= '9') || ch == '.'){
+            if (ch.isDigit() || ch == '.'){
+                instrumentParameterValue.append(ch);
+            }
+            continue;
+        }
+
+        if (state == INSTRUMENTPARAMETERVALUERANDOM){
+            if (ch=='['){
+                state = INSTRUMENTPARAMETERVALUEPICK;
+                parameterMode = PICK;
+                continue;
+            }
+            if (ch=='('){
+                continue;
+            }
+            if (ch == ','){
+                valueList.append(instrumentParameterValue.toDouble());
+                instrumentParameterValue.clear();
+                continue;
+            }
+            if (ch == ')'){
+                state = INSTRUMENTPARAMETERVALUE;
+                if (!instrumentParameterValue.isEmpty()){
+                    valueList.append(instrumentParameterValue.toDouble());
+                    instrumentParameterValue.clear();
+                }
+                continue;
+            }
+            if (ch.isDigit() || ch == '.'){
+                instrumentParameterValue.append(ch);
+            }
+            continue;
+        }
+        if (state == INSTRUMENTPARAMETERVALUEPICK){
+            if (ch == ','){
+                valueList.append(instrumentParameterValue.toDouble());
+                instrumentParameterValue.clear();
+                continue;
+            }
+            if (ch == ']'){
+                state = INSTRUMENTPARAMETERVALUE;
+                if (!instrumentParameterValue.isEmpty()){
+                    valueList.append(instrumentParameterValue.toDouble());
+                    instrumentParameterValue.clear();
+                }
+                continue;
+            }
+            if (ch.isDigit() || ch == '.'){
                 instrumentParameterValue.append(ch);
             }
             continue;
@@ -443,14 +515,14 @@ void Parser::parseBPM(){
         }
         if (state == BPMPARAMETER){
             if (ch== ';') {
-               int bpm = bpmParameter.toInt();
-               emit setBPM(bpm);
-               message = "set bpm to "+bpmParameter;
-               return;
+                int bpm = bpmParameter.toInt();
+                emit setBPM(bpm);
+                message = "set bpm to "+bpmParameter;
+                return;
             }
 
             if (ch >= '0' && ch<='9'){
-               bpmParameter.append(ch);
+                bpmParameter.append(ch);
             }
             continue;
         }
