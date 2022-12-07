@@ -1,4 +1,4 @@
-# Gravel Live Coding system
+# tracks, patterns and events
 
 This sequencer software uses its own domain specific programming language Gravel to create complex sequences, grouped in tracks.
 Unlike traditional sequencers, tracks in Gravel are not bound to a specific instrument. A track contains one or more patterns which can trigger all available instruments. The purpose of a track is to group these patterns under one name so that they can be stoped together while other tracks continue to play.
@@ -45,6 +45,11 @@ is slower because the single event is distributed over 32 clockbeats.
 
 is therefore faster Here the trackname is just **1**. 
 
+As mentioned above, several patterns can be combined in one track:
+
+`tCombined:[bd,0*7],{0*3,sd,0,sd};`
+
 the speed of the sequencer can be changed with the command **bpm**, default are 140bpm. This changes it to 120bpm after being evaluated with **shift** and **return**:
 
 `bpm 120;`
+
