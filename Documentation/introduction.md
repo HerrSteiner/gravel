@@ -4,3 +4,8 @@ Gravel is a live coding system consisting on the sequencer and its editor via wh
 
 Additional to the instrument name which is used in Gravel to reference that instruments, various parameters can be also defined to control several aspects like the pitch and duration from the sequencer, which is one of the core features of Gravel. Its easy to vary or randomize these parameters in the sequencer and create so with little code complex, evolving patterns.
 
+![Gravel Editor](./gravelEditor.png)
+
+The top section with the syntax highlighted code is the main area in which the user types in and evaluates Gravel code. The contents can be stored as a textfile and later opened or merge loaded to existing code via the file function in the menu.
+
+Below is non editable output area which contains useful information like the loaded instrument definition and all the parsed parameters which can be used in the Gravel sequencer. The blue colored names for instruments and parameters are the ones to use as reference in the sequencer.
