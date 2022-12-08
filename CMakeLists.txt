@@ -63,18 +63,50 @@ else()
     endif()
 endif()
 
+# Try to find the Csound library.
+# Once done this will define:
+#  CSOUND_FOUND - System has the Csound library
+#  CSOUND_INCLUDE_DIRS - The Csound include directories.
+#  CSOUND_LIBRARIES - The libraries needed to use the Csound library.
+
+if(APPLE)
+find_path(CSOUND_INCLUDE_DIR csound.h HINTS /Library/Frameworks/CsoundLib64.framework/Headers
+"$ENV{HOME}/Library/Frameworks/CsoundLib64.framework/Headers")
+else()
+find_path(CSOUND_INCLUDE_DIR csound.h PATH_SUFFIXES csound)
+endif()
+
+if(APPLE)
+find_library(CSOUND_LIBRARY NAMES CsoundLib64 HINTS /Library/Frameworks/CsoundLib64.framework/
+"$ENV{HOME}/Library/Frameworks/CsoundLib64.framework")
+else()
+find_library(CSOUND_LIBRARY NAMES csound64 csound)
+endif()
+
+include(FindPackageHandleStandardArgs)
+# handle the QUIETLY and REQUIRED arguments and set CSOUND_FOUND to TRUE
+# if all listed variables are TRUE
+find_package_handle_standard_args(CSOUND
+                                  CSOUND_LIBRARY CSOUND_INCLUDE_DIR)
+mark_as_advanced(CSOUND_INCLUDE_DIR CSOUND_LIBRARY)
+
+set(CSOUND_INCLUDE_DIRS ${CSOUND_INCLUDE_DIR})
+set(CSOUND_LIBRARIES ${CSOUND_LIBRARY} )
+
 #/usr/local/lib/libcsnd6.6.0.dylib
 #target_link_libraries(gravel PRIVATE)
-find_path(CSOUND_INCLUDE csound.hpp)
+##find_path(CSOUND_INCLUDE csound.hpp)
 
-target_include_directories(gravel PRIVATE "${CSOUND_INCLUDE}")
+target_include_directories(gravel PRIVATE "${CSOUND_INCLUDE_DIR}")
 
-find_library(CSOUND_LIB CsoundLib64 REQUIRED)
-find_library(LIB_CSOUND csnd6.6.0 REQUIRED)
+##find_library(CSOUND_LIB CsoundLib64 REQUIRED PATHS "${CSOUND_LIBRARY}")
+###find_library(CSOUND_LIB "${CSOUND_LIBRARY_NAMES}" REQUIRED PATHS "${CSOUND_LIBRARY}")
+find_library(LIB_CSOUND csnd6 REQUIRED)
 
 #add_library(CSOUND "${CSOUND_LIB}")
 #add_library(gravel )
-target_link_libraries(gravel PRIVATE Qt${QT_VERSION_MAJOR}::Widgets "${CSOUND_LIB}" "${LIB_CSOUND}")
+#target_link_libraries(gravel PRIVATE Qt${QT_VERSION_MAJOR}::Widgets "${CSOUND_LIB}" "${LIB_CSOUND}")
+target_link_libraries(gravel PRIVATE Qt${QT_VERSION_MAJOR}::Widgets "${CSOUND_LIBRARIES}" "${LIB_CSOUND}")
 
 
 set_target_properties(gravel PROPERTIES
