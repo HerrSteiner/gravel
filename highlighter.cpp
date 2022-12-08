@@ -18,7 +18,7 @@
 
 #include "highlighter.h"
 
-highlighter::highlighter(QTextDocument *parent)
+Highlighter::Highlighter(QTextDocument *parent)
     : QSyntaxHighlighter{parent}
 
 {
@@ -116,7 +116,7 @@ highlighter::highlighter(QTextDocument *parent)
 //! [6]
 
 //! [7]
-void highlighter::highlightBlock(const QString &text)
+void Highlighter::highlightBlock(const QString &text)
 {
     for (const HighlightingRule &rule : qAsConst(highlightingRules)) {
         QRegularExpressionMatchIterator matchIterator = rule.pattern.globalMatch(text);

@@ -26,12 +26,12 @@ QT_BEGIN_NAMESPACE
 class QTextDocument;
 QT_END_NAMESPACE
 
-class highlighter : public QSyntaxHighlighter
+class Highlighter : public QSyntaxHighlighter
 {
     Q_OBJECT
 
 public:
-    explicit highlighter(QTextDocument *parent = nullptr);
+    explicit Highlighter(QTextDocument *parent = nullptr);
 
 protected:
     void highlightBlock(const QString &text) override;

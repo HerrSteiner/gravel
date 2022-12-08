@@ -21,7 +21,7 @@
 
 #import <QRandomGenerator>
 #import <QString>
-#import <QLIST>
+#import <QList>
 
 typedef enum {
     SINGLE,

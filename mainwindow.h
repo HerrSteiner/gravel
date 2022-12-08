@@ -42,7 +42,7 @@ public slots:
 private:
     QThread *soundThread;
     Ui::MainWindow *ui;
-    highlighter *highlighter;
+    Highlighter *highlighter;
     SoundEngine *soundEngine;
     Parser *parser;
     CsoundParser *csoundParser;

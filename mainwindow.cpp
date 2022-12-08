@@ -28,7 +28,7 @@ MainWindow::MainWindow(QWidget *parent)
 {
     qDebug()<< "main "<< QApplication::instance()->thread();
     ui->setupUi(this);
-    highlighter = new class highlighter(ui->textEdit->document());
+    highlighter = new class Highlighter(ui->textEdit->document());
 
     // setting up the sound core to run in its own thread
     // so the sequencer clock doesn't get interrupted by the gui
