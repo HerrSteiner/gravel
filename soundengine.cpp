@@ -21,6 +21,8 @@
 #include <QApplication>
 #include <QtGlobal>
 #include <QFile>
+#include <QMediaDevices>
+#include <QAudioDevice>
 
 SoundEngine::SoundEngine(QObject *parent)
     : QObject{parent}
@@ -28,13 +30,23 @@ SoundEngine::SoundEngine(QObject *parent)
 
 }
 
+SoundEngine::~SoundEngine(){
+        csound->Cleanup();
+        free(csound);
+}
+
 void SoundEngine::process(void)
 {
     //qDebug() << "worker process";       //This works
+    const auto deviceInfos = QMediaDevices::audioOutputs();// availableDevices(QAudioDevice::Output);
+    emit display("following audio devices are available:");
+    for (const QAudioDevice &deviceInfo : deviceInfos)
+        emit display(deviceInfo.description());
 
     // start Csound thread
     Csound *csound = new Csound();
-    QString csd = "/Users/herrsteiner/Projects/gravel/csoundIntruments.csd";
+    //QString csd = "/Users/herrsteiner/Projects/gravel/csoundIntruments.csd";
+    QString csd = "csoundIntruments.csd";
     emit parseCsound(csd);
     int result = csound->CompileCsd(qPrintable(csd));
 

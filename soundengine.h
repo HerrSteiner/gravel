@@ -37,6 +37,7 @@ class SoundEngine : public QObject
 
 public:
     explicit SoundEngine(QObject *parent = nullptr);
+    ~SoundEngine();
     //void setPattern(QList<int> pattern);
     TracksType tracks;
 

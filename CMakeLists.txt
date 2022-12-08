@@ -13,6 +13,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
+find_package(Qt6 REQUIRED COMPONENTS Multimedia)
 
 #find_package(csnd6.6.0 REQUIRED)
 
@@ -106,7 +107,7 @@ find_library(LIB_CSOUND csnd6 REQUIRED)
 #add_library(CSOUND "${CSOUND_LIB}")
 #add_library(gravel )
 #target_link_libraries(gravel PRIVATE Qt${QT_VERSION_MAJOR}::Widgets "${CSOUND_LIB}" "${LIB_CSOUND}")
-target_link_libraries(gravel PRIVATE Qt${QT_VERSION_MAJOR}::Widgets "${CSOUND_LIBRARIES}" "${LIB_CSOUND}")
+target_link_libraries(gravel PRIVATE Qt${QT_VERSION_MAJOR}::Widgets "${CSOUND_LIBRARIES}" "${LIB_CSOUND}" Qt6::Multimedia)
 
 
 set_target_properties(gravel PROPERTIES
