@@ -29,17 +29,17 @@ giDistTable	ftgen	0,0, 257, 9, .5,1,270
 
 instr 1;fm
 
-iDur = p3 ;dur 0.1
-kcps = p4 ;pitch 30
-ivol = p5 ;vol 1
-ipan = p6 ;pan 0.5
-irev = p7 ;rev 0
-kcar = p8 ;car 1
-kmod = p9 ;ratio 2
-iIndex = p10 ;index 20
-iBB = p11 ;bb 0
-iWarp = p12;warp 0
-iDelay = p13 ;delay 0
+iDur = p3 ;dur 0.1 #duration in seconds
+kcps = p4 ;pitch 30 #frequency in hz
+ivol = p5 ;vol 1 #volume !0 1
+ipan = p6 ;pan 0.5 #panorama in stereofield !0 1
+irev = p7 ;rev 0 #amount reverb !0 1
+kcar = p8 ;car 1 #carrier ratio
+kmod = p9 ;ratio 2 #ratio modulator
+iIndex = p10 ;index 20 #fm intensity
+iBB = p11 ;bb 0 # stutter fx amount
+iWarp = p12;warp 0 #special delay fx amount !0 1
+iDelay = p13 ;delay 0 #delay fx amount !0 1
 
 kndx line iIndex, iDur, 0	;intensivy sidebands
 aexo expseg 0.00001, 0.01, 0.25, iDur, 0.00001
@@ -60,14 +60,14 @@ endin
 
 
 instr 2;tam
-ivol = p5 ;vol 1
-ipan = p6 ;pan 0.5
-irev = p7 ;rev 0
+ivol = p5 ;vol 1 #volume !0 1
+ipan = p6 ;pan 0.5 #panorama in stereofield !0 1
+irev = p7 ;rev 0 #amount reverb !0 1
 kcutoff1   = p8;cut1 2000
 kcutoff2   = p9;cut2 1500
-iBB = p10 ;bb 0
-iWarp = p11;warp 0
-iDelay = p12 ;delay 0
+iBB = p10 ;bb 0 # stutter fx amount
+iWarp = p11;warp 0 #special delay fx amount !0 1
+iDelay = p12 ;delay 0 #delay fx amount !0 1
 
 kfeedback1 = 0.26						;the sum of the two feedback
 kfeedback2 = 0.25						;values should not exceed  0.5
@@ -90,17 +90,17 @@ endin
 
 
 instr 3;pwm
-iDur = p3 ;dur 1
-icps = p4 ;pitch 40
+iDur = p3 ;dur 1 #duration in seconds
+icps = p4 ;pitch 40 #frequency in hz
 iCut = p5 ;cut 10000
-iAttack = p6 ;att 0.8
-iDecay = p7 ;dec 0.2
-ivol = p8 ;vol 1
-ipan = p9 ;pan 0.5
-irev = p10 ;rev 0
-iBB = p11 ;bb 0
-iWarp = p12;warp 0
-iDelay = p13 ;delay 0
+iAttack = p6 ;att 0.8 #rise time in seconds
+iDecay = p7 ;dec 0.2 #decay time in seconds
+ivol = p8 ;vol 1 #volume !0 1
+ipan = p9 ;pan 0.5 #panorama in stereofield !0 1
+irev = p10 ;rev 0 #amount reverb !0 1
+iBB = p11 ;bb 0 # stutter fx amount
+iWarp = p12;warp 0 #special delay fx amount !0 1
+iDelay = p13 ;delay 0 #delay fx amount !0 1
 
 iphase = rnd(1)
 
@@ -130,15 +130,15 @@ endin
 
 
 instr 4;bd
-iDur = p3 ;dur 0.70
-icps = p4 ;pitch 50
-ivol = p5 ;vol 1
-ipan = p6 ;pan 0.5
-irev = p7 ;rev 0
-idist = p8 ;dist 0
-iBB = p9 ;bb 0
-iWarp = p10;warp 0
-iDelay = p11 ;delay 0
+iDur = p3 ;dur 0.70 #duration in seconds
+icps = p4 ;pitch 50 #frequency in hz
+ivol = p5 ;vol 1 #volume !0 1
+ipan = p6 ;pan 0.5 #panorama in stereofield !0 1
+irev = p7 ;rev 0 #amount reverb !0 1
+idist = p8 ;dist 0 #distortion !0 2
+iBB = p9 ;bb 0 #amount stutter fx !0 1
+iWarp = p10;warp 0 #special delay fx amount !0 1
+iDelay = p11 ;delay 0 #delay fx amount !0 1
 
 iCompensation = ivol + ivol*(idist*2)
 
@@ -167,15 +167,15 @@ endin
 
 
 instr 5;sd
-iDur = p3 ;dur 0.23
-icps = p4 ;pitch 160
-ivol = p5 ;vol 1
-ipan = p6 ;pan 0.5
-irev = p7 ;rev 0
-icut = p8 ;cut 200
-iBB = p9 ;bb 0
-iWarp = p10 ;warp 0
-iDelay = p11 ;delay 0
+iDur = p3 ;dur 0.23 #duration in seconds
+icps = p4 ;pitch 160 #frequency in hz
+ivol = p5 ;vol 1 #volume !0 1
+ipan = p6 ;pan 0.5 #panorama in stereofield !0 1
+irev = p7 ;rev 0 #amount reverb !0 1
+icut = p8 ;cut 200 #be careful with that one !20 2000
+iBB = p9 ;bb 0 #amount stutter fx !0 1
+iWarp = p10 ;warp 0 #special delay fx amount !0 1
+iDelay = p11 ;delay 0 #delay fx amount !0 1
 
 iphase = rnd(1)
 
