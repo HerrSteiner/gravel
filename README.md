@@ -4,7 +4,7 @@
 
 Gravel was originally started in September 2022 by [Tina Mariane Krogh Madsen](https://www.tmkm.dk) and [Malte Steiner](https://www.block4.com) to create a live coding system for their own practises such as the project [codepage](https://soundcloud.com/user-467798235).
 
-Live coding is the most awkward way to operate a musical sequencer, instead of recording the pressing of buttons and twiddling knobs you write and evaluate code which unfolds to rythmical patterns and bars. So why do you want to do it? What it lacks on physical expressivity, it offers expressivity on code level. With a little code complex polyrythmical sequences can be created which evolves over time.
+Live coding is the most awkward way to operate a musical sequencer, instead of recording the pressing of buttons and twiddling knobs you write and evaluate code which unfolds to rythmical patterns and bars. So why do you want to do it? What it lacks on physical expressivity, it offers expressivity on code level. With a little code complex polyrythmical sequences can be created which evolves over time. The [Github Wiki](https://github.com/HerrSteiner/gravel/wiki) contains the documentation of Gravel language, but also a PDF will be available.
 
 So basically Gravel is a sequencer with a code editor as GUI. It evaluates the given code and triggers a synthesizer which is implemented in the included [Csound](https://csound.com). The textfile **csoundInstruments.csd** contains the instrument definitions and is loaded by Gravel on program start. It can be, with some Csound knowledge, customized. It also defines the available parameters which can be automated in the sequencer.
 
