@@ -92,7 +92,8 @@ void MainWindow::on_actionAbout_gravel_triggered()
                           <p>see also <a href='https://www.block4.com'>https://www.block4.com</a></p>\
             <p>gravel is free open source software distributed under GPL3 license</p>\
             <p>it uses QT 6.4.1 which can be obtained at <a href='https://www.qt.io'>https://www.qt.io</a></p>\
-            <p>the audio synthesis is implemented with <a href='https://csound.com'>Csound</a></p>"));
+            <p>the audio synthesis is implemented with <a href='https://csound.com'>Csound</a></p>\
+            <p>version 0.1 alpha use on your own risk</p>"));
 }
 
 
