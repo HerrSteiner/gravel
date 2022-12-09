@@ -19,3 +19,4 @@ What's missing so far and soon will be implemented:
 - synchronization between other computers and studio equipment
 - the domain specific language Gravel is now in the process of being defined, implemented and tested. After Version 1.0 no more breaking changes, only additions
 
+You can support this project by checking out our other music from our [label block 4](https://block4label.bandcamp.com).
