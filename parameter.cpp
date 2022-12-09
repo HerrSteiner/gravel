@@ -39,6 +39,7 @@ double Parameter::getValue() {
     switch (mode) {
     default:
     case SINGLE:
+        checkLimit(&value);
         return value;
         break; // unnecessary but I have OCD
     case ARRAY:
@@ -46,18 +47,23 @@ double Parameter::getValue() {
         if (arrayIndex < valueArray.count()) {
             double currentValue = valueArray[arrayIndex];
             arrayIndex++;
+            checkLimit(&currentValue);
             return currentValue;
         }
         else {
             arrayIndex = 1; // reset to the index for the value we want to get NEXT time
-            return valueArray[0];
+            double currentValue = valueArray[0];
+            checkLimit(&currentValue);
+            return currentValue;
         }
         break;
     case PICK:
         if (valueArray.isEmpty()) return 0;
         {
         int pick = randomGenerator.bounded(valueArray.count());
-        return valueArray[pick];
+        double currentValue = valueArray[pick];
+        checkLimit(&currentValue);
+        return currentValue;
         }
         break;
     case RANDOM:
@@ -65,8 +71,27 @@ double Parameter::getValue() {
         double rMax = randomMax - randomMin;
         double zufall = randomGenerator.bounded(rMax);
         zufall += randomMin;
+        checkLimit(&zufall);
         return zufall;
         }
         break;
     }
+}
+
+void Parameter::checkLimit(double *valueToCheck) {
+    if (!hasLimit) return;
+    if (*valueToCheck < limitMin) *valueToCheck = limitMin;
+    if (*valueToCheck > limitMax) *valueToCheck = limitMax;
+}
+
+void Parameter::setLimitRange(double min,double max) {
+    if (min > max) {
+        limitMax = min;
+        limitMin = max;
+    }
+    else {
+        limitMin = min;
+        limitMax = max;
+    }
+    hasLimit = true;
 }

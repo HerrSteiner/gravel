@@ -211,16 +211,16 @@ gaDelayRight = gaDelayRight + aright*iDelay
 endin	
 
 instr 6;bass
-idur = p3 ;dur 0.7
-icps = p4 ;pitch 60
-ivol = p5 ;vol 1
-ipan = p6 ;pan 0.5
-irev = p7 ;rev 0
-icut = p8 ;cut 6000
-iBB = p9 ;bb 0
-iHarm = p10 ;harm 32
-iWarp = p11 ;warp 0
-iDelay = p12 ;delay 0
+idur = p3 ;dur 0.7 #duration in seconds
+icps = p4 ;pitch 60 #frequency in hz
+ivol = p5 ;vol 1 #volume !0 1
+ipan = p6 ;pan 0.5 #panorama in stereofield !0 1
+irev = p7 ;rev 0 #amount reverb !0 1
+icut = p8 ;cut 6000 #filter cutoff frequency in hz
+iBB = p9 ;bb 0 #amount stutter fx !0 1
+iHarm = p10 ;harm 32 #additive oscillator harmonics
+iWarp = p11 ;warp 0 #special delay fx amount !0 1
+iDelay = p12 ;delay 0 #delay fx amount !0 1
 
 ibuzzPhase = rnd(1)
 iphase = rnd(1)

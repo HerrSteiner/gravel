@@ -26,7 +26,10 @@ typedef enum {
     PARAMETER,
     PARAMETERNUMBER,
     PARAMETERNAME,
-    PARAMETERVALUE
+    PARAMETERVALUE,
+    PARAMETERDESCRIPTION,
+    PARAMETERRANGEMIN,
+    PARAMETERRANGEMAX
 } InstrumentStates;
 
 CsoundParser::CsoundParser(QObject *parent)
@@ -41,11 +44,12 @@ void CsoundParser::parseCsound(QString fileName){
         return;
     QTextStream in(&file);
     QString line;
-    InstrumentDefinition *currentInstrument;
-    Parameter *currentParameter;
+    InstrumentDefinition *currentInstrument = NULL;
+    Parameter *currentParameter = NULL;
     QChar ch;
     QString currentToken;
     InstrumentStates state = NONEINSTRUMENT;
+    double rangeMin = 0;
 
     while (!in.atEnd()){
         line = in.readLine().trimmed();
@@ -61,6 +65,7 @@ void CsoundParser::parseCsound(QString fileName){
                 currentToken.append(ch);
                 if (currentToken == "instr"){
                     state = INSTRUMENTNUMBER;
+                    //if (currentInstrument!=NULL) delete(currentInstrument);
                     currentInstrument = new InstrumentDefinition();
                     currentToken.clear();
                 }
@@ -92,6 +97,7 @@ void CsoundParser::parseCsound(QString fileName){
                 if (ch == '='){
                     state = PARAMETERNUMBER;
                     currentToken.clear();
+                    //if (currentParameter!=NULL) delete(currentParameter);
                     currentParameter = new Parameter();
 
                     continue;
@@ -131,6 +137,17 @@ void CsoundParser::parseCsound(QString fileName){
                 continue;
             }
             if (state == PARAMETERVALUE){
+                if (ch == '#') {
+                    state = PARAMETERDESCRIPTION;
+                    currentParameter->value = currentToken.toDouble();
+                    currentToken.clear();
+                    if (currentParameter && currentParameter->Name != nullptr){
+                        //QMap<QString,Parameter*> parameters = currentInstrument->parameters;
+                        currentInstrument->parameters[currentParameter->Name] = currentParameter;
+
+                    }
+                    continue;
+                }
                 if (ch.isDigit() || ch == '.'){
                     currentToken.append(ch);
                 }
@@ -146,10 +163,55 @@ void CsoundParser::parseCsound(QString fileName){
                 }
                 continue;
             }
+            if (state == PARAMETERDESCRIPTION){
+
+                if (ch =='!'){
+                    state = PARAMETERRANGEMIN;
+                    currentParameter->Description = currentToken;
+                    currentToken.clear();
+                    rangeMin = 0;
+                    continue;
+                }
+                currentToken.append(ch);
+                if (i == lineLength -1){
+                    currentParameter->Description = currentToken;
+                    currentToken.clear();
+                    state = PARAMETER;
+                    continue;
+                }
+                continue;
+            }
+            if (state == PARAMETERRANGEMIN){
+                if (ch.isDigit() || ch == '.'){
+                    currentToken.append(ch);
+                }
+                if (i == lineLength - 1){ // we don't set the range if we only have the minimum
+                    state = PARAMETER;
+                    continue;
+                }
+                if (ch == ' '){
+                    rangeMin = currentToken.toDouble();
+                    state = PARAMETERRANGEMAX;
+                }
+                continue;
+            }
+            if (state == PARAMETERRANGEMAX){
+                if (ch.isDigit() || ch == '.'){
+                    currentToken.append(ch);
+                }
+                if (i == lineLength - 1 || ch == ' '){ // we don't set the range if we only have the minimum
+                    double rangeMax = currentToken.toDouble();
+                    currentParameter->setLimitRange(rangeMin,rangeMax);
+                    state = PARAMETER;
+                }
+                continue;
+            }
 
         }
     }
     file.close();
+    //if (currentInstrument!=NULL) delete(currentInstrument);
+    //if (currentParameter!=NULL) delete(currentParameter);
     displayInstruments();
     emit setInstrumentDefinitions(instruments);
     return;
@@ -178,6 +240,18 @@ void CsoundParser::displayInstruments(){
             instrumentMessage.append(QString::number(parameter->pNumber));
             instrumentMessage.append("</span></td><td>defaultValue: <span style='color:#666;'>");
             instrumentMessage.append(QString::number(parameter->value));
+            instrumentMessage.append("</span></td><td><span style='color:#666;'>");
+            instrumentMessage.append(parameter->Description);
+            instrumentMessage.append("</span></td><td>range: <span style='color:#666;'>");
+            if (parameter->hasLimit){
+                instrumentMessage.append("</span></td><td>range: <span style='color:#666;'>");
+                instrumentMessage.append(QString::number(parameter->limitMin));
+                instrumentMessage.append(" - ");
+                instrumentMessage.append(QString::number(parameter->limitMax));
+            }
+            else {
+                instrumentMessage.append("</span></td><td><span>");
+            }
             instrumentMessage.append("</span></td></tr>");
         }
 

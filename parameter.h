@@ -37,15 +37,21 @@ public:
     Parameter();
     ParameterMode mode = SINGLE;
     QString Name;
+    QString Description;
+
     int pNumber; // the number of the p in Csound
     double value = 0;
     QList <double> valueArray;
     void setRandomRange(double min,double max);
+    void setLimitRange(double min,double max);
     int arrayIndex = 0;
     double getValue();
+    bool hasLimit = false;
+    double limitMax = 0;
+    double limitMin = 0;
 private:
     QRandomGenerator randomGenerator;
-
+    void checkLimit(double *valueToCheck);
     double randomMax = 1;
     double randomMin = 0;
 };
