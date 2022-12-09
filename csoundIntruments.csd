@@ -211,12 +211,12 @@ gaDelayRight = gaDelayRight + aright*iDelay
 endin	
 
 instr 6;bass
-idur = p3 ;dur 0.1
+idur = p3 ;dur 0.7
 icps = p4 ;pitch 60
 ivol = p5 ;vol 1
 ipan = p6 ;pan 0.5
 irev = p7 ;rev 0
-icut = p8 ;cut 10000
+icut = p8 ;cut 6000
 iBB = p9 ;bb 0
 iHarm = p10 ;harm 32
 iWarp = p11 ;warp 0
@@ -224,12 +224,12 @@ iDelay = p12 ;delay 0
 
 ibuzzPhase = rnd(1)
 iphase = rnd(1)
-kfe  expon icut, idur*0.9, 10
+kfe  expseg 10,0.001, icut, idur*0.8, 10
 asig buzz  0.5, icps, iHarm, 1,ibuzzPhase
 asaw vco2  0.5,icps+0.1,0,0,iphase
-keg expon .5, idur, 0.000001
+keg expseg 0.00000001, 0.001, 1., idur, 0.00000001
 afil moogladder asig + asaw, kfe, 0.1
-     afil =  afil*0.22*ivol
+     afil =  afil*0.22*keg*ivol
 	aleft, aright pan2 afil, ipan
 	outs aleft, aright
 gaRevLeft = gaRevLeft + aleft*irev
@@ -315,6 +315,8 @@ i 99 0 36000
 e
 </CsScore>
 </CsoundSynthesizer>
+
+
 
 
 
