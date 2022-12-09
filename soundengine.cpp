@@ -23,6 +23,7 @@
 #include <QFile>
 #include <QMediaDevices>
 #include <QAudioDevice>
+#include <algorithm>
 
 SoundEngine::SoundEngine(QObject *parent)
     : QObject{parent}
@@ -31,22 +32,33 @@ SoundEngine::SoundEngine(QObject *parent)
 }
 
 SoundEngine::~SoundEngine(){
-        csound->Cleanup();
-        free(csound);
+    csound->Cleanup();
+    free(csound);
 }
 
 void SoundEngine::process(void)
 {
-    //qDebug() << "worker process";       //This works
-    const auto deviceInfos = QMediaDevices::audioOutputs();// availableDevices(QAudioDevice::Output);
-    emit display("following audio devices are available:");
-    for (const QAudioDevice &deviceInfo : deviceInfos)
-        emit display(deviceInfo.description());
+    // list all audio devices with the same order and id which also csound --devices would show
+    {
+        QList<QAudioDevice> deviceInfos = QMediaDevices::audioOutputs();
+        emit display("following audio devices are available:");
+        std::sort(deviceInfos.begin(),deviceInfos.end(),
+                  [](const QAudioDevice a, const QAudioDevice b) -> bool
+        {
+            return a.id()<b.id();
+        });
 
+        int deviceIndex = 0;
+        for (const QAudioDevice &deviceInfo : deviceInfos){
+            emit display(QString::number(deviceIndex) +" : " + deviceInfo.description() +" : " + deviceInfo.id());
+            deviceIndex++;
+        }
+        emit display("");
+    }
     // start Csound thread
     Csound *csound = new Csound();
-    //QString csd = "/Users/herrsteiner/Projects/gravel/csoundIntruments.csd";
-    QString csd = "csoundIntruments.csd";
+    QString csd = "/Users/herrsteiner/Projects/gravel/csoundIntruments.csd";
+    //QString csd = "csoundIntruments.csd";
     emit parseCsound(csd);
     int result = csound->CompileCsd(qPrintable(csd));
 
@@ -92,7 +104,7 @@ void SoundEngine::setPattern(QList<int> pattern){
 //void SoundEngine::timerEvent(QTimerEvent *event)
 void SoundEngine::seqStep()
 {
-     //qDebug() << "Timer ID:" << event->timerId()<<" index "<<seqIndex;
+    //qDebug() << "Timer ID:" << event->timerId()<<" index "<<seqIndex;
     //qDebug()<<"thread "<<QThread::currentThread()<< "main "<< QApplication::instance()->thread();
     QMapIterator<QString, Track> trackIterator(tracks);
     TracksType tickedTracks;
@@ -139,12 +151,12 @@ void SoundEngine::seqStep()
                     }*/
 
                     while (pIterator.hasNext()){
-                         pIterator.next();
-                         Parameter *pa = pIterator.value();
-                         if (pa->pNumber == pIndex){
-                          p = pa;
-                          break;
-                         }
+                        pIterator.next();
+                        Parameter *pa = pIterator.value();
+                        if (pa->pNumber == pIndex){
+                            p = pa;
+                            break;
+                        }
                     }
                     if (p != nullptr){
                         pArray.append(p->getValue());
