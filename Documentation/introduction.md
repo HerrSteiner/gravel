@@ -9,3 +9,32 @@ Additional to the instrument name which is used in Gravel to reference that inst
 The top section with the syntax highlighted code is the main area in which the user types in and evaluates Gravel code. The contents can be stored as a textfile and later opened or merge loaded to existing code via the file function in the menu.
 
 Below is non editable output area which contains useful information like the loaded instrument definition and all the parsed parameters which can be used in the Gravel sequencer. The blue colored names for instruments and parameters are the ones to use as reference in the sequencer.
+
+Getting Gravel to start with the right audio card is a bit complicated because for now the setting can be only done in the csound instrument file **csoundIntruments.csd**
+The settings can be found on top in the CsOptions section. Gravel put out information about the available audio devices in the non editable section, on top of the table with the instrument and parameter table.
+For Linux this should simply work if you have [JACK](https://csound.com/docs/manual/RealTimeJack.html) running:
+
+`<CsOptions>
+-+rtaudio=jack -odac
+</CsOptions>`
+
+Alternative is running direct on [ALSA](https://csound.com/docs/manual/RealTimeLinux.html), these settings take the first available audiodevice:
+
+`<CsOptions>
+-+rtaudio=alsa -odac:hw:0,0 -g -b 512
+</CsOptions>`
+
+For [Mac](https://csound.com/docs/manual/RealTimeMac.html) following settings might work, -odac0 points to the first found device in the list. If other are prefered, the 0 has to be replaced with the correct number:
+
+`<CsOptions>
+-+rtaudio=auhal -odac0 -g -b 512
+</CsOptions>`
+
+For Windows following might be enough, -odac0 points to the first found device in the list. If other are prefered, the 0 has to be replaced with the correct number
+
+`<CsOptions>
+-+rtaudio -odac0 -g -b 512
+</CsOptions>
+`
+
+Helpful are the Csound [Windows documentation](https://csound.com/docs/manual/RealTimeWindows.html)
