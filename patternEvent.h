@@ -20,7 +20,7 @@
 #define PATTERNEVENT_H
 
 #include "parameter.h"
-#import <QMap>
+#include <QMap>
 
 class PatternEvent
 {

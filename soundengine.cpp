@@ -57,7 +57,7 @@ void SoundEngine::process(void)
     }
     // start Csound thread
     Csound *csound = new Csound();
-    QString csd = "/Users/herrsteiner/Projects/gravel/csoundIntruments.csd";
+    QString csd = "csoundIntruments.csd";
     //QString csd = "csoundIntruments.csd";
     emit parseCsound(csd);
     int result = csound->CompileCsd(qPrintable(csd));

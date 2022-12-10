@@ -19,9 +19,9 @@
 #ifndef PARAMETER_H
 #define PARAMETER_H
 
-#import <QRandomGenerator>
-#import <QString>
-#import <QList>
+#include <QRandomGenerator>
+#include <QString>
+#include <QList>
 
 typedef enum {
     SINGLE,

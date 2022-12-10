@@ -18,8 +18,8 @@
 
 #ifndef INSTRUMENTDEFINITION_H
 #define INSTRUMENTDEFINITION_H
-#import <QtCore>
-#import "parameter.h"
+#include <QtCore>
+#include "parameter.h"
 
 class InstrumentDefinition
 {
