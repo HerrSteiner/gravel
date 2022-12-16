@@ -26,6 +26,7 @@ QT_BEGIN_NAMESPACE
 class QTextDocument;
 QT_END_NAMESPACE
 
+// syntax highlighter, color the given text with the help of regex
 class Highlighter : public QSyntaxHighlighter
 {
     Q_OBJECT

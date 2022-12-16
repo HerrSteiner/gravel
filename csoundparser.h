@@ -5,6 +5,9 @@
 #include <QMap>
 #include "instrumentdefinition.h"
 
+
+// Parser for Csound instrument files to obtain a list of instrument names and parameters
+// only invoked once at program start
 class CsoundParser : public QObject
 {
     Q_OBJECT

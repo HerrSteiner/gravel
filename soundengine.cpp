@@ -32,8 +32,14 @@ SoundEngine::SoundEngine(QObject *parent)
 }
 
 SoundEngine::~SoundEngine(){
-    csound->Cleanup();
-    free(csound);
+    timer->stop();
+
+    perfThread->Stop();
+    csound->Stop();
+    //csound->Cleanup();
+    delete(csound);
+    delete(perfThread);
+    delete(timer);
 }
 
 void SoundEngine::process(void)
@@ -57,7 +63,7 @@ void SoundEngine::process(void)
     }
     // start Csound thread
     Csound *csound = new Csound();
-    QString csd = "csoundIntruments.csd";
+    QString csd = QCoreApplication::applicationDirPath() + "/csoundIntruments.csd";
     //QString csd = "csoundIntruments.csd";
     emit parseCsound(csd);
     int result = csound->CompileCsd(qPrintable(csd));
@@ -71,8 +77,6 @@ void SoundEngine::process(void)
         CsoundPerformanceThread* perfThread = new CsoundPerformanceThread(csound->GetCsound());
         this->perfThread = perfThread;
         perfThread->Play();
-
-        //startTimer(rate,Qt::PreciseTimer);
         qDebug()<<"this thread "<<QThread::currentThread();
 
         // setup sequencer clock
@@ -141,14 +145,6 @@ void SoundEngine::seqStep()
                     pIterator.toFront();
                     //QMap<QString,Parameter>::const_iterator citerator;
                     p = nullptr;
-                    /*
-                    for (citerator = parameters.constBegin();citerator != parameters.constEnd();++citerator){
-                        Parameter pa = *citerator;
-                        if (pa.pNumber == pIndex){
-                         p = &pa;
-                         break;
-                        }
-                    }*/
 
                     while (pIterator.hasNext()){
                         pIterator.next();
@@ -169,15 +165,7 @@ void SoundEngine::seqStep()
                         qDebug()<<"found nullptr parameter for csound p "<<pIndex;
                     }
                 }
-                /*
-                if (!updatedParameters.isEmpty()) {
-                    QMapIterator<QString,Parameter> updateIterator(updatedParameters);
-                    while (updateIterator.hasNext()){
-                        updateIterator.next();
-                        e.parameters[updateIterator.key()] = updateIterator.value();
-                    }
-                    updatedParameters.clear();
-                }*/
+
                 //const double parameters[3] = {e.instrumentNumber,0,1.};
                 this->perfThread->ScoreEvent( false,'i', pArray.count(), pArray.constData());
                 //qDebug()<<"trigger instr: "<< e.instrumentNumber;

@@ -24,6 +24,7 @@
 
 typedef QList<Sequence> SequencesType;
 
+// a track holds one or more sequences
 class Track
 {
 

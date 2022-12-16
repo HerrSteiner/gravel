@@ -23,12 +23,15 @@
 #include <QString>
 #include <QList>
 
+// the different possible modes of parameter inklusive randomizers
 typedef enum {
-    SINGLE,
-    ARRAY,
-    PICK,
-    RANDOM
+    SINGLE, // the default, skalar mode, only holds one value
+    ARRAY,// a list, each time at a value request it takes sequentially the next one
+    PICK, // also a list of values but a value is picked out of the list randomly
+    RANDOM // value request results in a random value in the former defined range
 } ParameterMode;
+
+
 class Parameter
 {
 

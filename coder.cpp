@@ -24,8 +24,6 @@ Coder::Coder(QWidget *parent)
     : QTextEdit(parent)
 
 {
-    //EnterEater *keyPressEater = new EnterEater(this);
-
     this->installEventFilter(this);
 }
 

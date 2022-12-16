@@ -65,7 +65,7 @@ void CsoundParser::parseCsound(QString fileName){
                 currentToken.append(ch);
                 if (currentToken == "instr"){
                     state = INSTRUMENTNUMBER;
-                    //if (currentInstrument!=NULL) delete(currentInstrument);
+
                     currentInstrument = new InstrumentDefinition();
                     currentToken.clear();
                 }
@@ -97,7 +97,7 @@ void CsoundParser::parseCsound(QString fileName){
                 if (ch == '='){
                     state = PARAMETERNUMBER;
                     currentToken.clear();
-                    //if (currentParameter!=NULL) delete(currentParameter);
+
                     currentParameter = new Parameter();
 
                     continue;
@@ -210,8 +210,8 @@ void CsoundParser::parseCsound(QString fileName){
         }
     }
     file.close();
-    //if (currentInstrument!=NULL) delete(currentInstrument);
-    //if (currentParameter!=NULL) delete(currentParameter);
+    if (currentInstrument!=NULL) delete(currentInstrument);
+    if (currentParameter!=NULL) delete(currentParameter);
     displayInstruments();
     emit setInstrumentDefinitions(instruments);
     return;

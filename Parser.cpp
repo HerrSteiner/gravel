@@ -136,9 +136,6 @@ void Parser::parseCode(QString code){
                             }*/
                             p.parameters[iParameter->Name] = iParameter;
 
-                            //p.parameters[iParameter->Name]->mode = iParameter->mode;
-                            //p.parameters[iParameter->Name]->value = iParameter->value;
-                            //p.parameters[iParameter->Name]->valueArray = iParameter->valueArray;
 
                         }
                     }

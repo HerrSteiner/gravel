@@ -24,6 +24,7 @@
 
 typedef QList<PatternEvent> PatternType;
 
+// a sequence encapsulates a pattern and some additional data which is used at playback
 class Sequence
 {
 

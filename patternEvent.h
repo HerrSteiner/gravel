@@ -22,6 +22,8 @@
 #include "parameter.h"
 #include <QMap>
 
+// defines a single event in a pattern, which triggers a note in one of the predefined synthesizers
+// a pattern consists of one or several events.
 class PatternEvent
 {
 

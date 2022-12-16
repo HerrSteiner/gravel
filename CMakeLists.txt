@@ -102,12 +102,15 @@ target_include_directories(gravel PRIVATE "${CSOUND_INCLUDE_DIR}")
 
 ##find_library(CSOUND_LIB CsoundLib64 REQUIRED PATHS "${CSOUND_LIBRARY}")
 ###find_library(CSOUND_LIB "${CSOUND_LIBRARY_NAMES}" REQUIRED PATHS "${CSOUND_LIBRARY}")
+if(APPLE)
+find_library(LIB_CSOUND csnd6.6.0 REQUIRED)
+else()
 find_library(LIB_CSOUND csnd6 REQUIRED)
-
+endif()
 #add_library(CSOUND "${CSOUND_LIB}")
 #add_library(gravel )
 #target_link_libraries(gravel PRIVATE Qt${QT_VERSION_MAJOR}::Widgets "${CSOUND_LIB}" "${LIB_CSOUND}")
-target_link_libraries(gravel PRIVATE Qt${QT_VERSION_MAJOR}::Widgets "${CSOUND_LIBRARIES}" "${LIB_CSOUND}" Qt6::Multimedia)
+target_link_libraries(gravel PRIVATE Qt${QT_VERSION_MAJOR}::Widgets "${LIB_CSOUND}" "${CSOUND_LIBRARIES}" Qt6::Multimedia)
 
 
 set_target_properties(gravel PROPERTIES

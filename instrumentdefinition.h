@@ -21,6 +21,7 @@
 #include <QtCore>
 #include "parameter.h"
 
+// holds the Gravel relevant data of one instrument in the Csound file
 class InstrumentDefinition
 {
 public:

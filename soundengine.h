@@ -31,6 +31,8 @@
 #include "instrumentdefinition.h"
 
 typedef QMap<QString,Track> TracksType;
+
+// the soundengine holds the Csound thread and performs the sequence duties, triggering the instruments
 class SoundEngine : public QObject
 {
     Q_OBJECT

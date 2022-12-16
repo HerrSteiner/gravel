@@ -43,6 +43,8 @@ typedef enum {
     BPMPARAMETER
 } States;
 
+// Parser for the user input, it translates Gravel code into sequences
+// invoked when the user evaluates code with shift + return
 class Parser : public QObject
 {
     Q_OBJECT
@@ -50,8 +52,6 @@ public:
     explicit Parser(QObject *parent = nullptr);
     void parseCode(QString code);
     TracksType tracks;
-public slots:
-    //void parseCsound(QString fileName);
 private:
     void fillPattern(PatternType *pattern,int max = 16);
     void displayInstruments();
