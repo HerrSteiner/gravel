@@ -45,8 +45,8 @@ void SoundEngine::process(void)
 {
     QSettings settings;
     int audioDeviceID = 0;// 0 is the default, but lets see if we have information in the preferences
-    if (settings.contains("audioSetupMethod")) {
-
+    if (settings.contains("audioDevice")){
+        audioDeviceID = settings.value("audioDevice").toInt();
     }
 
 
@@ -63,7 +63,8 @@ void SoundEngine::process(void)
 
     // start Csound thread
     Csound *csound = new Csound();
-
+    QString dacOption = "-odac" + QString::number(audioDeviceID);
+    csound->SetOption(dacOption.toStdString().c_str());
     QString csd = QCoreApplication::applicationDirPath() + "/csoundIntruments.csd";
     //QString csd = "csoundIntruments.csd";
     emit parseCsound(csd);
