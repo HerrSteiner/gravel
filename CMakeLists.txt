@@ -37,6 +37,8 @@ set(PROJECT_SOURCES
         patternEvent.h patternEvent.cpp
         instrumentdefinition.h instrumentdefinition.cpp
         parameter.h parameter.cpp
+        dialogaudiosetup.h dialogaudiosetup.cpp dialogaudiosetup.ui
+
 )
 
 
@@ -69,17 +71,18 @@ endif()
 #  CSOUND_FOUND - System has the Csound library
 #  CSOUND_INCLUDE_DIRS - The Csound include directories.
 #  CSOUND_LIBRARIES - The libraries needed to use the Csound library.
-
+#"$ENV{HOME}/Library/Frameworks/CsoundLib64.framework/Headers"
 if(APPLE)
 find_path(CSOUND_INCLUDE_DIR csound.h HINTS /Library/Frameworks/CsoundLib64.framework/Headers
-"$ENV{HOME}/Library/Frameworks/CsoundLib64.framework/Headers")
+"/Library/Frameworks/CsoundLib64.framework/Headers")
 else()
 find_path(CSOUND_INCLUDE_DIR csound.h PATH_SUFFIXES csound)
 endif()
 
+
 if(APPLE)
-find_library(CSOUND_LIBRARY NAMES CsoundLib64 HINTS /Library/Frameworks/CsoundLib64.framework/
-"$ENV{HOME}/Library/Frameworks/CsoundLib64.framework")
+find_library(CSOUND_LIBRARY NAMES CsoundLib64 HINTS /Library/Frameworks/CsoundLib64.framework/Versions/Current
+"/Library/Frameworks/CsoundLib64.framework/Versions/Current")
 else()
 find_library(CSOUND_LIBRARY NAMES csound64 csound)
 endif()
@@ -100,7 +103,7 @@ set(CSOUND_LIBRARIES ${CSOUND_LIBRARY} )
 
 target_include_directories(gravel PRIVATE "${CSOUND_INCLUDE_DIR}")
 
-##find_library(CSOUND_LIB CsoundLib64 REQUIRED PATHS "${CSOUND_LIBRARY}")
+###find_library(CSOUND_LIB CsoundLib64 REQUIRED PATHS "${CSOUND_LIBRARY}")
 ###find_library(CSOUND_LIB "${CSOUND_LIBRARY_NAMES}" REQUIRED PATHS "${CSOUND_LIBRARY}")
 if(APPLE)
 find_library(LIB_CSOUND csnd6.6.0 REQUIRED)
@@ -110,8 +113,9 @@ endif()
 #add_library(CSOUND "${CSOUND_LIB}")
 #add_library(gravel )
 #target_link_libraries(gravel PRIVATE Qt${QT_VERSION_MAJOR}::Widgets "${CSOUND_LIB}" "${LIB_CSOUND}")
-target_link_libraries(gravel PRIVATE Qt${QT_VERSION_MAJOR}::Widgets "${LIB_CSOUND}" "${CSOUND_LIBRARIES}" Qt6::Multimedia)
-
+target_link_libraries(gravel PRIVATE Qt${QT_VERSION_MAJOR}::Widgets "${CSOUND_LIBRARIES}" "${LIB_CSOUND}" Qt6::Multimedia)
+message("LIB_CSOUND : ${LIB_CSOUND}")
+message("CSOUND_LIBRARIES : ${CSOUND_LIBRARIES}")
 
 set_target_properties(gravel PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
@@ -130,3 +134,4 @@ if(QT_VERSION_MAJOR EQUAL 6)
 endif()
 
 message("CSOUND_LIB :${CSOUND_LIB}")
+

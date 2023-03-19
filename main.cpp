@@ -24,6 +24,12 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
+
+    // setting up some id data for the preferences
+    QCoreApplication::setOrganizationName("block 4");
+    QCoreApplication::setOrganizationDomain("block4.com");
+    QCoreApplication::setApplicationName("gravel");
+
     a.setStyle(QStyleFactory::create("Fusion"));
     QPalette newPalette;// force a dark mode in any case
     newPalette.setColor(QPalette::Window,          QColor( 37,  37,  37));

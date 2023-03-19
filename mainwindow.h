@@ -49,6 +49,7 @@ private:
     void loadCode(bool merge);
 private slots:
      void on_actionAbout_gravel_triggered();
+     void on_actionAudio_setup_triggered();
      void on_actionsave_code_triggered();
      void on_actionopen_code_triggered();
      void on_actionmerge_code_triggered();

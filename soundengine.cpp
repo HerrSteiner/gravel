@@ -44,6 +44,12 @@ SoundEngine::~SoundEngine(){
 
 void SoundEngine::process(void)
 {
+    QSettings settings;
+    int audioDeviceID = 0;// 0 is the default, but lets see if we have information in the preferences
+    if (settings.contains("audioSetupMethod")) {
+
+    }
+
     // list all audio devices with the same order and id which also csound --devices would show
     {
         QList<QAudioDevice> deviceInfos = QMediaDevices::audioOutputs();
@@ -61,8 +67,20 @@ void SoundEngine::process(void)
         }
         emit display("");
     }
+        // getting audio list from Csound
+
+    CSOUND *cs = csoundCreate(NULL);
+    int i,n = csoundGetAudioDevList(cs,NULL,1);
+    CS_AUDIODEVICE *devs = (CS_AUDIODEVICE *) malloc(n*sizeof(CS_AUDIODEVICE));
+    csoundGetAudioDevList(cs,devs,1);
+    for(i=0; i < n; i++)
+        qDebug()<< i<<" "<< devs[i].device_id<<" "<< devs[i].device_name;
+    free(devs);
+    csoundDestroy(cs);
+
     // start Csound thread
     Csound *csound = new Csound();
+
     QString csd = QCoreApplication::applicationDirPath() + "/csoundIntruments.csd";
     //QString csd = "csoundIntruments.csd";
     emit parseCsound(csd);
