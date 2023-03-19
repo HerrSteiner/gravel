@@ -21,8 +21,7 @@
 #include <QApplication>
 #include <QtGlobal>
 #include <QFile>
-#include <QMediaDevices>
-#include <QAudioDevice>
+
 #include <algorithm>
 
 SoundEngine::SoundEngine(QObject *parent)
@@ -50,24 +49,8 @@ void SoundEngine::process(void)
 
     }
 
-    // list all audio devices with the same order and id which also csound --devices would show
-    {
-        QList<QAudioDevice> deviceInfos = QMediaDevices::audioOutputs();
-        emit display("following audio devices are available:");
-        std::sort(deviceInfos.begin(),deviceInfos.end(),
-                  [](const QAudioDevice a, const QAudioDevice b) -> bool
-        {
-            return a.id()<b.id();
-        });
 
-        int deviceIndex = 0;
-        for (const QAudioDevice &deviceInfo : deviceInfos){
-            emit display(QString::number(deviceIndex) +" : " + deviceInfo.description() +" : " + deviceInfo.id());
-            deviceIndex++;
-        }
-        emit display("");
-    }
-        // getting audio list from Csound
+    // getting audio list from Csound
 
     CSOUND *cs = csoundCreate(NULL);
     int i,n = csoundGetAudioDevList(cs,NULL,1);
