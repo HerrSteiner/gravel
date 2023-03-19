@@ -15,6 +15,9 @@ public:
     explicit DialogAudioSetup(QWidget *parent = nullptr);
     ~DialogAudioSetup();
 
+protected:
+    void done(int r) override;
+
 private:
     Ui::DialogAudioSetup *ui;
 };

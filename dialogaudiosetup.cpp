@@ -2,6 +2,7 @@
 #include "ui_dialogaudiosetup.h"
 #include <QMediaDevices>
 #include <QAudioDevice>
+#include <QSettings>
 
 DialogAudioSetup::DialogAudioSetup(QWidget *parent) :
     QDialog(parent),
@@ -24,6 +25,15 @@ DialogAudioSetup::DialogAudioSetup(QWidget *parent) :
             ui->devices->addItem( QString::number(deviceIndex) +" : " + deviceInfo.description() +" : " + deviceInfo.id() );
             deviceIndex++;
         }
+        QSettings settings;
+        int currentDeviceID = 0;
+        if (settings.contains("audioDevice")){
+            currentDeviceID = settings.value("audioDevice").toInt();
+            if (currentDeviceID < deviceIndex){
+                ui->devices->setCurrentIndex(currentDeviceID);
+            }
+        }
+
     }
 }
 
@@ -31,3 +41,14 @@ DialogAudioSetup::~DialogAudioSetup()
 {
     delete ui;
 }
+
+void DialogAudioSetup::done(int r)
+{
+    if(QDialog::Accepted == r)  // ok was pressed
+    {
+        QSettings settings;
+        settings.setValue("audioDevice",ui->devices->currentIndex());
+    }
+    QDialog::done(r);
+}
+
