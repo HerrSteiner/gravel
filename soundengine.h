@@ -23,12 +23,8 @@
 #include <QTimer>
 #include <QMap>
 #include <csound.hpp>
-//#include <csPerfThread.hpp>
-//#include "csPerfThread.hpp"
 //#include <csound/csound.hpp>
 #include <CsoundLib64/csound_threaded.hpp>
-//#include "CsoundLib64/csPerfThread.hpp"
-//#include "CsoundLib64/csPerfThread.hpp"
 #include "track.h"
 #include <QThread>
 #include "instrumentdefinition.h"
@@ -49,7 +45,6 @@ public:
 private:
     Csound *csound;
     CsoundThreaded *csoundThread;
-    //CsoundPerformanceThread* perfThread;
     QTimer *timer;
     //QList<int> patternA;
     //QList<int> patternB;

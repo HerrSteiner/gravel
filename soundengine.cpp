@@ -49,19 +49,6 @@ void SoundEngine::process(void)
         audioDeviceID = settings.value("audioDevice").toInt();
     }
 
-
-    // getting audio list from Csound
-
-    /*CSOUND *cs = csoundCreate(NULL);
-    int i,n = csoundGetAudioDevList(cs,NULL,1);
-    CS_AUDIODEVICE *devs = (CS_AUDIODEVICE *) malloc(n*sizeof(CS_AUDIODEVICE));
-    csoundGetAudioDevList(cs,devs,1);
-    for(i=0; i < n; i++)
-        qDebug()<< i<<" "<< devs[i].device_id<<" "<< devs[i].device_name;
-    free(devs);
-    csoundDestroy(cs);
-    */
-
     // start Csound thread
     Csound *csound = new Csound();
     QString dacOption = "-odac" + QString::number(audioDeviceID+1);
@@ -81,9 +68,6 @@ void SoundEngine::process(void)
         CsoundThreaded* csoundThread = new CsoundThreaded(csound->GetCsound());
         this->csoundThread = csoundThread;
         csoundThread->Perform();
-        //CsoundPerformanceThread* perfThread = new CsoundPerformanceThread(csound->GetCsound());
-        //this->perfThread = perfThread;
-        //perfThread->Play();
         qDebug()<<"this thread "<<QThread::currentThread();
 
         // setup sequencer clock
@@ -102,7 +86,6 @@ void SoundEngine::audioSet(){
     // shutting down former engine
     timer->stop();
     csoundThread->Stop();
-    //perfThread->Stop();
     csound->Stop();
     //csound->Cleanup();
     delete(csound);
