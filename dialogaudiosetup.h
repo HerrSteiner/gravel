@@ -20,6 +20,9 @@ protected:
 
 private:
     Ui::DialogAudioSetup *ui;
+
+signals:
+     void audioSet();
 };
 
 #endif // DIALOGAUDIOSETUP_H

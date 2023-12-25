@@ -48,6 +48,7 @@ void DialogAudioSetup::done(int r)
     {
         QSettings settings;
         settings.setValue("audioDevice",ui->devices->currentIndex());
+        emit audioSet();
     }
     QDialog::done(r);
 }

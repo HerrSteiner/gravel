@@ -32,12 +32,12 @@ SoundEngine::SoundEngine(QObject *parent)
 
 SoundEngine::~SoundEngine(){
     timer->stop();
-
-    perfThread->Stop();
+    csoundThread->Stop();
+    //perfThread->Stop();
     csound->Stop();
     //csound->Cleanup();
     delete(csound);
-    delete(perfThread);
+    delete(csoundThread);
     delete(timer);
 }
 
@@ -52,7 +52,7 @@ void SoundEngine::process(void)
 
     // getting audio list from Csound
 
-    CSOUND *cs = csoundCreate(NULL);
+    /*CSOUND *cs = csoundCreate(NULL);
     int i,n = csoundGetAudioDevList(cs,NULL,1);
     CS_AUDIODEVICE *devs = (CS_AUDIODEVICE *) malloc(n*sizeof(CS_AUDIODEVICE));
     csoundGetAudioDevList(cs,devs,1);
@@ -60,12 +60,14 @@ void SoundEngine::process(void)
         qDebug()<< i<<" "<< devs[i].device_id<<" "<< devs[i].device_name;
     free(devs);
     csoundDestroy(cs);
+    */
 
     // start Csound thread
     Csound *csound = new Csound();
-    QString dacOption = "-odac" + QString::number(audioDeviceID);
+    QString dacOption = "-odac" + QString::number(audioDeviceID+1);
     csound->SetOption(dacOption.toStdString().c_str());
-    QString csd = QCoreApplication::applicationDirPath() + "/csoundIntruments.csd";
+    QString csd = QCoreApplication::applicationDirPath() + "/../../../csoundIntruments.csd";
+
     //QString csd = "csoundIntruments.csd";
     emit parseCsound(csd);
     int result = csound->CompileCsd(qPrintable(csd));
@@ -76,9 +78,12 @@ void SoundEngine::process(void)
     if (!result) {
 
         csound->Start();
-        CsoundPerformanceThread* perfThread = new CsoundPerformanceThread(csound->GetCsound());
-        this->perfThread = perfThread;
-        perfThread->Play();
+        CsoundThreaded* csoundThread = new CsoundThreaded(csound->GetCsound());
+        this->csoundThread = csoundThread;
+        csoundThread->Perform();
+        //CsoundPerformanceThread* perfThread = new CsoundPerformanceThread(csound->GetCsound());
+        //this->perfThread = perfThread;
+        //perfThread->Play();
         qDebug()<<"this thread "<<QThread::currentThread();
 
         // setup sequencer clock
@@ -91,6 +96,21 @@ void SoundEngine::process(void)
     else {
         emit status("Csound error");
     }
+}
+
+void SoundEngine::audioSet(){
+    // shutting down former engine
+    timer->stop();
+    csoundThread->Stop();
+    //perfThread->Stop();
+    csound->Stop();
+    //csound->Cleanup();
+    delete(csound);
+    delete(csoundThread);
+    delete(timer);
+
+    // starting csound and the rest with the new audio setting
+    process();
 }
 
 void SoundEngine::setBPM(int bpm){
@@ -169,7 +189,8 @@ void SoundEngine::seqStep()
                 }
 
                 //const double parameters[3] = {e.instrumentNumber,0,1.};
-                this->perfThread->ScoreEvent( false,'i', pArray.count(), pArray.constData());
+                this->csoundThread->ScoreEvent('i', pArray.constData(), pArray.count());
+                //this->perfThread->ScoreEvent( false,'i', pArray.count(), pArray.constData());
                 //qDebug()<<"trigger instr: "<< e.instrumentNumber;
             }
 

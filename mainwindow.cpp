@@ -55,6 +55,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     QObject::connect(parser,SIGNAL(status(QString)),statusBar(),SLOT(showMessage(QString)));
     QObject::connect(parser,SIGNAL(setBPM(int)),soundEngine,SLOT(setBPM(int)));
+
 }
 
 MainWindow::~MainWindow()
@@ -99,9 +100,8 @@ void MainWindow::on_actionAbout_gravel_triggered()
 
 void MainWindow::on_actionAudio_setup_triggered()
 {
-    qDebug()<<"audio setup";
     DialogAudioSetup *dialogSetup = new DialogAudioSetup(this);
-
+    QObject::connect(dialogSetup,SIGNAL(audioSet()),soundEngine,SLOT(audioSet()));
     dialogSetup->show();
 }
 

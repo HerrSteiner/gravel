@@ -24,7 +24,10 @@
 #include <QMap>
 #include <csound.hpp>
 //#include <csPerfThread.hpp>
-#include "csPerfThread.hpp"
+//#include "csPerfThread.hpp"
+//#include <csound/csound.hpp>
+#include <CsoundLib64/csound_threaded.hpp>
+//#include "CsoundLib64/csPerfThread.hpp"
 //#include "CsoundLib64/csPerfThread.hpp"
 #include "track.h"
 #include <QThread>
@@ -45,7 +48,8 @@ public:
 
 private:
     Csound *csound;
-    CsoundPerformanceThread* perfThread;
+    CsoundThreaded *csoundThread;
+    //CsoundPerformanceThread* perfThread;
     QTimer *timer;
     //QList<int> patternA;
     //QList<int> patternB;
@@ -62,6 +66,7 @@ public slots:
     void setBPM(int bpm);
 
 private slots:
+    void audioSet();
     void seqStep();
     void setInstrumentDefinitions(QMap<QString,InstrumentDefinition>instrumentDefinitions);
 signals:
