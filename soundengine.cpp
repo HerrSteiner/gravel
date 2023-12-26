@@ -188,7 +188,7 @@ void SoundEngine::seqStep()
 
         // check if we have schedulded changes
         if (hasParsedTracks) {
-            tracks.swap( parsedTracks);
+            tracks.swap(tempTracks);
             hasParsedTracks = false;
         }
     }

@@ -43,6 +43,7 @@ public:
     //void setPattern(QList<int> pattern);
     TracksType tracks;
     TracksType parsedTracks;
+    TracksType tempTracks;
     bool hasParsedTracks = false;
 private:
     Csound *csound;

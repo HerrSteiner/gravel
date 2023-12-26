@@ -81,14 +81,14 @@ void MainWindow::evaluate() {
         outString = listString.join("\n");
          ui->console->append(outString);
 */
-    if (soundEngine->hasParsedTracks) {
-         parser->tracks.swap(soundEngine->parsedTracks);
-    }
-    else {
-        parser->tracks.swap(soundEngine->tracks); // get the current track state from the soundengine
-    }
+
+    parser->tracks.swap(soundEngine->parsedTracks); // get the current track state from the soundengine
+
+
     parser->parseCode(code);
     soundEngine->parsedTracks.swap(parser->tracks);
+    soundEngine->tempTracks = soundEngine->parsedTracks;
+    soundEngine->tempTracks.detach(); // force deep copy
     soundEngine->hasParsedTracks = true;
 }
 
