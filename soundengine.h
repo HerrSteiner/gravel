@@ -29,6 +29,7 @@
 #include <QThread>
 #include "instrumentdefinition.h"
 
+// the map string trackname / Track, trackname is usergiven
 typedef QMap<QString,Track> TracksType;
 
 // the soundengine holds the Csound thread and performs the sequence duties, triggering the instruments
@@ -41,7 +42,8 @@ public:
     ~SoundEngine();
     //void setPattern(QList<int> pattern);
     TracksType tracks;
-
+    TracksType parsedTracks;
+    bool hasParsedTracks = false;
 private:
     Csound *csound;
     CsoundThreaded *csoundThread;
@@ -49,7 +51,7 @@ private:
     //QList<int> patternA;
     //QList<int> patternB;
     QMap<QString,InstrumentDefinition> instruments;
-
+    int currentBeat; // current beat from 1 - 16, for quantized sequence update
     //bool playPatternA;
     //bool swapPattern;
     //int seqIndex;

@@ -33,7 +33,6 @@ SoundEngine::SoundEngine(QObject *parent)
 SoundEngine::~SoundEngine(){
     timer->stop();
     csoundThread->Stop();
-    //perfThread->Stop();
     csound->Stop();
     //csound->Cleanup();
     delete(csound);
@@ -71,6 +70,7 @@ void SoundEngine::process(void)
         qDebug()<<"this thread "<<QThread::currentThread();
 
         // setup sequencer clock
+        currentBeat = 1;
         timer = new QTimer(this);
         timer->setTimerType(Qt::PreciseTimer);
         connect(timer,SIGNAL(timeout()),this,SLOT(seqStep()));
@@ -173,7 +173,6 @@ void SoundEngine::seqStep()
 
                 //const double parameters[3] = {e.instrumentNumber,0,1.};
                 this->csoundThread->ScoreEvent('i', pArray.constData(), pArray.count());
-                //this->perfThread->ScoreEvent( false,'i', pArray.count(), pArray.constData());
                 //qDebug()<<"trigger instr: "<< e.instrumentNumber;
             }
 
@@ -183,6 +182,16 @@ void SoundEngine::seqStep()
 
     tracks.swap(tickedTracks);
 
+    currentBeat++;
+    if (currentBeat > 16) {
+        currentBeat = 1;
+
+        // check if we have schedulded changes
+        if (hasParsedTracks) {
+            tracks.swap( parsedTracks);
+            hasParsedTracks = false;
+        }
+    }
 }
 
 void SoundEngine::setInstrumentDefinitions(QMap<QString,InstrumentDefinition>instrumentDefinitions){

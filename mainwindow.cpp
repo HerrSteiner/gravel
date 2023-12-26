@@ -81,9 +81,15 @@ void MainWindow::evaluate() {
         outString = listString.join("\n");
          ui->console->append(outString);
 */
-    parser->tracks.swap(soundEngine->tracks);
+    if (soundEngine->hasParsedTracks) {
+         parser->tracks.swap(soundEngine->parsedTracks);
+    }
+    else {
+        parser->tracks.swap(soundEngine->tracks); // get the current track state from the soundengine
+    }
     parser->parseCode(code);
-    soundEngine->tracks.swap( parser->tracks);
+    soundEngine->parsedTracks.swap(parser->tracks);
+    soundEngine->hasParsedTracks = true;
 }
 
 void MainWindow::on_actionAbout_gravel_triggered()
