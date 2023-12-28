@@ -31,12 +31,10 @@ SoundEngine::SoundEngine(QObject *parent)
 }
 
 SoundEngine::~SoundEngine(){
-    timer->stop();
-    csoundThread->Stop();
-    csound->Stop();
-    //csound->Cleanup();
+
     delete(csound);
     delete(csoundThread);
+
     delete(timer);
 }
 
@@ -86,8 +84,6 @@ void SoundEngine::audioSet(){
     // shutting down former engine
     timer->stop();
     csoundThread->Stop();
-    csound->Stop();
-    //csound->Cleanup();
     delete(csound);
     delete(csoundThread);
     delete(timer);
@@ -198,3 +194,8 @@ void SoundEngine::setInstrumentDefinitions(QMap<QString,InstrumentDefinition>ins
     instruments = instrumentDefinitions;
 }
 
+void SoundEngine::stop(){
+    this->timer->stop();
+    csoundThread->Stop();
+    csoundThread->Join();
+}

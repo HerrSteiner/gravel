@@ -37,8 +37,12 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+protected:
+    void closeEvent(QCloseEvent *event) override;
+
 public slots:
     void evaluate();
+
 private:
     QThread *soundThread;
     Ui::MainWindow *ui;
@@ -47,12 +51,17 @@ private:
     Parser *parser;
     CsoundParser *csoundParser;
     void loadCode(bool merge);
+
 private slots:
      void on_actionAbout_gravel_triggered();
      void on_actionAudio_setup_triggered();
      void on_actionsave_code_triggered();
      void on_actionopen_code_triggered();
      void on_actionmerge_code_triggered();
+
+signals:
+     void stop(); // tells the soundengine to stop before everything shuts down
+
 };
 
 #endif // MAINWINDOW_H

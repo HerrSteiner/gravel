@@ -56,10 +56,17 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(parser,SIGNAL(status(QString)),statusBar(),SLOT(showMessage(QString)));
     QObject::connect(parser,SIGNAL(setBPM(int)),soundEngine,SLOT(setBPM(int)));
 
+    QObject::connect(this, SIGNAL(stop()),soundEngine,SLOT(stop()));
+
 }
 
 MainWindow::~MainWindow()
 {
+    this->soundThread->quit();
+    this->soundThread->wait();
+
+    delete soundThread;
+    delete soundEngine;
     delete ui;
 }
 
@@ -145,6 +152,8 @@ void MainWindow::loadCode(bool merge){
     file.close();
 }
 
-
+void MainWindow::closeEvent(QCloseEvent *event){
+    emit stop();
+}
 
 

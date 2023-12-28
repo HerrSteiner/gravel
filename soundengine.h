@@ -67,6 +67,8 @@ private slots:
     void audioSet();
     void seqStep();
     void setInstrumentDefinitions(QMap<QString,InstrumentDefinition>instrumentDefinitions);
+    void stop();
+
 signals:
     void display(QString message);
     void status(QString message);
