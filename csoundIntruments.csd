@@ -1,11 +1,11 @@
 <CsoundSynthesizer>
 <CsOptions>
--+rtaudio=auhal -g -b 512
+-g -b 512
 </CsOptions>
 <CsInstruments>
 
 sr = 48000
-ksmps = 32
+ksmps = 16
 nchnls = 2
 0dbfs = 1
 
@@ -27,7 +27,139 @@ seed 0
 
 giDistTable	ftgen	0,0, 257, 9, .5,1,270
 
-instr 1;fm
+
+instr 1;smp
+iDur = p3 ;dur 0.1 #duration in seconds
+kcps = p4 ;pitch 1 #speed/freq
+ivol = p5 ;vol 0.5 #volume !0 1
+ipan = p6 ;pan 0 #panorama in stereofield !0 1
+irev = p7 ;rev 0 #amount reverb !0 1
+iSampleNumber = p8;wav 2
+kcutoff   = p9;cut 15000
+iBB = p10 ;bb 0 # stutter fx amount
+iWarp = p11;warp 0 #special delay fx amount !0 1
+iDelay = p12 ;delay 0 #delay fx amount !0 1
+ipanR = 1 - ipan
+;aenv linen ivol,0.006,iEnvDur,0.006
+aenv	    linenr    ivol, .01, .1, .01 
+al,ar loscil3 aenv,kcps,iSampleNumber,1,0
+
+al dcblock2 al
+ar dcblock2 ar
+
+aleft1, aright1 pan2 al, ipan
+aleft2, aright2 pan2 ar, ipanR
+aleft = aleft1 + aleft2
+aright = aright1 + aright2
+
+     outs aleft, aright
+gaRevLeft = gaRevLeft + aleft*irev
+gaRevRight = gaRevRight + aright*irev
+gaBBLeft = gaBBLeft + aleft*iBB
+gaBBRight = gaBBRight + aright*iBB
+gaWarpLeft = gaWarpLeft + aleft*iWarp
+gaWarpRight = gaWarpRight + aright*iWarp
+gaDelayLeft = gaDelayLeft + aleft*iDelay
+gaDelayRight = gaDelayRight + aright*iDelay
+
+endin
+
+instr 2;msmp
+iDur = p3 ;dur 0.1 #duration in seconds
+kcps = p4 ;pitch 1 #speed/freq
+ivol = p5 ;vol 0.5 #volume !0 1
+ipan = p6 ;pan 0.5 #panorama in stereofield !0 1
+irev = p7 ;rev 0 #amount reverb !0 1
+iSampleNumber = p8;wav 2
+kcutoff   = p9;cut 15000
+iBB = p10 ;bb 0 # stutter fx amount
+iWarp = p11;warp 0 #special delay fx amount !0 1
+iDelay = p12 ;delay 0 #delay fx amount !0 1
+;aenv linen ivol,0.006,iEnvDur,0.006
+aenv	    linenr    ivol, .01, .1, .01 
+asig loscil3 aenv,kcps,iSampleNumber,1,0
+
+asig dcblock2 asig
+;asig = asig * 0.2 * ivol
+aleft, aright pan2 asig, ipan
+     outs aleft, aright
+gaRevLeft = gaRevLeft + aleft*irev
+gaRevRight = gaRevRight + aright*irev
+gaBBLeft = gaBBLeft + aleft*iBB
+gaBBRight = gaBBRight + aright*iBB
+gaWarpLeft = gaWarpLeft + aleft*iWarp
+gaWarpRight = gaWarpRight + aright*iWarp
+gaDelayLeft = gaDelayLeft + aleft*iDelay
+gaDelayRight = gaDelayRight + aright*iDelay
+
+endin
+
+instr 3;lof
+iDur = p3 ;dur 0.1 #duration in seconds
+kcps = p4 ;pitch 1 #speed/freq
+ivol = p5 ;vol 0.5 #volume !0 1
+ipan = p6 ;pan 0.5 #panorama in stereofield !0 1
+irev = p7 ;rev 0 #amount reverb !0 1
+iSampleNumber = p8;wav 2
+kcutoff   = p9;cut 15000
+iBB = p10 ;bb 0 # stutter fx amount
+iWarp = p11;warp 0 #special delay fx amount !0 1
+iDelay = p12 ;delay 0 #delay fx amount !0 1
+ipanR = 1 - ipan
+
+aenv	    linenr    ivol, .01, .1, .01 
+al,ar loscil aenv,kcps,iSampleNumber,1,0
+
+al dcblock2 al
+ar dcblock2 ar
+;asig = asig * 0.2 * ivol
+
+aleft1, aright1 pan2 al, ipan
+aleft2, aright2 pan2 ar, ipanR
+aleft = aleft1 + aleft2
+aright = aright1 + aright2
+
+     outs aleft, aright
+gaRevLeft = gaRevLeft + aleft*irev
+gaRevRight = gaRevRight + aright*irev
+gaBBLeft = gaBBLeft + aleft*iBB
+gaBBRight = gaBBRight + aright*iBB
+gaWarpLeft = gaWarpLeft + aleft*iWarp
+gaWarpRight = gaWarpRight + aright*iWarp
+gaDelayLeft = gaDelayLeft + aleft*iDelay
+gaDelayRight = gaDelayRight + aright*iDelay
+
+endin
+
+instr 4;mlof
+iDur = p3 ;dur 0.1 #duration in seconds
+kcps = p4 ;pitch 1 #speed/freq
+ivol = p5 ;vol 0.5 #volume !0 1
+ipan = p6 ;pan 0.5 #panorama in stereofield !0 1
+irev = p7 ;rev 0 #amount reverb !0 1
+iSampleNumber = p8;wav 2
+kcutoff   = p9;cut 15000
+iBB = p10 ;bb 0 # stutter fx amount
+iWarp = p11;warp 0 #special delay fx amount !0 1
+iDelay = p12 ;delay 0 #delay fx amount !0 1
+aenv	    linenr    ivol, .01, .1, .01 
+asig loscil aenv,kcps,iSampleNumber,1,0
+asig dcblock2 asig
+;asig = asig * 0.2 * ivol
+aleft, aright pan2 asig, ipan
+     outs aleft, aright
+gaRevLeft = gaRevLeft + aleft*irev
+gaRevRight = gaRevRight + aright*irev
+gaBBLeft = gaBBLeft + aleft*iBB
+gaBBRight = gaBBRight + aright*iBB
+gaWarpLeft = gaWarpLeft + aleft*iWarp
+gaWarpRight = gaWarpRight + aright*iWarp
+gaDelayLeft = gaDelayLeft + aleft*iDelay
+gaDelayRight = gaDelayRight + aright*iDelay
+
+endin
+
+instr 5;fm
 
 iDur = p3 ;dur 0.1 #duration in seconds
 kcps = p4 ;pitch 30 #frequency in hz
@@ -59,7 +191,7 @@ gaDelayRight = gaDelayRight + aright*iDelay
 endin
 
 
-instr 2;tam
+instr 6;tam
 ivol = p5 ;vol 1 #volume !0 1
 ipan = p6 ;pan 0.5 #panorama in stereofield !0 1
 irev = p7 ;rev 0 #amount reverb !0 1
@@ -89,7 +221,7 @@ gaDelayRight = gaDelayRight + aright*iDelay
 endin
 
 
-instr 3;pwm
+instr 7;pwm
 iDur = p3 ;dur 1 #duration in seconds
 icps = p4 ;pitch 40 #frequency in hz
 iCut = p5 ;cut 10000
@@ -129,7 +261,7 @@ endin
 
 
 
-instr 4;bd
+instr 8;bd
 iDur = p3 ;dur 0.70 #duration in seconds
 icps = p4 ;pitch 50 #frequency in hz
 ivol = p5 ;vol 1 #volume !0 1
@@ -166,7 +298,7 @@ endin
 
 
 
-instr 5;sd
+instr 9;sd
 iDur = p3 ;dur 0.23 #duration in seconds
 icps = p4 ;pitch 160 #frequency in hz
 ivol = p5 ;vol 1 #volume !0 1
@@ -210,7 +342,7 @@ gaDelayRight = gaDelayRight + aright*iDelay
 
 endin	
 
-instr 6;bass
+instr 10;bass
 idur = p3 ;dur 0.7 #duration in seconds
 icps = p4 ;pitch 60 #frequency in hz
 ivol = p5 ;vol 1 #volume !0 1
@@ -308,10 +440,20 @@ endin
 <CsScore>
 ; sine wave.
 f 1 0 32768 10 1
+
+;samples
+f 2 0 0 1 "../../../samples/fbitsBD.wav" 0 0 0
+f 3 0 0 1 "../../../samples/fbitsSD.wav" 0 0 0
+f 4 0 0 1 "../../../samples/fbitsZng.wav" 0 0 0
+f 5 0 0 1 "../../../samples/abrissDumpfSchellRX.wav" 0 0 0
+f 6 0 0 1 "../../../samples/abschluesselRX.wav" 0 0 0
+
+; start and let run the instruments defining the effects
 i 96 0 36000
 i 97 0 36000
 i 98 0 36000
 i 99 0 36000
+
 e
 </CsScore>
 </CsoundSynthesizer>

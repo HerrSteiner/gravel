@@ -48,11 +48,30 @@ void SoundEngine::process(void)
 
     // start Csound thread
     Csound *csound = new Csound();
+    QString rtaudio;
+#if (defined (Q_OS_MAC))
+    rtaudio = "-+rtaudio=auhal";
+
+#elif (defined (Q_OS_LINUX))
+    rtaudio = "-+rtaudio=alsa";
+
+#elif (defined (Q_OS_WIN)
+    rtaudio = "-+rtaudio=portaudio";
+
+
+#endif
+    csound->SetOption(rtaudio.toStdString().c_str());
+
     QString dacOption = "-odac" + QString::number(audioDeviceID+1);
     csound->SetOption(dacOption.toStdString().c_str());
-    QString csd = QCoreApplication::applicationDirPath() + "/../../../csoundIntruments.csd";
 
-    //QString csd = "csoundIntruments.csd";
+    QString csd;
+#ifdef Q_OS_MAC
+    csd = QCoreApplication::applicationDirPath() + "/../../../csoundIntruments.csd";
+#else
+    csd = "csoundIntruments.csd";
+#endif
+
     emit parseCsound(csd);
     int result = csound->CompileCsd(qPrintable(csd));
 
