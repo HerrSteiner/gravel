@@ -30,58 +30,45 @@ giDistTable	ftgen	0,0, 257, 9, .5,1,270
 
 instr 1;smp
 iDur = p3 ;dur 0.1 #duration in seconds
-kcps = p4 ;pitch 1 #speed/freq
-ivol = p5 ;vol 0.5 #volume !0 1
-ipan = p6 ;pan 0 #panorama in stereofield !0 1
-irev = p7 ;rev 0 #amount reverb !0 1
-iSampleNumber = p8;wav 2
-kcutoff   = p9;cut 15000
-iBB = p10 ;bb 0 # stutter fx amount
-iWarp = p11;warp 0 #special delay fx amount !0 1
-iDelay = p12 ;delay 0 #delay fx amount !0 1
-ipanR = 1 - ipan
-;aenv linen ivol,0.006,iEnvDur,0.006
-aenv	    linenr    ivol, .01, .1, .01 
-al,ar loscil3 aenv,kcps,iSampleNumber,1,0
-
-al dcblock2 al
-ar dcblock2 ar
-
-aleft1, aright1 pan2 al, ipan
-aleft2, aright2 pan2 ar, ipanR
-aleft = aleft1 + aleft2
-aright = aright1 + aright2
-
-     outs aleft, aright
-gaRevLeft = gaRevLeft + aleft*irev
-gaRevRight = gaRevRight + aright*irev
-gaBBLeft = gaBBLeft + aleft*iBB
-gaBBRight = gaBBRight + aright*iBB
-gaWarpLeft = gaWarpLeft + aleft*iWarp
-gaWarpRight = gaWarpRight + aright*iWarp
-gaDelayLeft = gaDelayLeft + aleft*iDelay
-gaDelayRight = gaDelayRight + aright*iDelay
-
-endin
-
-instr 2;msmp
-iDur = p3 ;dur 0.1 #duration in seconds
-kcps = p4 ;pitch 1 #speed/freq
+icps = p4 ;pitch 1 #speed/freq
 ivol = p5 ;vol 0.5 #volume !0 1
 ipan = p6 ;pan 0.5 #panorama in stereofield !0 1
 irev = p7 ;rev 0 #amount reverb !0 1
 iSampleNumber = p8;wav 2
-kcutoff   = p9;cut 15000
-iBB = p10 ;bb 0 # stutter fx amount
-iWarp = p11;warp 0 #special delay fx amount !0 1
-iDelay = p12 ;delay 0 #delay fx amount !0 1
-;aenv linen ivol,0.006,iEnvDur,0.006
-aenv	    linenr    ivol, .01, .1, .01 
-asig loscil3 aenv,kcps,iSampleNumber,1,0
+iBB 	 = p9 ;bb 0 # stutter fx amount
+iWarp = p10;warp 0 #special delay fx amount !0 1
+iDelay = p11 ;delay 0 #delay fx amount !0 1
 
-asig dcblock2 asig
-;asig = asig * 0.2 * ivol
-aleft, aright pan2 asig, ipan
+ichnls = ftchnls(p8)
+
+aenv	    linenr    ivol, .01, .1, .01
+
+if (ichnls == 1) then
+	asig loscil3 aenv,icps,iSampleNumber,1,0
+	ablock dcblock2 asig
+	aleft, aright pan2 ablock, ipan
+
+elseif (ichnls == 2) then
+
+	al,ar loscil3 aenv,icps,iSampleNumber,1,0
+	alb dcblock2 al
+	arb dcblock2 ar
+	if (ipan == 0.5) then
+		aleft = alb
+		aright = arb
+	elseif (ipan < 0.5) then
+		aleft = alb
+		aright = arb * ipan * 2
+	else 
+		aleft = alb * (1 - (ipan - 0.5)*2)
+		aright = arb
+	endif
+
+else ; can't handle multichannel wavs 
+	aleft = 0
+	aright = 0
+endif
+
      outs aleft, aright
 gaRevLeft = gaRevLeft + aleft*irev
 gaRevRight = gaRevRight + aright*irev
@@ -94,30 +81,46 @@ gaDelayRight = gaDelayRight + aright*iDelay
 
 endin
 
-instr 3;lof
+instr 2;lof
 iDur = p3 ;dur 0.1 #duration in seconds
-kcps = p4 ;pitch 1 #speed/freq
+icps = p4 ;pitch 1 #speed/freq
 ivol = p5 ;vol 0.5 #volume !0 1
 ipan = p6 ;pan 0.5 #panorama in stereofield !0 1
 irev = p7 ;rev 0 #amount reverb !0 1
 iSampleNumber = p8;wav 2
-kcutoff   = p9;cut 15000
-iBB = p10 ;bb 0 # stutter fx amount
-iWarp = p11;warp 0 #special delay fx amount !0 1
-iDelay = p12 ;delay 0 #delay fx amount !0 1
-ipanR = 1 - ipan
+iBB 	 = p9 ;bb 0 # stutter fx amount
+iWarp = p10;warp 0 #special delay fx amount !0 1
+iDelay = p11 ;delay 0 #delay fx amount !0 1
 
-aenv	    linenr    ivol, .01, .1, .01 
-al,ar loscil aenv,kcps,iSampleNumber,1,0
+ichnls = ftchnls(p8)
 
-al dcblock2 al
-ar dcblock2 ar
-;asig = asig * 0.2 * ivol
+aenv	    linenr    ivol, .01, .1, .01
 
-aleft1, aright1 pan2 al, ipan
-aleft2, aright2 pan2 ar, ipanR
-aleft = aleft1 + aleft2
-aright = aright1 + aright2
+if (ichnls == 1) then
+	asig loscil aenv,icps,iSampleNumber,1,0
+	ablock dcblock2 asig
+	aleft, aright pan2 ablock, ipan
+
+elseif (ichnls == 2) then
+
+	al,ar loscil aenv,icps,iSampleNumber,1,0
+	alb dcblock2 al
+	arb dcblock2 ar
+	if (ipan == 0.5) then
+		aleft = alb
+		aright = arb
+	elseif (ipan < 0.5) then
+		aleft = alb
+		aright = arb * ipan * 2
+	else 
+		aleft = alb * (1 - (ipan - 0.5)*2)
+		aright = arb
+	endif
+
+else ; can't handle multichannel wavs 
+	aleft = 0
+	aright = 0
+endif
 
      outs aleft, aright
 gaRevLeft = gaRevLeft + aleft*irev
@@ -131,22 +134,56 @@ gaDelayRight = gaDelayRight + aright*iDelay
 
 endin
 
-instr 4;mlof
+instr 3;sndwarp
 iDur = p3 ;dur 0.1 #duration in seconds
-kcps = p4 ;pitch 1 #speed/freq
+icps = p4 ;pitch 1 #speed/freq
 ivol = p5 ;vol 0.5 #volume !0 1
 ipan = p6 ;pan 0.5 #panorama in stereofield !0 1
 irev = p7 ;rev 0 #amount reverb !0 1
 iSampleNumber = p8;wav 2
-kcutoff   = p9;cut 15000
-iBB = p10 ;bb 0 # stutter fx amount
-iWarp = p11;warp 0 #special delay fx amount !0 1
-iDelay = p12 ;delay 0 #delay fx amount !0 1
-aenv	    linenr    ivol, .01, .1, .01 
-asig loscil aenv,kcps,iSampleNumber,1,0
-asig dcblock2 asig
-;asig = asig * 0.2 * ivol
-aleft, aright pan2 asig, ipan
+ibeg = p9;start 0
+iwsize = p10;wsize 100
+ioverlap = p11;over 5
+ispeed = p12;speed 1
+irandw = p13;jitter 100
+iBB 	 = p14 ;bb 0 # stutter fx amount
+iWarp = p15;warp 0 #special delay fx amount !0 1
+iDelay = p16 ;delay 0 #delay fx amount !0 1
+
+ichnls = ftchnls(p8)
+
+aenv	    linenr    ivol, .01, .1, .01
+
+if (ichnls == 1) then
+	awarp,ac sndwarp  aenv, ispeed, icps, iSampleNumber, ibeg, iwsize, irandw, ioverlap, 99, 0
+	asig balance awarp,ac 
+	ablock dcblock2 asig
+	aleft, aright pan2 ablock, ipan
+
+elseif (ichnls == 2) then
+
+	al,ar,acl,acr sndwarpst  aenv, ispeed, icps, iSampleNumber, ibeg, iwsize, irandw, ioverlap, 99, 0
+	al balance al,acl 
+	ar balance ar,acr
+	
+	alb dcblock2 al
+	arb dcblock2 ar
+	if (ipan == 0.5) then
+		aleft = alb
+		aright = arb
+	elseif (ipan < 0.5) then
+		aleft = alb
+		aright = arb * ipan * 2
+	else 
+		aleft = alb * (1 - (ipan - 0.5)*2)
+		aright = arb
+	endif
+
+else ; can't handle multichannel wavs 
+	aleft = 0
+	aright = 0
+endif
+
      outs aleft, aright
 gaRevLeft = gaRevLeft + aleft*irev
 gaRevRight = gaRevRight + aright*irev
@@ -158,6 +195,7 @@ gaDelayLeft = gaDelayLeft + aleft*iDelay
 gaDelayRight = gaDelayRight + aright*iDelay
 
 endin
+
 
 instr 5;fm
 
@@ -447,6 +485,9 @@ f 3 0 0 1 "../../../samples/fbitsSD.wav" 0 0 0
 f 4 0 0 1 "../../../samples/fbitsZng.wav" 0 0 0
 f 5 0 0 1 "../../../samples/abrissDumpfSchellRX.wav" 0 0 0
 f 6 0 0 1 "../../../samples/abschluesselRX.wav" 0 0 0
+
+;other tables
+f 99 0 1024 9 0.5 1 0	
 
 ; start and let run the instruments defining the effects
 i 96 0 36000
