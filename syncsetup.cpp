@@ -9,23 +9,6 @@ Syncsetup::Syncsetup(QWidget *parent) :
 {
     ui->setupUi(this);
     {
-        // list all networks
-        QString ips;
-        QList<QHostAddress> interfaces = QNetworkInterface::allAddresses();
-        for (const QHostAddress &interface : interfaces){
-            //if (!interface.CanBroadcast || !interface.IsRunning) continue;
-            //if (interface.type() == QNetworkInterface::Ethernet || interface.type() == QNetworkInterface::Wifi || interface.type() == QNetworkInterface::Loopback){
-                ips.clear();
-             //   QList<QNetworkAddressEntry> allAddresses = interface.addressEntries();
-               // for (const QNetworkAddressEntry &address : allAddresses){
-               //     if (address.)
-               //     QHostAddress ha = address.ip();
-                    //if (interface.isLoopback()) continue;
-                    //ips.append(" "+interface.toString());
-                //}
-                ui->networkComboBox->addItem(interface.toString());
-           // }
-        }
         QSettings settings;
         QString currentPort = "8001";
         if (settings.contains("syncPort")){
