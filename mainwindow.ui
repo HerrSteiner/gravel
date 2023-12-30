@@ -147,6 +147,7 @@
      <string>Preferences</string>
     </property>
     <addaction name="actionAudio_setup"/>
+    <addaction name="actionSync_setup"/>
    </widget>
    <addaction name="menuAbout"/>
    <addaction name="menuFile"/>
@@ -179,6 +180,11 @@
   <action name="actionAudio_setup">
    <property name="text">
     <string>Audio setup</string>
+   </property>
+  </action>
+  <action name="actionSync_setup">
+   <property name="text">
+    <string>Sync setup</string>
    </property>
   </action>
  </widget>

@@ -19,12 +19,18 @@
 #ifndef SOUNDENGINE_H
 #define SOUNDENGINE_H
 
+#include <QtGlobal>
 #include <QObject>
 #include <QTimer>
+#include <QUdpSocket>
 #include <QMap>
 #include <csound.hpp>
-//#include <csound/csound.hpp>
+
+#if (defined (Q_OS_MAC))
 #include <CsoundLib64/csound_threaded.hpp>
+#else
+#include <csound_threaded.hpp>
+#endif
 #include "track.h"
 #include <QThread>
 #include "instrumentdefinition.h"
@@ -45,6 +51,7 @@ public:
     TracksType parsedTracks;
     TracksType tempTracks;
     bool hasParsedTracks = false;
+
 private:
     Csound *csound;
     CsoundThreaded *csoundThread;
@@ -52,10 +59,15 @@ private:
     //QList<int> patternA;
     //QList<int> patternB;
     QMap<QString,InstrumentDefinition> instruments;
-    int currentBeat; // current beat from 1 - 16, for quantized sequence update
+    int bpm = 120;
+    int currentBeat; // current beat from 1 - 32, for quantized sequence update
     //bool playPatternA;
     //bool swapPattern;
     //int seqIndex;
+    bool sendingSync = false;
+    bool receivingSync = false;
+    int syncPort;
+    QUdpSocket *udpSocket;
 
 protected:
     // void timerEvent(QTimerEvent *event) override;
@@ -68,6 +80,10 @@ private slots:
     void seqStep();
     void setInstrumentDefinitions(QMap<QString,InstrumentDefinition>instrumentDefinitions);
     void stop();
+    void syncListen(int port);
+    void syncSend(int port);
+    void syncStop();
+    void processPendingDatagrams();
 
 signals:
     void display(QString message);

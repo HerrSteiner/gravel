@@ -20,6 +20,7 @@
 #include "./ui_mainwindow.h"
 #include "QtCore/QDebug"
 #include "dialogaudiosetup.h"
+#include "syncsetup.h"
 #include <QMessageBox>
 #include <QFileDialog>
 
@@ -116,6 +117,16 @@ void MainWindow::on_actionAudio_setup_triggered()
     DialogAudioSetup *dialogSetup = new DialogAudioSetup(this);
     QObject::connect(dialogSetup,SIGNAL(audioSet()),soundEngine,SLOT(audioSet()));
     dialogSetup->show();
+}
+
+void MainWindow::on_actionSync_setup_triggered()
+{
+    Syncsetup *syncSetup = new Syncsetup(this);
+    QObject::connect(syncSetup,SIGNAL(syncSend(int)),soundEngine,SLOT(syncSend(int)));
+    QObject::connect(syncSetup,SIGNAL(syncListen(int)),soundEngine,SLOT(syncListen(int)));
+    QObject::connect(syncSetup,SIGNAL(syncStop()),soundEngine,SLOT(syncStop()));
+
+    syncSetup->show();
 }
 
 void MainWindow::on_actionsave_code_triggered()

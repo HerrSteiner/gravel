@@ -19,7 +19,6 @@
 #include "soundengine.h"
 #include "QtCore/QDebug"
 #include <QApplication>
-#include <QtGlobal>
 #include <QFile>
 
 #include <algorithm>
@@ -112,7 +111,7 @@ void SoundEngine::audioSet(){
 }
 
 void SoundEngine::setBPM(int bpm){
-
+    this->bpm = bpm;
     int rate = (int)(((60.f * 4.f) / (float)bpm) * 32.f); // clock resolution is 32 step
     if (rate == 0) rate = 1; // precautions
     timer->start(rate);
@@ -130,6 +129,16 @@ void SoundEngine::seqStep()
 {
     //qDebug() << "Timer ID:" << event->timerId()<<" index "<<seqIndex;
     //qDebug()<<"thread "<<QThread::currentThread()<< "main "<< QApplication::instance()->thread();
+    if (sendingSync){
+        QByteArray datagram = QByteArray::number(currentBeat);
+        udpSocket->writeDatagram(datagram,QHostAddress::Broadcast,syncPort);
+    }
+    // check if we have schedulded changes
+    if (currentBeat == 1 && hasParsedTracks) {
+        tracks.swap(tempTracks);
+        hasParsedTracks = false;
+    }
+
     QMapIterator<QString, Track> trackIterator(tracks);
     TracksType tickedTracks;
     while (trackIterator.hasNext()) {
@@ -196,15 +205,10 @@ void SoundEngine::seqStep()
     }
 
     tracks.swap(tickedTracks);
-
-    currentBeat++;
-    if (currentBeat > 16) {
-        currentBeat = 1;
-
-        // check if we have schedulded changes
-        if (hasParsedTracks) {
-            tracks.swap(tempTracks);
-            hasParsedTracks = false;
+    if (!receivingSync) {
+        currentBeat++;
+        if (currentBeat > 16) {
+             currentBeat = 1;
         }
     }
 }
@@ -217,4 +221,54 @@ void SoundEngine::stop(){
     this->timer->stop();
     csoundThread->Stop();
     csoundThread->Join();
+}
+
+void SoundEngine::syncListen(int port){
+    timer->stop();
+    if (udpSocket) {
+        udpSocket->close();
+        delete (udpSocket);
+    }
+    syncPort = port;
+    udpSocket = new QUdpSocket(this);
+    udpSocket->bind(syncPort, QUdpSocket::ShareAddress);
+    connect(udpSocket, &QUdpSocket::readyRead,
+                this, &SoundEngine::processPendingDatagrams);
+    receivingSync = true;
+    sendingSync = false;
+};
+void SoundEngine::syncSend(int port){
+    if (udpSocket) {
+        udpSocket->close();
+        delete (udpSocket);
+    }
+    syncPort = port;
+    udpSocket = new QUdpSocket(this);
+    receivingSync = false;
+    sendingSync = true;
+    if (!timer->isActive()){
+        setBPM(bpm);
+    }
+};
+
+void SoundEngine::syncStop(){
+    receivingSync = false;
+    sendingSync = false;
+    if (!timer->isActive()){
+        setBPM(bpm);
+    }
+};
+
+void SoundEngine::processPendingDatagrams()
+{
+    QByteArray datagram;
+    while (udpSocket->hasPendingDatagrams()) {
+        datagram.resize(int(udpSocket->pendingDatagramSize()));
+        udpSocket->readDatagram(datagram.data(), datagram.size());
+        int beat = datagram.toInt();
+        if (currentBeat != beat){
+            currentBeat = beat;
+            seqStep();
+        }
+    }
 }
