@@ -59,6 +59,7 @@ private slots:
      void on_actionopen_code_triggered();
      void on_actionmerge_code_triggered();
      void on_actionSync_setup_triggered();
+     void on_actionSample_Mapper_triggered();
 
 signals:
      void stop(); // tells the soundengine to stop before everything shuts down

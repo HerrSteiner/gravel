@@ -19,6 +19,7 @@
 #ifndef SOUNDENGINE_H
 #define SOUNDENGINE_H
 
+#include "samplelistmodel.h"
 #include <QtGlobal>
 #include <QObject>
 #include <QTimer>
@@ -84,6 +85,8 @@ private slots:
     void syncSend(int port);
     void syncStop();
     void processPendingDatagrams();
+    void activateMap(SampleListModel *model);
+
 
 signals:
     void display(QString message);

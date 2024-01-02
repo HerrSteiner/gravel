@@ -40,7 +40,8 @@ set(PROJECT_SOURCES
         parameter.h parameter.cpp
         dialogaudiosetup.h dialogaudiosetup.cpp dialogaudiosetup.ui
         syncsetup.h syncsetup.cpp syncsetup.ui
-
+        samplelistmodel.h samplelistmodel.cpp
+        samplemapper.h samplemapper.cpp samplemapper.ui
 )
 
 

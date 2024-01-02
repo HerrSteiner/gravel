@@ -148,6 +148,7 @@
     </property>
     <addaction name="actionAudio_setup"/>
     <addaction name="actionSync_setup"/>
+    <addaction name="actionSample_Mapper"/>
    </widget>
    <addaction name="menuAbout"/>
    <addaction name="menuFile"/>
@@ -185,6 +186,11 @@
   <action name="actionSync_setup">
    <property name="text">
     <string>Sync setup</string>
+   </property>
+  </action>
+  <action name="actionSample_Mapper">
+   <property name="text">
+    <string>Sample Mapper</string>
    </property>
   </action>
  </widget>

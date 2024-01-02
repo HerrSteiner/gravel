@@ -272,3 +272,18 @@ void SoundEngine::processPendingDatagrams()
         }
     }
 }
+
+void SoundEngine::activateMap(SampleListModel *model) {
+    audioSet(); // restart Csound to clear former sample space
+
+    uint amount = model->rowCount();
+
+    for (uint row = 0; row<amount; row++){
+        QString fileName = model->fileNameAt(row);
+
+        // load samples
+        QString tableIndexString = QString::number(row + 1);
+        QString message = "f "+tableIndexString+" 0 0 1 \""+fileName+"\" 0 0 0";
+        csoundThread->InputMessage(message.toStdString().c_str());
+    }
+}

@@ -215,7 +215,7 @@ kndx line iIndex, iDur, 0	;intensivy sidebands
 aexo expseg 0.00001, 0.01, 0.25, iDur, 0.00001
 
 iphase = rnd(1)
-asig foscili aexo, kcps, kcar, kmod, kndx, 1,iphase
+asig foscili aexo, kcps, kcar, kmod, kndx, 100,iphase
 aleft, aright pan2 asig*ivol*0.25, ipan
      outs aleft, aright
 gaRevLeft = gaRevLeft + aleft*irev
@@ -476,18 +476,12 @@ endin
 
 </CsInstruments>
 <CsScore>
-; sine wave.
-f 1 0 32768 10 1
-
-;samples
-f 2 0 0 1 "../../../samples/fbitsBD.wav" 0 0 0
-f 3 0 0 1 "../../../samples/fbitsSD.wav" 0 0 0
-f 4 0 0 1 "../../../samples/fbitsZng.wav" 0 0 0
-f 5 0 0 1 "../../../samples/abrissDumpfSchellRX.wav" 0 0 0
-f 6 0 0 1 "../../../samples/abschluesselRX.wav" 0 0 0
 
 ;other tables
 f 99 0 1024 9 0.5 1 0	
+
+; sine wave.
+f 100 0 32768 10 1
 
 ; start and let run the instruments defining the effects
 i 96 0 36000
