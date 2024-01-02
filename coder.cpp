@@ -34,14 +34,22 @@ bool Coder::eventFilter(QObject *obj, QEvent *event)
         QKeyEvent* key = static_cast<QKeyEvent*>(event);
         if ((key->modifiers() & Qt::ShiftModifier) && ( (key->key()==Qt::Key_Enter) || (key->key()==Qt::Key_Return) )) {
             // in case no selection was made, the current line shall be selected and parsed
+            bool singleLineEvaluation = false;
             QTextCursor cursor = textCursor();
+            QTextCursor backupCursor = textCursor();
+
             if (!cursor.hasSelection()){
+
                 cursor.select(QTextCursor::LineUnderCursor);
                 setTextCursor(cursor);
+                singleLineEvaluation = true;
             }
             emit evaluation();
             //ui->console->clear();
             //ui->console->append(ui->textEdit->textCursor().selectedText());
+            if (singleLineEvaluation) {
+                setTextCursor(backupCursor);
+            }
             return true;
         }
     }
