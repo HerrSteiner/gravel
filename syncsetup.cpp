@@ -1,7 +1,7 @@
 #include "syncsetup.h"
 #include "ui_syncsetup.h"
 #include <QNetworkInterface>
-#include <QSettings.h>
+#include <QSettings>
 
 Syncsetup::Syncsetup(QWidget *parent) :
     QDialog(parent),

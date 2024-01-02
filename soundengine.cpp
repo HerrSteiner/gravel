@@ -26,7 +26,9 @@
 SoundEngine::SoundEngine(QObject *parent)
     : QObject{parent}
 {
-
+    udpSocket = new QUdpSocket(this);
+    connect(udpSocket, &QUdpSocket::readyRead,
+                this, &SoundEngine::processPendingDatagrams);
 }
 
 SoundEngine::~SoundEngine(){
@@ -225,26 +227,21 @@ void SoundEngine::stop(){
 
 void SoundEngine::syncListen(int port){
     timer->stop();
-    if (udpSocket) {
-        udpSocket->close();
-        delete (udpSocket);
-    }
-    syncPort = port;
-    udpSocket = new QUdpSocket(this);
-    udpSocket->bind(syncPort, QUdpSocket::ShareAddress);
-    connect(udpSocket, &QUdpSocket::readyRead,
-                this, &SoundEngine::processPendingDatagrams);
-    receivingSync = true;
     sendingSync = false;
-};
-void SoundEngine::syncSend(int port){
-    if (udpSocket) {
-        udpSocket->close();
-        delete (udpSocket);
-    }
+
+    udpSocket->close();
+
     syncPort = port;
-    udpSocket = new QUdpSocket(this);
+    udpSocket->bind(syncPort, QUdpSocket::ShareAddress);
+
+    receivingSync = true;
+};
+
+void SoundEngine::syncSend(int port){
     receivingSync = false;
+    udpSocket->close();
+    syncPort = port;
+
     sendingSync = true;
     if (!timer->isActive()){
         setBPM(bpm);
@@ -254,6 +251,7 @@ void SoundEngine::syncSend(int port){
 void SoundEngine::syncStop(){
     receivingSync = false;
     sendingSync = false;
+    udpSocket ->close();
     if (!timer->isActive()){
         setBPM(bpm);
     }
@@ -261,6 +259,7 @@ void SoundEngine::syncStop(){
 
 void SoundEngine::processPendingDatagrams()
 {
+    if (!receivingSync) return;
     QByteArray datagram;
     while (udpSocket->hasPendingDatagrams()) {
         datagram.resize(int(udpSocket->pendingDatagramSize()));
