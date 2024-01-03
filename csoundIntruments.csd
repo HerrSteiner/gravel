@@ -395,7 +395,7 @@ iDelay = p12 ;delay 0 #delay fx amount !0 1
 ibuzzPhase = rnd(1)
 iphase = rnd(1)
 kfe  expseg 10,0.001, icut, idur*0.8, 10
-asig buzz  0.5, icps, iHarm, 1,ibuzzPhase
+asig buzz  0.5, icps, iHarm, 100,ibuzzPhase
 asaw vco2  0.5,icps+0.1,0,0,iphase
 keg expseg 0.00000001, 0.001, 1., idur, 0.00000001
 afil moogladder asig + asaw, kfe, 0.1
