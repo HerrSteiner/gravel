@@ -22,6 +22,10 @@ gaWarpRight	init 0
 gaDelayLeft   init  0
 gaDelayRight  init  0
 
+; the mixbus
+gaMixBusLeft init 0
+gaMixBusRight init 0
+
 ; make random really random, rather
 seed 0
 
@@ -34,7 +38,7 @@ icps = p4 ;pitch 1 #speed/freq
 ivol = p5 ;vol 0.5 #volume !0 1
 ipan = p6 ;pan 0.5 #panorama in stereofield !0 1
 irev = p7 ;rev 0 #amount reverb !0 1
-iSampleNumber = p8;wav 2
+iSampleNumber = p8;wav 1 #sample number
 iBB 	 = p9 ;bb 0 # stutter fx amount
 iWarp = p10;warp 0 #special delay fx amount !0 1
 iDelay = p11 ;delay 0 #delay fx amount !0 1
@@ -68,16 +72,19 @@ else ; can't handle multichannel wavs
 	aleft = 0
 	aright = 0
 endif
-
-     outs aleft, aright
-gaRevLeft = gaRevLeft + aleft*irev
-gaRevRight = gaRevRight + aright*irev
-gaBBLeft = gaBBLeft + aleft*iBB
-gaBBRight = gaBBRight + aright*iBB
-gaWarpLeft = gaWarpLeft + aleft*iWarp
-gaWarpRight = gaWarpRight + aright*iWarp
-gaDelayLeft = gaDelayLeft + aleft*iDelay
-gaDelayRight = gaDelayRight + aright*iDelay
+	; output
+	gaMixBusLeft = gaMixBusLeft + aleft
+	gaMixBusRight = gaMixBusRight + aright
+     
+     ;effects
+	gaRevLeft = gaRevLeft + aleft*irev
+	gaRevRight = gaRevRight + aright*irev
+	gaBBLeft = gaBBLeft + aleft*iBB
+	gaBBRight = gaBBRight + aright*iBB
+	gaWarpLeft = gaWarpLeft + aleft*iWarp
+	gaWarpRight = gaWarpRight + aright*iWarp
+	gaDelayLeft = gaDelayLeft + aleft*iDelay
+	gaDelayRight = gaDelayRight + aright*iDelay
 
 endin
 
@@ -87,7 +94,7 @@ icps = p4 ;pitch 1 #speed/freq
 ivol = p5 ;vol 0.5 #volume !0 1
 ipan = p6 ;pan 0.5 #panorama in stereofield !0 1
 irev = p7 ;rev 0 #amount reverb !0 1
-iSampleNumber = p8;wav 2
+iSampleNumber = p8;wav 2 #sample number
 iBB 	 = p9 ;bb 0 # stutter fx amount
 iWarp = p10;warp 0 #special delay fx amount !0 1
 iDelay = p11 ;delay 0 #delay fx amount !0 1
@@ -122,15 +129,19 @@ else ; can't handle multichannel wavs
 	aright = 0
 endif
 
-     outs aleft, aright
-gaRevLeft = gaRevLeft + aleft*irev
-gaRevRight = gaRevRight + aright*irev
-gaBBLeft = gaBBLeft + aleft*iBB
-gaBBRight = gaBBRight + aright*iBB
-gaWarpLeft = gaWarpLeft + aleft*iWarp
-gaWarpRight = gaWarpRight + aright*iWarp
-gaDelayLeft = gaDelayLeft + aleft*iDelay
-gaDelayRight = gaDelayRight + aright*iDelay
+     ; output
+	gaMixBusLeft = gaMixBusLeft + aleft
+	gaMixBusRight = gaMixBusRight + aright
+     
+     ;effects
+	gaRevLeft = gaRevLeft + aleft*irev
+	gaRevRight = gaRevRight + aright*irev
+	gaBBLeft = gaBBLeft + aleft*iBB
+	gaBBRight = gaBBRight + aright*iBB
+	gaWarpLeft = gaWarpLeft + aleft*iWarp
+	gaWarpRight = gaWarpRight + aright*iWarp
+	gaDelayLeft = gaDelayLeft + aleft*iDelay
+	gaDelayRight = gaDelayRight + aright*iDelay
 
 endin
 
@@ -140,12 +151,12 @@ icps = p4 ;pitch 1 #speed/freq
 ivol = p5 ;vol 0.5 #volume !0 1
 ipan = p6 ;pan 0.5 #panorama in stereofield !0 1
 irev = p7 ;rev 0 #amount reverb !0 1
-iSampleNumber = p8;wav 2
-ibeg = p9;start 0
-iwsize = p10;wsize 100
-ioverlap = p11;over 5
-ispeed = p12;speed 1
-irandw = p13;jitter 100
+iSampleNumber = p8;wav 1 #sample number
+ibeg = p9;start 0 #sample begin !0 1
+iwsize = p10;wsize 100 #grain size
+ioverlap = p11;over 5 #grain overlap
+ispeed = p12;speed 1 #playspeed
+irandw = p13;jitter 100 #range of randomness applied to grain position
 iBB 	 = p14 ;bb 0 # stutter fx amount
 iWarp = p15;warp 0 #special delay fx amount !0 1
 iDelay = p16 ;delay 0 #delay fx amount !0 1
@@ -184,15 +195,19 @@ else ; can't handle multichannel wavs
 	aright = 0
 endif
 
-     outs aleft, aright
-gaRevLeft = gaRevLeft + aleft*irev
-gaRevRight = gaRevRight + aright*irev
-gaBBLeft = gaBBLeft + aleft*iBB
-gaBBRight = gaBBRight + aright*iBB
-gaWarpLeft = gaWarpLeft + aleft*iWarp
-gaWarpRight = gaWarpRight + aright*iWarp
-gaDelayLeft = gaDelayLeft + aleft*iDelay
-gaDelayRight = gaDelayRight + aright*iDelay
+     ; output
+	gaMixBusLeft = gaMixBusLeft + aleft
+	gaMixBusRight = gaMixBusRight + aright
+     
+     ;effects
+	gaRevLeft = gaRevLeft + aleft*irev
+	gaRevRight = gaRevRight + aright*irev
+	gaBBLeft = gaBBLeft + aleft*iBB
+	gaBBRight = gaBBRight + aright*iBB
+	gaWarpLeft = gaWarpLeft + aleft*iWarp
+	gaWarpRight = gaWarpRight + aright*iWarp
+	gaDelayLeft = gaDelayLeft + aleft*iDelay
+	gaDelayRight = gaDelayRight + aright*iDelay
 
 endin
 
@@ -217,15 +232,20 @@ aexo expseg 0.00001, 0.01, 0.25, iDur, 0.00001
 iphase = rnd(1)
 asig foscili aexo, kcps, kcar, kmod, kndx, 100,iphase
 aleft, aright pan2 asig*ivol*0.25, ipan
-     outs aleft, aright
-gaRevLeft = gaRevLeft + aleft*irev
-gaRevRight = gaRevRight + aright*irev
-gaBBLeft = gaBBLeft + aleft*iBB
-gaBBRight = gaBBRight + aright*iBB
-gaWarpLeft = gaWarpLeft + aleft*iWarp
-gaWarpRight = gaWarpRight + aright*iWarp
-gaDelayLeft = gaDelayLeft + aleft*iDelay
-gaDelayRight = gaDelayRight + aright*iDelay
+
+     ; output
+	gaMixBusLeft = gaMixBusLeft + aleft
+	gaMixBusRight = gaMixBusRight + aright
+     
+     ;effects
+	gaRevLeft = gaRevLeft + aleft*irev
+	gaRevRight = gaRevRight + aright*irev
+	gaBBLeft = gaBBLeft + aleft*iBB
+	gaBBRight = gaBBRight + aright*iBB
+	gaWarpLeft = gaWarpLeft + aleft*iWarp
+	gaWarpRight = gaWarpRight + aright*iWarp
+	gaDelayLeft = gaDelayLeft + aleft*iDelay
+	gaDelayRight = gaDelayRight + aright*iDelay
 endin
 
 
@@ -246,15 +266,20 @@ asig wguide2 asig, 120, 1200, kcutoff1, kcutoff2, kfeedback1, kfeedback2
 asig dcblock2 asig	
 asig = asig * 0.2 * ivol
 aleft, aright pan2 asig, ipan
-     outs aleft, aright
-gaRevLeft = gaRevLeft + aleft*irev
-gaRevRight = gaRevRight + aright*irev
-gaBBLeft = gaBBLeft + aleft*iBB
-gaBBRight = gaBBRight + aright*iBB
-gaWarpLeft = gaWarpLeft + aleft*iWarp
-gaWarpRight = gaWarpRight + aright*iWarp
-gaDelayLeft = gaDelayLeft + aleft*iDelay
-gaDelayRight = gaDelayRight + aright*iDelay
+    
+    ; output
+	gaMixBusLeft = gaMixBusLeft + aleft
+	gaMixBusRight = gaMixBusRight + aright
+     
+     ;effects
+	gaRevLeft = gaRevLeft + aleft*irev
+	gaRevRight = gaRevRight + aright*irev
+	gaBBLeft = gaBBLeft + aleft*iBB
+	gaBBRight = gaBBRight + aright*iBB
+	gaWarpLeft = gaWarpLeft + aleft*iWarp
+	gaWarpRight = gaWarpRight + aright*iWarp
+	gaDelayLeft = gaDelayLeft + aleft*iDelay
+	gaDelayRight = gaDelayRight + aright*iDelay
 
 endin
 
@@ -285,16 +310,20 @@ aenv    linseg 1, iDur - 0.1, 1, 0.1, 0
 a1 = afilter*aenv*0.20*ivol
 
 aleft, aright pan2 a1*0.6, ipan
-     outs aleft, aright
+     ; output
+	gaMixBusLeft = gaMixBusLeft + aleft
+	gaMixBusRight = gaMixBusRight + aright
+     
+     ;effects
 
-gaRevLeft = gaRevLeft + aleft*irev
-gaRevRight = gaRevRight + aright*irev
-gaBBLeft = gaBBLeft + aleft*iBB
-gaBBRight = gaBBRight + aright*iBB
-gaWarpLeft = gaWarpLeft + aleft*iWarp
-gaWarpRight = gaWarpRight + aright*iWarp
-gaDelayLeft = gaDelayLeft + aleft*iDelay
-gaDelayRight = gaDelayRight + aright*iDelay
+	gaRevLeft = gaRevLeft + aleft*irev
+	gaRevRight = gaRevRight + aright*irev
+	gaBBLeft = gaBBLeft + aleft*iBB
+	gaBBRight = gaBBRight + aright*iBB
+	gaWarpLeft = gaWarpLeft + aleft*iWarp
+	gaWarpRight = gaWarpRight + aright*iWarp
+	gaDelayLeft = gaDelayLeft + aleft*iDelay
+	gaDelayRight = gaDelayRight + aright*iDelay
 endin
 
 
@@ -323,15 +352,19 @@ asig = aclick*aclickEnv + aboum*aboumEnv
 
 adist distort asig,idist,giDistTable
 aleft, aright pan2 adist*iCompensation, ipan
-	outs aleft, aright
-gaRevLeft = gaRevLeft + aleft*irev
-gaRevRight = gaRevRight + aright*irev
-gaBBLeft = gaBBLeft + aleft*iBB
-gaBBRight = gaBBRight + aright*iBB
-gaWarpLeft = gaWarpLeft + aleft*iWarp
-gaWarpRight = gaWarpRight + aright*iWarp
-gaDelayLeft = gaDelayLeft + aleft*iDelay
-gaDelayRight = gaDelayRight + aright*iDelay
+	; output
+	gaMixBusLeft = gaMixBusLeft + aleft
+	gaMixBusRight = gaMixBusRight + aright
+     
+     ;effects
+	gaRevLeft = gaRevLeft + aleft*irev
+	gaRevRight = gaRevRight + aright*irev
+	gaBBLeft = gaBBLeft + aleft*iBB
+	gaBBRight = gaBBRight + aright*iBB
+	gaWarpLeft = gaWarpLeft + aleft*iWarp
+	gaWarpRight = gaWarpRight + aright*iWarp
+	gaDelayLeft = gaDelayLeft + aleft*iDelay
+	gaDelayRight = gaDelayRight + aright*iDelay
 endin
 
 
@@ -364,19 +397,24 @@ ahp,alp,abp,abr statevar anoise, icut, 4
 asig = aclick*aclickEnv + aboum*aboumEnv + ahp*anoiseEnv
 asig =  asig*0.5*ivol
 asig  = limit(asig, -1.0, 1.0)
+	
 	aleft, aright pan2 asig, ipan
-	outs aleft, aright
-gaRevLeft = gaRevLeft + aleft*irev
-gaRevRight = gaRevRight + aright*irev
+	; output
+	gaMixBusLeft = gaMixBusLeft + aleft
+	gaMixBusRight = gaMixBusRight + aright
+     
+     ;effects
+	gaRevLeft = gaRevLeft + aleft*irev
+	gaRevRight = gaRevRight + aright*irev
 
-gaBBLeft = gaBBLeft + aleft*iBB
-gaBBRight = gaBBRight + aright*iBB
+	gaBBLeft = gaBBLeft + aleft*iBB
+	gaBBRight = gaBBRight + aright*iBB
 
-gaWarpLeft = gaWarpLeft + aleft*iWarp
-gaWarpRight = gaWarpRight + aright*iWarp
+	gaWarpLeft = gaWarpLeft + aleft*iWarp
+	gaWarpRight = gaWarpRight + aright*iWarp
 
-gaDelayLeft = gaDelayLeft + aleft*iDelay
-gaDelayRight = gaDelayRight + aright*iDelay
+	gaDelayLeft = gaDelayLeft + aleft*iDelay
+	gaDelayRight = gaDelayRight + aright*iDelay
 
 endin	
 
@@ -401,21 +439,26 @@ keg expseg 0.00000001, 0.001, 1., idur, 0.00000001
 afil moogladder asig + asaw, kfe, 0.1
      afil =  afil*0.22*keg*ivol
 	aleft, aright pan2 afil, ipan
-	outs aleft, aright
-gaRevLeft = gaRevLeft + aleft*irev
-gaRevRight = gaRevRight + aright*irev
 
-gaBBLeft = gaBBLeft + aleft*iBB
-gaBBRight = gaBBRight + aright*iBB
+	; output
+	gaMixBusLeft = gaMixBusLeft + aleft
+	gaMixBusRight = gaMixBusRight + aright
+     
+     ;effects
+	gaRevLeft = gaRevLeft + aleft*irev
+	gaRevRight = gaRevRight + aright*irev
 
-gaWarpLeft = gaWarpLeft + aleft*iWarp
-gaWarpRight = gaWarpRight + aright*iWarp
+	gaBBLeft = gaBBLeft + aleft*iBB
+	gaBBRight = gaBBRight + aright*iBB
 
-gaDelayLeft = gaDelayLeft + aleft*iDelay
-gaDelayRight = gaDelayRight + aright*iDelay
+	gaWarpLeft = gaWarpLeft + aleft*iWarp
+	gaWarpRight = gaWarpRight + aright*iWarp
+
+	gaDelayLeft = gaDelayLeft + aleft*iDelay
+	gaDelayRight = gaDelayRight + aright*iDelay
 endin
 
-
+;delay
 instr 96
 iFdback =        0.7           ; feedback ratio
 aDelayLeft	init 0
@@ -423,10 +466,14 @@ aDelayRight	init 0
 
 aDelayLeft  delay    gaDelayLeft+(aDelayLeft*iFdback), .5 ;delay 0.3 seconds
 aDelayRight delay    gaDelayRight+(aDelayRight*iFdback), .5
-        out      aDelayLeft, aDelayRight
+          
+          ; output
+		gaMixBusLeft = gaMixBusLeft + aDelayLeft
+		gaMixBusRight = gaMixBusRight + aDelayRight
         clear gaDelayLeft,gaDelayRight
-  endin
-  
+endin
+
+;fft based reverb/delay effect
 instr 97
 
 ifftsize = 1024 * 2
@@ -447,11 +494,13 @@ fftblurRight pvsmooth fftRight,0.004,0.005
 aleft	pvsynth fftblurLeft
 aright	pvsynth fftblurRight
 
-	      outs aleft, aright
-	      clear gaWarpLeft,gaWarpRight
+	; output
+	gaMixBusLeft = gaMixBusLeft + aleft
+	gaMixBusRight = gaMixBusRight + aright
+     clear gaWarpLeft,gaWarpRight
 endin
 
- 
+; stutter effect 
 instr 98
 
 ibps = 12
@@ -462,19 +511,31 @@ inumrepeats = 16
 
 
 aleft, aright bbcuts gaBBLeft, gaBBRight, ibps, isubdiv, ibarlength, iphrasebars, inumrepeats,1,0.7
-	      outs aleft, aright
+		; output
+		gaMixBusLeft = gaMixBusLeft + aleft
+		gaMixBusRight = gaMixBusRight + aright
 	      clear gaBBLeft,gaBBRight
 
 endin
    
+;reverb
 instr 99
         denorm gaRevLeft, gaRevRight
-aL, aR  reverbsc gaRevLeft, gaRevRight, 0.85, 12000, sr, 0.5, 1
-     outs aL, aR
+aleft, aright  reverbsc gaRevLeft, gaRevRight, 0.85, 12000, sr, 0.5, 1
+     ; output
+	gaMixBusLeft = gaMixBusLeft + aleft
+	gaMixBusRight = gaMixBusRight + aright
      clear gaRevLeft,gaRevRight
 endin
 
+;mixbus, the central stereo output
+instr 100
+	outs gaMixBusLeft,gaMixBusRight
+	clear gaMixBusLeft,gaMixBusRight
+endin
+
 </CsInstruments>
+
 <CsScore>
 
 ;other tables
@@ -483,11 +544,12 @@ f 99 0 1024 9 0.5 1 0
 ; sine wave.
 f 100 0 32768 10 1
 
-; start and let run the instruments defining the effects
+; start and let run the instruments defining the effects and buses
 i 96 0 36000
 i 97 0 36000
 i 98 0 36000
 i 99 0 36000
+i 100 0 36000
 
 e
 </CsScore>
