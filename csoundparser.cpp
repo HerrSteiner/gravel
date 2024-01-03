@@ -65,7 +65,7 @@ void CsoundParser::parseCsound(QString fileName){
                 currentToken.append(ch);
                 if (currentToken == "instr"){
                     state = INSTRUMENTNUMBER;
-
+                    if (currentInstrument) delete currentInstrument;
                     currentInstrument = new InstrumentDefinition();
                     currentToken.clear();
                 }
