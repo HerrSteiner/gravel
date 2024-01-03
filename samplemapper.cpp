@@ -29,6 +29,7 @@ SampleMapper::SampleMapper(QWidget *parent) :
     ui->setupUi(this);
     model = new SampleListModel(this);
     ui->tableView->setModel(model);
+    ui->tableView->horizontalHeader()->setStretchLastSection(true);
 }
 
 SampleMapper::~SampleMapper()
