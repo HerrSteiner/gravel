@@ -28,7 +28,6 @@ SampleMapper::SampleMapper(QWidget *parent) :
 {
     ui->setupUi(this);
     model = new SampleListModel(this);
-    model->loadFromFile(currentSampleMapFileName());
     ui->tableView->setModel(model);
 }
 
@@ -78,7 +77,7 @@ void SampleMapper::on_Remove_clicked()
 
 void SampleMapper::on_activate_clicked()
 {
-    model->saveToFile(currentSampleMapFileName());
+    model->saveCurrentMap();
     emit activateMap(model);
 
 }
@@ -88,10 +87,4 @@ void SampleMapper::checkAddButton()
     ui->Add->setEnabled(model->rowCount() < maxEntries);
 }
 
-QString SampleMapper::currentSampleMapFileName(){
-#ifdef Q_OS_MAC
-    return QCoreApplication::applicationDirPath() + "/../../../currentSamppleMap.txt";
-#else
-    return currentMapFileLocation = "currentSamppleMap.txt";
-#endif
-}
+

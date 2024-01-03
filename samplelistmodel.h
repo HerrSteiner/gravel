@@ -39,18 +39,20 @@ public:
     QString fileNameAt(uint row);
 
     // Add data:
-    //bool insertRows(int row, int count, const QModelIndex &parent = QModelIndex()) override;
     void addFile(const QString &fileName);
 
     // Remove data:
-    //bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex()) override;
-     void removeFile(int index);
+    void removeFile(int index);
 
     void saveToFile(const QString &filePath) ;
     void loadFromFile(const QString &filePath);
 
-    private:
+    void saveCurrentMap();
+    void loadCurrentMap();
+
+private:
     QStringList fileList;
+    QString currentSampleMapFileName();
 };
 
 #endif // SAMPLELISTMODEL_H

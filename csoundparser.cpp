@@ -235,16 +235,16 @@ void CsoundParser::displayInstruments(){
             parameterIterator.next();
             instrumentMessage.append(tr("<tr><td>parameter <span style='color:#66F;'>"));
             instrumentMessage.append(parameterIterator.key());
-            instrumentMessage.append("</span></td><td>pNumber: <span style='color:#666;'>");
+            instrumentMessage.append("</span></td><td>pNumber: <span style='color:#888;'>");
             Parameter *parameter = parameterIterator.value();
             instrumentMessage.append(QString::number(parameter->pNumber));
-            instrumentMessage.append("</span></td><td>defaultValue: <span style='color:#666;'>");
+            instrumentMessage.append("</span></td><td>defaultValue: <span style='color:#888;'>");
             instrumentMessage.append(QString::number(parameter->value));
-            instrumentMessage.append("</span></td><td><span style='color:#666;'>");
+            instrumentMessage.append("</span></td><td><span style='color:#888;'>");
             instrumentMessage.append(parameter->Description);
-            instrumentMessage.append("</span></td><td>range: <span style='color:#666;'>");
+            instrumentMessage.append("</span></td><td>range: <span style='color:#888;'>");
             if (parameter->hasLimit){
-                instrumentMessage.append("</span></td><td>range: <span style='color:#666;'>");
+                instrumentMessage.append("</span></td><td>range: <span style='color:#888;'>");
                 instrumentMessage.append(QString::number(parameter->limitMin));
                 instrumentMessage.append(" - ");
                 instrumentMessage.append(QString::number(parameter->limitMax));

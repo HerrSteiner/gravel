@@ -17,6 +17,7 @@
 */
 
 #include "soundengine.h"
+
 #include "QtCore/QDebug"
 #include <QApplication>
 #include <QFile>
@@ -28,7 +29,8 @@ SoundEngine::SoundEngine(QObject *parent)
 {
     udpSocket = new QUdpSocket(this);
     connect(udpSocket, &QUdpSocket::readyRead,
-                this, &SoundEngine::processPendingDatagrams);
+            this, &SoundEngine::processPendingDatagrams);
+    sampleMapModel = new SampleListModel(this);
 }
 
 SoundEngine::~SoundEngine(){
@@ -86,6 +88,20 @@ void SoundEngine::process(void)
         this->csoundThread = csoundThread;
         csoundThread->Perform();
         qDebug()<<"this thread "<<QThread::currentThread();
+
+        // load, if available, the current sample map
+        if (sampleMapModel){
+            uint amount = sampleMapModel->rowCount();
+
+            for (uint row = 0; row<amount; row++){
+                QString fileName = sampleMapModel->fileNameAt(row);
+
+                // load samples
+                QString tableIndexString = QString::number(row + 1);
+                QString message = "f "+tableIndexString+" 0 0 1 \""+fileName+"\" 0 0 0";
+                csoundThread->InputMessage(message.toStdString().c_str());
+            }
+        }
 
         // setup sequencer clock
         currentBeat = 1;
@@ -210,7 +226,7 @@ void SoundEngine::seqStep()
     if (!receivingSync) {
         currentBeat++;
         if (currentBeat > 16) {
-             currentBeat = 1;
+            currentBeat = 1;
         }
     }
 }
@@ -273,16 +289,6 @@ void SoundEngine::processPendingDatagrams()
 }
 
 void SoundEngine::activateMap(SampleListModel *model) {
-    audioSet(); // restart Csound to clear former sample space
-
-    uint amount = model->rowCount();
-
-    for (uint row = 0; row<amount; row++){
-        QString fileName = model->fileNameAt(row);
-
-        // load samples
-        QString tableIndexString = QString::number(row + 1);
-        QString message = "f "+tableIndexString+" 0 0 1 \""+fileName+"\" 0 0 0";
-        csoundThread->InputMessage(message.toStdString().c_str());
-    }
+    sampleMapModel = model;
+    audioSet(); // restart Csound to clear former sample space, and load samples
 }

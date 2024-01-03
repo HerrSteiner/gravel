@@ -69,6 +69,7 @@ private:
     bool receivingSync = false;
     int syncPort;
     QUdpSocket *udpSocket;
+    SampleListModel *sampleMapModel;
 
 protected:
     // void timerEvent(QTimerEvent *event) override;

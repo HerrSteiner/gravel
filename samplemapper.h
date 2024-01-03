@@ -38,6 +38,7 @@ class SampleMapper : public QDialog
 public:
     explicit SampleMapper(QWidget *parent = nullptr);
     ~SampleMapper();
+    SampleListModel *model;
 
 private slots:
     void on_Load_clicked();
@@ -51,9 +52,7 @@ signals:
 
 private:
     Ui::SampleMapper *ui;
-    SampleListModel *model;
     void checkAddButton();
-    QString currentSampleMapFileName();
 };
 
 #endif // SAMPLEMAPPER_H

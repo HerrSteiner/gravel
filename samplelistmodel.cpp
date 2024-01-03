@@ -19,10 +19,12 @@
 #include "samplelistmodel.h"
 #include <QFile>
 #include <QTextStream>
+#include <QCoreApplication>
 
 SampleListModel::SampleListModel(QObject *parent)
     : QAbstractListModel(parent)
 {
+    loadCurrentMap();
 }
 
 QVariant SampleListModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -104,3 +106,19 @@ void SampleListModel::loadFromFile(const QString &filePath) {
            endResetModel();
        }
    }
+
+void SampleListModel::saveCurrentMap(){
+    saveToFile(currentSampleMapFileName());
+}
+
+void SampleListModel::loadCurrentMap() {
+    loadFromFile(currentSampleMapFileName());
+}
+
+QString SampleListModel::currentSampleMapFileName(){
+#ifdef Q_OS_MAC
+    return QCoreApplication::applicationDirPath() + "/../../../currentSamppleMap.txt";
+#else
+    return currentMapFileLocation = "currentSamppleMap.txt";
+#endif
+}
