@@ -1,6 +1,6 @@
 /*
    gravel - live coding music system -
-   Copyright (C) 2022 Malte Steiner
+   Copyright (C) 2022-2024 Malte Steiner
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
