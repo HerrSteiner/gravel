@@ -530,7 +530,10 @@ endin
 
 ;mixbus, the central stereo output
 instr 100
-	outs gaMixBusLeft,gaMixBusRight
+	; potentially applying a delay as compensation when jam with others, default is 0
+	aDelayLeft delay gaMixBusLeft,0
+	aDelayRight delay gaMixBusRight,0
+	outs aDelayLeft,aDelayRight
 	clear gaMixBusLeft,gaMixBusRight
 endin
 
