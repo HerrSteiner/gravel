@@ -70,22 +70,6 @@ QString SampleListModel::fileNameAt(uint row){
     return fileList.at(row);
 }
 
-/*
-bool SampleListModel::insertRows(int row, int count, const QModelIndex &parent)
-{
-    beginInsertRows(parent, row, row + count - 1);
-    // FIXME: Implement me!
-    endInsertRows();
-    return true;
-}
-
-bool SampleListModel::removeRows(int row, int count, const QModelIndex &parent)
-{
-    beginRemoveRows(parent, row, row + count - 1);
-    // FIXME: Implement me!
-    endRemoveRows();
-    return true;
-}*/
 void SampleListModel::addFile(const QString &fileName) {
        beginInsertRows(QModelIndex(), fileList.size(), fileList.size());
        fileList.append(fileName);
