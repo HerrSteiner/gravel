@@ -22,19 +22,13 @@
 
 const int maxEntries = 92;
 
-#ifdef Q_OS_MAC
-    const QString currentMapFileLocation = QCoreApplication::applicationDirPath() + "/../../../currentSamppleMap.txt";
-#else
-    const QString  currentMapFileLocation = "currentSamppleMap.txt";
-#endif
-
 SampleMapper::SampleMapper(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::SampleMapper)
 {
     ui->setupUi(this);
     model = new SampleListModel(this);
-    model->loadFromFile(currentMapFileLocation);
+    model->loadFromFile(currentSampleMapFileName());
     ui->tableView->setModel(model);
 }
 
@@ -84,7 +78,7 @@ void SampleMapper::on_Remove_clicked()
 
 void SampleMapper::on_activate_clicked()
 {
-    model->saveToFile(currentMapFileLocation);
+    model->saveToFile(currentSampleMapFileName());
     emit activateMap(model);
 
 }
@@ -92,4 +86,12 @@ void SampleMapper::on_activate_clicked()
 void SampleMapper::checkAddButton()
 {
     ui->Add->setEnabled(model->rowCount() < maxEntries);
+}
+
+QString SampleMapper::currentSampleMapFileName(){
+#ifdef Q_OS_MAC
+    return QCoreApplication::applicationDirPath() + "/../../../currentSamppleMap.txt";
+#else
+    return currentMapFileLocation = "currentSamppleMap.txt";
+#endif
 }

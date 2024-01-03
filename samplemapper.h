@@ -53,6 +53,7 @@ private:
     Ui::SampleMapper *ui;
     SampleListModel *model;
     void checkAddButton();
+    QString currentSampleMapFileName();
 };
 
 #endif // SAMPLEMAPPER_H
