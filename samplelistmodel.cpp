@@ -117,8 +117,8 @@ void SampleListModel::loadCurrentMap() {
 
 QString SampleListModel::currentSampleMapFileName(){
 #ifdef Q_OS_MAC
-    return QCoreApplication::applicationDirPath() + "/../../../currentSamppleMap.txt";
+    return QCoreApplication::applicationDirPath() + "/../../../currentSampleMap.txt";
 #else
-    return currentMapFileLocation = "currentSamppleMap.txt";
+    return "currentSampleMap.txt";
 #endif
 }
