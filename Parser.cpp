@@ -28,6 +28,10 @@ Parser::Parser(QObject *parent)
 }
 
 void Parser::parseCode(QString code){
+    if (code.isEmpty()){
+        emit status("empty line");
+        return;
+    }
     emit status("parsing...");
     state = NONE;
     QChar ch;

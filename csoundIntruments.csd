@@ -26,6 +26,10 @@ gaDelayRight  init  0
 gaMixBusLeft init 0
 gaMixBusRight init 0
 
+gkDelayTime init 0.5
+gaDelayTime init 0.5
+gkDelayFeedback init 0.5
+
 ; make random really random, rather
 seed 0
 
@@ -35,7 +39,7 @@ giDistTable	ftgen	0,0, 257, 9, .5,1,270
 instr 1;smp
 iDur = p3 ;dur 0.1 #duration in seconds
 icps = p4 ;pitch 1 #speed/freq
-ivol = p5 ;vol 0.5 #volume !0 1
+ivol = p5 ;vol 0.25 #volume !0 1
 ipan = p6 ;pan 0.5 #panorama in stereofield !0 1
 irev = p7 ;rev 0 #amount reverb !0 1
 iSampleNumber = p8;wav 1 #sample number
@@ -91,7 +95,7 @@ endin
 instr 2;lof
 iDur = p3 ;dur 0.1 #duration in seconds
 icps = p4 ;pitch 1 #speed/freq
-ivol = p5 ;vol 0.5 #volume !0 1
+ivol = p5 ;vol 0.25 #volume !0 1
 ipan = p6 ;pan 0.5 #panorama in stereofield !0 1
 irev = p7 ;rev 0 #amount reverb !0 1
 iSampleNumber = p8;wav 2 #sample number
@@ -148,7 +152,7 @@ endin
 instr 3;sndwarp
 iDur = p3 ;dur 0.1 #duration in seconds
 icps = p4 ;pitch 1 #speed/freq
-ivol = p5 ;vol 0.5 #volume !0 1
+ivol = p5 ;vol 0.25 #volume !0 1
 ipan = p6 ;pan 0.5 #panorama in stereofield !0 1
 irev = p7 ;rev 0 #amount reverb !0 1
 iSampleNumber = p8;wav 1 #sample number
@@ -250,6 +254,8 @@ endin
 
 
 instr 6;tam
+idur = p3 ;dur 0.4 #unused yet
+iPitch = p4;pitch 1 #pitchfactor
 ivol = p5 ;vol 1 #volume !0 1
 ipan = p6 ;pan 0.5 #panorama in stereofield !0 1
 irev = p7 ;rev 0 #amount reverb !0 1
@@ -258,13 +264,30 @@ kcutoff2   = p9;cut2 1500
 iBB = p10 ;bb 0 # stutter fx amount
 iWarp = p11;warp 0 #special delay fx amount !0 1
 iDelay = p12 ;delay 0 #delay fx amount !0 1
-
-kfeedback1 = 0.26						;the sum of the two feedback
-kfeedback2 = 0.25						;values should not exceed  0.5
-asig tambourine .25, 0.01, 30, 0.5, 0.4,57,1024,223
-asig wguide2 asig, 120, 1200, kcutoff1, kcutoff2, kfeedback1, kfeedback2
+ibells = p13 ;bell 30 #number of bells
+;the sum of the two feedback
+;values should not exceed  0.5
+ifeedback1 = 0.26						
+ifeedback2 = 0.25						
+asig tambourine .25, 0.01, ibells, 0.5, 0.4,57,1024,223
+asig wguide2 asig, 120, 1200, kcutoff1, kcutoff2, ifeedback1, ifeedback2
 asig dcblock2 asig	
-asig = asig * 0.2 * ivol
+
+	; Setup phase vocoder
+    ; Window size, overlap, and analysis bins
+    iFftsize = 1024
+    iOverlap = iFftsize / 4
+    iBins = iFftsize
+
+    ; Perform phase vocoder analysis
+    fSpec pvsanal asig, iFftsize, iOverlap, iBins, 1
+
+    ; Apply pitch shift
+    fShifted pvscale fSpec, iPitch
+
+    ; Resynthesize audio
+    aOut pvsynth fShifted
+asig = aOut * 0.2 * ivol
 aleft, aright pan2 asig, ipan
     
     ; output
@@ -334,21 +357,23 @@ icps = p4 ;pitch 50 #frequency in hz
 ivol = p5 ;vol 1 #volume !0 1
 ipan = p6 ;pan 0.5 #panorama in stereofield !0 1
 irev = p7 ;rev 0 #amount reverb !0 1
-idist = p8 ;dist 0 #distortion !0 2
+idist = p8 ;dist 1 #distortion !0 2
 iBB = p9 ;bb 0 #amount stutter fx !0 1
 iWarp = p10;warp 0 #special delay fx amount !0 1
 iDelay = p11 ;delay 0 #delay fx amount !0 1
+iClickVol = p12 ;cvol 0.1 #click volume !0 1
+iClickDecay = p13 ;cdec 0.1 #click decay
 
 iCompensation = ivol + ivol*(idist*2)
 
-aboumEnv expon 0.5, iDur, 0.00001
+aboumEnv expsegr 0.00000001, 0.01, 0.7, iDur, 0.00000001, 0.001, 0.00000001
 aboum vco2 0.25,icps,4,0.6,0,0.33
 
-aclickEnv expon 0.5,0.1,0.00001
-kclickEnv expon 400,0.13,0.00001
+aclickEnv expon 0.7,iClickDecay,0.00001
+kclickEnv expon 400,iClickDecay + 0.03,0.00001
 aclick vco2 0.15,kclickEnv,4,0.6,0,0.22
 
-asig = aclick*aclickEnv + aboum*aboumEnv
+asig = aclick*aclickEnv*iClickVol + aboum*aboumEnv
 
 adist distort asig,idist,giDistTable
 aleft, aright pan2 adist*iCompensation, ipan
@@ -379,23 +404,27 @@ icut = p8 ;cut 200 #be careful with that one !20 2000
 iBB = p9 ;bb 0 #amount stutter fx !0 1
 iWarp = p10 ;warp 0 #special delay fx amount !0 1
 iDelay = p11 ;delay 0 #delay fx amount !0 1
+iNoiseDecay = p12 ;ndec 0.2 #noise decay
+iClickVol = p13 ;cvol 1 #click volume
+iClickDecay = p14 ;cdec 0.1 #click decay
 
 iphase = rnd(1)
 
-aboumEnv expon 0.5, iDur, 0.00001
+aboumEnv expsegr 0.00000001, 0.01, 0.7, iDur, 0.00000001, 0.001, 0.00000001
+//aboumEnv expon 0.5, iDur, 0.00001
 aboum vco2 0.5,icps,4,0.6,iphase,0.33
 
-aclickEnv expon 0.5,0.1,0.00001
-kclickEnv expon 400,0.13,0.00001
+aclickEnv expon 0.9,iClickDecay,0.00001
+kclickEnv expon 400,iClickDecay+0.03,0.00001
 
 aclick vco2 0.25,kclickEnv,4,0.6,0,0.22
 
-anoiseEnv expon 0.5,0.2,0.00001
+anoiseEnv expon 0.5,iNoiseDecay,0.00001
 anoise noise 0.2,-0.9
 ahp,alp,abp,abr statevar anoise, icut, 4
 
-asig = aclick*aclickEnv + aboum*aboumEnv + ahp*anoiseEnv
-asig =  asig*0.5*ivol
+asig = aclick*aclickEnv*iClickVol + aboum*aboumEnv + ahp*anoiseEnv
+asig =  asig*0.6*ivol
 asig  = limit(asig, -1.0, 1.0)
 	
 	aleft, aright pan2 asig, ipan
@@ -437,7 +466,7 @@ asig buzz  0.5, icps, iHarm, 100,ibuzzPhase
 asaw vco2  0.5,icps+0.1,0,0,iphase
 keg expseg 0.00000001, 0.001, 1., idur, 0.00000001
 afil moogladder asig + asaw, kfe, 0.1
-     afil =  afil*0.22*keg*ivol
+     afil =  afil*0.42*keg*ivol
 	aleft, aright pan2 afil, ipan
 
 	; output
@@ -458,19 +487,32 @@ afil moogladder asig + asaw, kfe, 0.1
 	gaDelayRight = gaDelayRight + aright*iDelay
 endin
 
+instr 11;dt
+idur = p3 ;dur 0.1 #duration in seconds
+iDelayTime = p4 ;s 0.5 #delaytime in s !0 5
+iFeedback = p5 ;fb 0 #feedback !0 0.99
+if (iFeedback > 0) then
+	gkDelayFeedback = iFeedback
+endif
+iStart = i(gkDelayTime)
+gkDelayTime = k(iDelayTime)
+aDelayTime linseg iStart,idur,iDelayTime
+gaDelayTime = aDelayTime
+endin
+
 ;delay
 instr 96
-iFdback =        0.7           ; feedback ratio
-aDelayLeft	init 0
-aDelayRight	init 0
+iFdback = i(gkDelayFeedback)*1.1           ; feedback ratio
 
-aDelayLeft  delay    gaDelayLeft+(aDelayLeft*iFdback), .5 ;delay 0.3 seconds
-aDelayRight delay    gaDelayRight+(aDelayRight*iFdback), .5
+aDelayLeft  vdelayx    gaDelayLeft, gaDelayTime,5.5,1024
+aDelayRight vdelayx    gaDelayRight, gaDelayTime, 5.5,1024
           
           ; output
 		gaMixBusLeft = gaMixBusLeft + aDelayLeft
 		gaMixBusRight = gaMixBusRight + aDelayRight
         clear gaDelayLeft,gaDelayRight
+        gaDelayLeft = aDelayLeft * iFdback
+        gaDelayRight = aDelayRight * iFdback
 endin
 
 ;fft based reverb/delay effect
@@ -557,6 +599,8 @@ i 100 0 36000
 e
 </CsScore>
 </CsoundSynthesizer>
+
+
 
 
 
