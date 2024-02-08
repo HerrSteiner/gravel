@@ -113,6 +113,7 @@ void SoundEngine::process(void)
     }
     else {
         emit status("Csound error");
+        qDebug()<<"csound error";
     }
 }
 
@@ -149,7 +150,9 @@ void SoundEngine::seqStep()
     //qDebug()<<"thread "<<QThread::currentThread()<< "main "<< QApplication::instance()->thread();
     if (sendingSync){
         QByteArray datagram = QByteArray::number(currentBeat);
-        udpSocket->writeDatagram(datagram,QHostAddress::Broadcast,syncPort);
+        if (udpSocket->isWritable()) {
+            udpSocket->writeDatagram(datagram,QHostAddress::Broadcast,syncPort);
+        }
     }
     // check if we have schedulded changes
     if (currentBeat == 1 && hasParsedTracks) {

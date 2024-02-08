@@ -39,7 +39,7 @@ giDistTable	ftgen	0,0, 257, 9, .5,1,270
 instr 1;smp
 iDur = p3 ;dur 0.1 #duration in seconds
 icps = p4 ;pitch 1 #speed/freq
-ivol = p5 ;vol 0.25 #volume !0 1
+ivol = p5 ;vol 1 #volume !0 1
 ipan = p6 ;pan 0.5 #panorama in stereofield !0 1
 irev = p7 ;rev 0 #amount reverb !0 1
 iSampleNumber = p8;wav 1 #sample number
@@ -48,6 +48,7 @@ iWarp = p10;warp 0 #special delay fx amount !0 1
 iDelay = p11 ;delay 0 #delay fx amount !0 1
 
 ichnls = ftchnls(p8)
+ivol = ivol * 0.25
 
 aenv	    linenr    ivol, .01, .1, .01
 
@@ -95,7 +96,7 @@ endin
 instr 2;lof
 iDur = p3 ;dur 0.1 #duration in seconds
 icps = p4 ;pitch 1 #speed/freq
-ivol = p5 ;vol 0.25 #volume !0 1
+ivol = p5 ;vol 1 #volume !0 1
 ipan = p6 ;pan 0.5 #panorama in stereofield !0 1
 irev = p7 ;rev 0 #amount reverb !0 1
 iSampleNumber = p8;wav 2 #sample number
@@ -104,6 +105,7 @@ iWarp = p10;warp 0 #special delay fx amount !0 1
 iDelay = p11 ;delay 0 #delay fx amount !0 1
 
 ichnls = ftchnls(p8)
+ivol = ivol * 0.25
 
 aenv	    linenr    ivol, .01, .1, .01
 
@@ -152,7 +154,7 @@ endin
 instr 3;sndwarp
 iDur = p3 ;dur 0.1 #duration in seconds
 icps = p4 ;pitch 1 #speed/freq
-ivol = p5 ;vol 0.25 #volume !0 1
+ivol = p5 ;vol 1 #volume !0 1
 ipan = p6 ;pan 0.5 #panorama in stereofield !0 1
 irev = p7 ;rev 0 #amount reverb !0 1
 iSampleNumber = p8;wav 1 #sample number
@@ -166,6 +168,7 @@ iWarp = p15;warp 0 #special delay fx amount !0 1
 iDelay = p16 ;delay 0 #delay fx amount !0 1
 
 ichnls = ftchnls(p8)
+ivol = ivol * 0.25
 
 aenv	    linenr    ivol, .01, .1, .01
 
@@ -502,8 +505,7 @@ endin
 
 ;delay
 instr 96
-iFdback = i(gkDelayFeedback)*1.1           ; feedback ratio
-
+denorm gaDelayLeft, gaDelayRight
 aDelayLeft  vdelayx    gaDelayLeft, gaDelayTime,5.5,1024
 aDelayRight vdelayx    gaDelayRight, gaDelayTime, 5.5,1024
           
@@ -511,8 +513,8 @@ aDelayRight vdelayx    gaDelayRight, gaDelayTime, 5.5,1024
 		gaMixBusLeft = gaMixBusLeft + aDelayLeft
 		gaMixBusRight = gaMixBusRight + aDelayRight
         clear gaDelayLeft,gaDelayRight
-        gaDelayLeft = aDelayLeft * iFdback
-        gaDelayRight = aDelayRight * iFdback
+        gaDelayLeft = aDelayLeft * gkDelayFeedback
+        gaDelayRight = aDelayRight * gkDelayFeedback
 endin
 
 ;fft based reverb/delay effect
@@ -599,6 +601,8 @@ i 100 0 36000
 e
 </CsScore>
 </CsoundSynthesizer>
+
+
 
 
 
