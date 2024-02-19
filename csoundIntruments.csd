@@ -158,10 +158,10 @@ ivol = p5 ;vol 1 #volume !0 1
 ipan = p6 ;pan 0.5 #panorama in stereofield !0 1
 irev = p7 ;rev 0 #amount reverb !0 1
 iSampleNumber = p8;wav 1 #sample number
-ibeg = p9;start 0 #sample begin !0 1
+ibeg = p9;start 0 #sample begin in seconds
 iwsize = p10;wsize 100 #grain size
 ioverlap = p11;over 5 #grain overlap
-ispeed = p12;speed 1 #playspeed
+ispeed = p12;ti 1 #timestretch factor
 irandw = p13;jitter 100 #range of randomness applied to grain position
 iBB 	 = p14 ;bb 0 # stutter fx amount
 iWarp = p15;warp 0 #special delay fx amount !0 1
@@ -601,6 +601,8 @@ i 100 0 36000
 e
 </CsScore>
 </CsoundSynthesizer>
+
+
 
 
 
