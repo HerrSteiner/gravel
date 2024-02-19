@@ -110,7 +110,7 @@ void MainWindow::on_actionAbout_gravel_triggered()
             <p>gravel is free open source software distributed under GPL3 license</p>\
             <p>it uses QT 6.4.1 which can be obtained at <a href='https://www.qt.io'>https://www.qt.io</a></p>\
             <p>the audio synthesis is implemented with <a href='https://csound.com'>Csound</a></p>\
-            <p>version 0.2 beta use on your own risk</p>"));
+            <p>version 0.3 beta use on your own risk</p>"));
 }
 
 void MainWindow::on_actionAudio_setup_triggered()
