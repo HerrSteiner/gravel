@@ -150,9 +150,9 @@ void SoundEngine::seqStep()
     //qDebug()<<"thread "<<QThread::currentThread()<< "main "<< QApplication::instance()->thread();
     if (sendingSync){
         QByteArray datagram = QByteArray::number(currentBeat);
-        if (udpSocket->isWritable()) {
+        //if (udpSocket->isWritable()) {
             udpSocket->writeDatagram(datagram,QHostAddress::Broadcast,syncPort);
-        }
+        //}
     }
     // check if we have schedulded changes
     if (currentBeat == 1 && hasParsedTracks) {
