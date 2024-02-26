@@ -1,6 +1,6 @@
 <CsoundSynthesizer>
 <CsOptions>
--g -b 512
+-g -b 512 -Q13
 </CsOptions>
 <CsInstruments>
 
@@ -503,6 +503,20 @@ aDelayTime linseg iStart,idur,iDelayTime
 gaDelayTime = aDelayTime
 endin
 
+instr 12;note
+idur = p3 ;dur 0.1 #duration in seconds
+iPitch = p4;pitch 10 #midi notenumber
+	midion  1, iPitch, 100 ; send a midi note
+endin
+
+instr 13;cc
+	iValue = p4;val 10 #cc value
+	ktrig     changed   iValue      ; of course it never changes, just to pretend multiple outputs
+ 	if ktrig=1 then   
+		midiout 176, 1, 1, iValue
+	endif
+endin
+
 ;delay
 instr 96
 denorm gaDelayLeft, gaDelayRight
@@ -601,6 +615,8 @@ i 100 0 36000
 e
 </CsScore>
 </CsoundSynthesizer>
+
+
 
 
 
