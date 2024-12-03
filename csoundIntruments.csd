@@ -1,6 +1,6 @@
 <CsoundSynthesizer>
 <CsOptions>
--g -b 512 -Q13
+-g -b 256 -Q13
 </CsOptions>
 <CsInstruments>
 
@@ -29,6 +29,8 @@ gaMixBusRight init 0
 gkDelayTime init 0.5
 gaDelayTime init 0.5
 gkDelayFeedback init 0.5
+
+gaSyncDelay init 
 
 ; make random really random, rather
 seed 0
@@ -253,6 +255,7 @@ aleft, aright pan2 asig*ivol*0.25, ipan
 	gaWarpRight = gaWarpRight + aright*iWarp
 	gaDelayLeft = gaDelayLeft + aleft*iDelay
 	gaDelayRight = gaDelayRight + aright*iDelay
+	
 endin
 
 
@@ -517,6 +520,14 @@ instr 13;cc
 	endif
 endin
 
+instr 14;sync
+	
+idur = p3 ;dur 0.1 #duration in seconds
+iDelayTime = p4 ;ms 1 #delaytime in ms !0 2000
+gaSyncDelay = a(iDelayTime)
+
+endin
+
 ;delay
 instr 96
 denorm gaDelayLeft, gaDelayRight
@@ -589,8 +600,8 @@ endin
 ;mixbus, the central stereo output
 instr 100
 	; potentially applying a delay as compensation when jam with others, default is minimum as possible, adjust this to your needs
-	aDelayLeft delay gaMixBusLeft,0.0001
-	aDelayRight delay gaMixBusRight,0.0001
+	aDelayLeft vdelay gaMixBusLeft,gaSyncDelay,2000
+	aDelayRight vdelay gaMixBusRight,gaSyncDelay,2000
 	outs aDelayLeft,aDelayRight
 	clear gaMixBusLeft,gaMixBusRight
 endin
@@ -615,6 +626,8 @@ i 100 0 36000
 e
 </CsScore>
 </CsoundSynthesizer>
+
+
 
 
 
