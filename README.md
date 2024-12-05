@@ -9,7 +9,7 @@ Live coding is the most awkward way to operate a musical sequencer, instead of r
 So basically Gravel is a sequencer with a code editor as GUI. It evaluates the given code and triggers a synthesizer which is implemented in the included [Csound](https://csound.com). The textfile **csoundInstruments.csd** contains the instrument definitions and is loaded by Gravel on program start. It can be, with some Csound knowledge, customized. It also defines the available parameters which can be automated in the sequencer.
 
 Gravel is written in C++ with the library [QT](https://www.qt.io).
-An alphaversion is soon available for Linx, Mac and Windows. Gravel is in its early stage and not even beta. But it was alreafy successfully used by Malte Steiner in a concert at [Piksel](https://piksel.no) 2022 festival in Bergen, NO and will be presented at the [Code&Share](https://codeandshare.net) event in Aarhus 10. December 2022.
+An alphaversion is soon available for Linx, Mac and Windows. Gravel is in its early stage and not even beta. But it was already successfully used by Malte Steiner in a concert at [Piksel](https://piksel.no) 2022 festival in Bergen, NO and will be presented at the [Code&Share](https://codeandshare.net) event in Aarhus 10. December 2022.
 
 What's missing so far and soon will be implemented:
 - an easier way to configure the audio device, so far the Csound script itself needs to be adapted
