@@ -45,7 +45,8 @@ private slots:
     void on_Save_clicked();
     void on_Add_clicked();
     void on_Remove_clicked();
-    void on_activate_clicked();
+    void on_activate_clicked();   
+    void on_NewButton_clicked();
 
 signals:
     void activateMap(SampleListModel *model);
@@ -53,6 +54,7 @@ signals:
 private:
     Ui::SampleMapper *ui;
     void checkAddButton();
+    void newMap();
 };
 
 #endif // SAMPLEMAPPER_H

@@ -34,7 +34,20 @@
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout_4">
        <item>
+        <widget class="QPushButton" name="NewButton">
+         <property name="toolTip">
+          <string>removes all entries from map!</string>
+         </property>
+         <property name="text">
+          <string>New Map</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QPushButton" name="Load">
+         <property name="toolTip">
+          <string>replaces current map with one from disk</string>
+         </property>
          <property name="text">
           <string>Load From Disk</string>
          </property>

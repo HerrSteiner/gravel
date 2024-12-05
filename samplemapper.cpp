@@ -19,6 +19,7 @@
 #include "samplemapper.h"
 #include "ui_samplemapper.h"
 #include <QFileDialog>
+#include <QMessageBox>
 
 const int maxEntries = 92;
 
@@ -36,7 +37,6 @@ SampleMapper::~SampleMapper()
 {
     delete ui;
 }
-
 
 void SampleMapper::on_Load_clicked()
 {
@@ -88,4 +88,21 @@ void SampleMapper::checkAddButton()
     ui->Add->setEnabled(model->rowCount() < maxEntries);
 }
 
+void SampleMapper::newMap()
+{
+
+}
+
+void SampleMapper::on_NewButton_clicked()
+{
+    // Show a warning dialog
+           QMessageBox::StandardButton reply = QMessageBox::warning(
+               this, "Warning", "This will remove all entries from the samplemap,do you want to perform that action?",
+               QMessageBox::Yes | QMessageBox::No);
+
+           // Check the user's response
+           if (reply == QMessageBox::Yes) {
+               newMap();
+           }
+}
 
