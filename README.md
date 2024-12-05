@@ -12,11 +12,9 @@ Gravel is written in C++ with the library [QT](https://www.qt.io).
 An alphaversion is soon available for Linx, Mac and Windows. Gravel is in its early stage and not even beta. But it was already successfully used by Malte Steiner in a concert at [Piksel](https://piksel.no) 2022 festival in Bergen, NO and will be presented at the [Code&Share](https://codeandshare.net) event in Aarhus 10. December 2022.
 
 What's missing so far and soon will be implemented:
-- an easier way to configure the audio device, so far the Csound script itself needs to be adapted
-- Gravel now provides several synthesized instruments which can be modulated via several parameters. More instruments are going to be provided inclusive samplers and granular instruments
+- an easier way to configure the midi device, so far the Csound script itself needs to be adapted
 - a way to record audio on command, either the stereo sum or individual busses (synths, drums, fx) as multitrack WAV file
-- midi output
-- synchronization between other computers and studio equipment
+- synchronization works between other computers with Gravel (see [codepage concert in Helsinki 2024](https://youtu.be/WuVTTchpFso?si=BhLPoUcqfLv5Slyr)), missing is sync to studio equipment via Midi Clock
 - the domain specific language Gravel is now in the process of being defined, implemented and tested. After Version 1.0 no more breaking changes, only additions
 
 You can support this project by checking out our other music from our [label block 4](https://block4label.bandcamp.com).
