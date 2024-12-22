@@ -105,12 +105,12 @@ void MainWindow::on_actionAbout_gravel_triggered()
 {
     QMessageBox::about(this, tr("gravel"),
                        tr("<h2>g<span style='color:#666;'>rave</span>l</h2><h3>live coding music system</h3>\
-                          <p>© 2022, 2023, 2024 by Malte Steiner<br>Tina Mariane Krogh Madsen</p>\
+                          <p>© 2022 - 2025 by Malte Steiner and<br>Tina Mariane Krogh Madsen</p>\
                           <p>see also <a href='https://www.block4.com'>https://www.block4.com</a></p>\
             <p>gravel is free open source software distributed under GPL3 license</p>\
             <p>it uses QT 6.4.1 which can be obtained at <a href='https://www.qt.io'>https://www.qt.io</a></p>\
             <p>the audio synthesis is implemented with <a href='https://csound.com'>Csound</a></p>\
-            <p>version 0.3 beta use on your own risk</p>"));
+            <p>version 0.31 beta use on your own risk</p>"));
 }
 
 void MainWindow::on_actionAudio_setup_triggered()

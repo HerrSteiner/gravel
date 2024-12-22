@@ -1,6 +1,6 @@
 /*
    gravel - live coding music system -
-   Copyright (C) 2022-2024 Malte Steiner
+   Copyright (C) 2022-2025 Malte Steiner
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -43,7 +43,9 @@ public:
 
     // Remove data:
     void removeFile(int index);
+    void removeAll();
 
+    // file I/O
     void saveToFile(const QString &filePath) ;
     void loadFromFile(const QString &filePath);
 

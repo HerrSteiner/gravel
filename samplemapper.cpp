@@ -90,7 +90,7 @@ void SampleMapper::checkAddButton()
 
 void SampleMapper::newMap()
 {
-
+    model->removeAll();
 }
 
 void SampleMapper::on_NewButton_clicked()

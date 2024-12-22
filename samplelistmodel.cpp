@@ -86,6 +86,15 @@ void SampleListModel::removeFile(int index) {
        }
 }
 
+void SampleListModel::removeAll() {
+    if (fileList.isEmpty()){
+        return;
+    }
+    beginRemoveRows(QModelIndex(), 0, fileList.size() - 1);
+    fileList.clear();
+    endRemoveRows();
+}
+
 void SampleListModel::saveToFile(const QString &filePath) {
        QFile file(filePath);
        if (file.open(QIODevice::WriteOnly)) {
