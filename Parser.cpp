@@ -115,7 +115,7 @@ void Parser::parseCode(QString code){
 
                     QMap<QString,Parameter*> formerParameters = formerParametersByInstrumentName[instrumentName];
                     formerParameters.remove(instrumentParameter);
-                    //formerParameters[instrumentParameter] = iParameter;
+                    formerParameters[instrumentParameter] = iParameter;
                     formerParametersByInstrumentName[instrumentName] = formerParameters;
 
                 }
