@@ -21,20 +21,27 @@
 
 Sequence::Sequence()
 {
-
+    this->ticksPerPattern = 1;
 }
 
 void Sequence::setPattern(PatternType pattern) {
     this->pattern = pattern;
     patternLength = pattern.length();
-    index = amountOfPlays = 0;
+    index = amountOfPlays = tickCount = 0;
     qDebug()<<"set sequence pattern";
 }
 
 PatternEvent Sequence::nextStep(){
-    if (pattern.empty()){ PatternEvent pause;
+    if (pattern.empty()) {
+        PatternEvent pause;
         return pause;
     }
+    this->tickCount = this->tickCount + 1;
+    if (this->tickCount < this->ticksPerPattern) {
+        PatternEvent pause;
+        return pause;
+    }
+    this->tickCount = 0;
     PatternEvent nextEvent = pattern[this->index];
     this->index = this->index + 1;
     if (this->index == patternLength){

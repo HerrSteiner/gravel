@@ -34,6 +34,7 @@ public:
     int patternLength;
     int index;
     int ticksPerPattern;
+    int tickCount;
     int amountOfPlays;
     PatternEvent nextStep();
 
