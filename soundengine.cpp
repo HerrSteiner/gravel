@@ -228,7 +228,7 @@ void SoundEngine::seqStep()
     tracks.swap(tickedTracks);
     if (!receivingSync) {
         currentBeat++;
-        if (currentBeat > 16) {
+        if (currentBeat > 32) { // was 16
             currentBeat = 1;
         }
     }
