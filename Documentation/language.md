@@ -20,7 +20,11 @@ That above can be written faster with the multiplier which can be applied to eac
 
 `tdrum:[bd,0*7];`
 
-When a line with a track of the same name is activated with shift + return, it replaces the preceding definition but the change is not imediant, its done after the pattern played its last event or pause.
+Per default each event length are 16ths. However it can be changed to other length:
+`tdrum:[bd,0*7]/8;` would interprete the events with 8ths. note length. Allowed values for / are 32,16,8,4,2 and 1 for whole notes.
+
+
+When a line with a track of the same name is activated with shift + return, it replaces the preceding definition but the change is not imediant, the change is quantized to a full bar length, it happens after the sequencer played 32 32ths note, 32ths notes is the sequencer resolution.
 
 To stop a specific track you can type the command **stop** followed with the name of the track (exclusive the beginning **t**) and a **;**
 
