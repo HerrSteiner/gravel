@@ -57,6 +57,7 @@ private:
     void displayInstruments();
     QMap<QString,InstrumentDefinition> instruments;
     States state = NONE;
+    bool isEuclid = false;
     QString code,error,message;
     int characterIndex;
     int codeLength;
@@ -67,6 +68,7 @@ private:
     void parseStop();
     void parseBPM();
     QString parseTrackName();
+    void finishTrack(QString divisor);
 
 private slots:
     void setInstrumentDefinitions(QMap<QString,InstrumentDefinition>instrumentDefinitions);

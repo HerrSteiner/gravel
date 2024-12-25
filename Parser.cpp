@@ -155,21 +155,14 @@ void Parser::parseCode(QString code){
                 instrumentName.clear();
                 instrumentParameters.clear();
                 state = TRIGGER;
-
+                isEuclid = false;
                 if (ch == '}') {
+                    isEuclid = true;
                     state = TRACKPARAMETER;
                     continue;
                 }
                 if (ch == ']') {
-                    state = TRACK;
-                    if ((currentPattern != nullptr) && (sequences != nullptr)){
-                        Sequence seq;
-                        seq.setPattern(*currentPattern);
-                        sequences->append(seq);
-                    }
-                    else {
-                        qDebug()<<"error creating sequence";
-                    }
+                    state = TRACKPARAMETER;
                     continue;
                 }
 
@@ -360,46 +353,12 @@ void Parser::parseCode(QString code){
         }
 
         if ( ch == ',' && state == TRACKPARAMETER){
-            if ((currentPattern != nullptr) && (sequences != nullptr)){
-                if (!divisor.isEmpty()){
-                    int divNumber = divisor.toInt();
-                    fillPattern(currentPattern,divNumber);
-                    divisor.clear();
-                }
-                else {
-                    fillPattern(currentPattern);
-                }
-                Sequence seq;
-
-                seq.setPattern(*currentPattern);
-                sequences->append(seq);
-                state = TRACK;
-            }
-            else {
-                error = "error creating sequence";
-            }
+            finishTrack(divisor);
             continue;
         }
         if (ch == ';'){
             if (state == TRACKPARAMETER){
-                if ((currentPattern != nullptr) && (sequences != nullptr)){
-                    if (!divisor.isEmpty()){
-                        int divNumber = divisor.toInt();
-                        fillPattern(currentPattern,divNumber);
-                        divisor.clear();
-                    }
-                    else {
-                        fillPattern(currentPattern);
-                    }
-                    Sequence seq;
-
-                    seq.setPattern(*currentPattern);
-                    sequences->append(seq);
-                    state = TRACK;
-                }
-                else {
-                    error = "error creating sequence";
-                }
+                finishTrack(divisor);
             }
 
             qDebug()<<"wrapping";
@@ -572,4 +531,56 @@ void Parser::fillPattern(PatternType *pattern, int max){
 
 void Parser::setInstrumentDefinitions(QMap<QString,InstrumentDefinition>instrumentDefinitions){
     instruments = instrumentDefinitions;
+}
+
+void Parser::finishTrack(QString divisor){
+    if ((currentPattern != nullptr) && (sequences != nullptr)){
+        Sequence seq;
+        if (isEuclid) {
+            if (!divisor.isEmpty()){
+                int divNumber = divisor.toInt();
+                fillPattern(currentPattern,divNumber);
+                divisor.clear();
+            }
+            else {
+                fillPattern(currentPattern);
+            }
+        }
+        else {
+            int divNumber = 2;
+            if (!divisor.isEmpty()){
+                int divisorNumber = divisor.toInt();
+                switch (divisorNumber) {
+                case 32:
+                    divNumber = 1; // play 32. notes
+                    break;
+                case 16:
+                    divNumber = 2;
+                    break;
+                case 8:
+                    divNumber = 4;
+                    break;
+                case 4:
+                    divNumber = 8;
+                    break;
+                case 2:
+                    divNumber = 16; // play half notes
+                    break;
+                case 1:
+                    divNumber = 32; // play whole notes
+                    break;
+                default:
+                    divNumber = 2;
+                }
+            }
+            seq.ticksPerPattern = divNumber;
+        }
+
+        seq.setPattern(*currentPattern);
+        sequences->append(seq);
+        state = TRACK;
+    }
+    else {
+        error = "error creating sequence";
+    }
 }
