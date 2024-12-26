@@ -36,17 +36,26 @@ PatternEvent Sequence::nextStep(){
         PatternEvent pause;
         return pause;
     }
-    this->tickCount = this->tickCount + 1;
-    if (this->tickCount < this->ticksPerPattern) {
+
+    if (this->tickCount > 0){ // to get to the next event, we need more ticks
+        this->tickCount++;
+        if (this->tickCount == this->ticksPerPattern) {
+            this->tickCount = 0;
+        }
         PatternEvent pause;
         return pause;
     }
-    this->tickCount = 0;
+
     PatternEvent nextEvent = pattern[this->index];
-    this->index = this->index + 1;
+    this->index++;
     if (this->index == patternLength){
         this->index = 0;
         this->amountOfPlays++;
+    }
+
+    this->tickCount++;
+    if (this->tickCount == this->ticksPerPattern) {
+        this->tickCount = 0;
     }
     return nextEvent;
 }

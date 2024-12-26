@@ -34,6 +34,8 @@ public:
     SequencesType sequencesA;
     SequencesType sequencesB;
     void setSequences(SequencesType sequences);
+
+    // get events at this tick of all sequences and patterns of this track
     QList<PatternEvent>getNextEvents();
 
 private:
