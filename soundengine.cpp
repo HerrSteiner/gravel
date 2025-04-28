@@ -154,6 +154,7 @@ void SoundEngine::seqStep()
             udpSocket->writeDatagram(datagram,QHostAddress::Broadcast,syncPort);
         //}
     }
+    //qDebug()<<currentBeat;
     // check if we have schedulded changes
     if (currentBeat == 1 && hasParsedTracks) {
         tracks.swap(tempTracks);

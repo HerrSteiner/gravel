@@ -27,11 +27,11 @@
 #include <QMap>
 #include <csound.hpp>
 
-#if (defined (Q_OS_MAC))
-#include <CsoundLib64/csound_threaded.hpp>
-#else
+//#if (defined (Q_OS_MAC))
+//#include <CsoundLib64/csound_threaded.hpp>
+//#else
 #include <csound_threaded.hpp>
-#endif
+//#endif
 #include "track.h"
 #include <QThread>
 #include "instrumentdefinition.h"
