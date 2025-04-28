@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(gravel VERSION 0.1 LANGUAGES CXX)
+project(gravel VERSION 0.34 LANGUAGES CXX)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -11,10 +11,10 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+#QT dependencies
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
-find_package(Qt6 REQUIRED COMPONENTS Multimedia)
-find_package(Qt6 REQUIRED COMPONENTS Network)
+find_package(Qt6 REQUIRED COMPONENTS Multimedia Network)
 
 #find_package(csnd6.6.0 REQUIRED)
 
@@ -44,97 +44,108 @@ set(PROJECT_SOURCES
         samplemapper.h samplemapper.cpp samplemapper.ui
 )
 
-
-
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
-    qt_add_executable(gravel
-        MANUAL_FINALIZATION
-        ${PROJECT_SOURCES}
-    )
-# Define target properties for Android with Qt 6 as:
-#    set_property(TARGET gravel APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
-#                 ${CMAKE_CURRENT_SOURCE_DIR}/android)
-# For more information, see https://doc.qt.io/qt-6/qt-add-executable.html#target-creation
+    qt_add_executable(gravel MANUAL_FINALIZATION ${PROJECT_SOURCES})
 else()
     if(ANDROID)
-        add_library(gravel SHARED
-            ${PROJECT_SOURCES}
-        )
-# Define properties for Android with Qt 5 after find_package() calls as:
-#    set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
+        add_library(gravel SHARED ${PROJECT_SOURCES})
     else()
-        add_executable(gravel
-            ${PROJECT_SOURCES}
-        )
+        add_executable(gravel ${PROJECT_SOURCES})
     endif()
 endif()
 
-# Try to find the Csound library.
-# Once done this will define:
-#  CSOUND_FOUND - System has the Csound library
-#  CSOUND_INCLUDE_DIRS - The Csound include directories.
-#  CSOUND_LIBRARIES - The libraries needed to use the Csound library.
-#"$ENV{HOME}/Library/Frameworks/CsoundLib64.framework/Headers"
+# Cross-platform Csound detection
 if(APPLE)
-find_path(CSOUND_INCLUDE_DIR csound.h HINTS /Library/Frameworks/CsoundLib64.framework/Headers
-"/Library/Frameworks/CsoundLib64.framework/Headers")
+    # macOS specific paths
+    find_path(CSOUND_INCLUDE_DIR csound.h
+        HINTS
+            /Library/Frameworks/CsoundLib64.framework/Headers
+            "$ENV{HOME}/Library/Frameworks/CsoundLib64.framework/Headers"
+    )
+    find_library(CSOUND_LIBRARY
+        NAMES CsoundLib64
+        HINTS
+            /Library/Frameworks/CsoundLib64.framework
+            "$ENV{HOME}/Library/Frameworks/CsoundLib64.framework"
+    )
+    find_library(LIB_CSOUND NAMES csnd6.6.0 csnd6)
+elseif(WIN32)
+    # Windows specific paths
+    find_path(CSOUND_INCLUDE_DIR csound.h
+        HINTS
+            "C:/Program Files/Csound6/include"
+            "$ENV{CSOUND_HOME}/include"
+        PATH_SUFFIXES csound
+    )
+    find_library(CSOUND_LIBRARY
+        NAMES csound64 csound
+        HINTS
+            "C:/Program Files/Csound6/lib"
+            "$ENV{CSOUND_HOME}/lib"
+    )
+    find_library(LIB_CSOUND NAMES csnd6)
 else()
-find_path(CSOUND_INCLUDE_DIR csound.h PATH_SUFFIXES csound)
-endif()
-
-
-if(APPLE)
-find_library(CSOUND_LIBRARY NAMES CsoundLib64 HINTS /Library/Frameworks/CsoundLib64.framework/Versions/Current
-"/Library/Frameworks/CsoundLib64.framework/Versions/Current")
-else()
-find_library(CSOUND_LIBRARY NAMES csound64 csound)
+    # Linux/Unix specific paths
+    find_path(CSOUND_INCLUDE_DIR csound.h
+        HINTS
+            /usr/include
+            /usr/local/include
+            "$ENV{CSOUND_HOME}/include"
+        PATH_SUFFIXES csound
+    )
+    find_library(CSOUND_LIBRARY
+        NAMES csound64 csound
+        HINTS
+            /usr/lib
+            /usr/local/lib
+            "$ENV{CSOUND_HOME}/lib"
+    )
+    find_library(LIB_CSOUND NAMES csnd6)
 endif()
 
 include(FindPackageHandleStandardArgs)
-# handle the QUIETLY and REQUIRED arguments and set CSOUND_FOUND to TRUE
-# if all listed variables are TRUE
 find_package_handle_standard_args(CSOUND
-                                  CSOUND_LIBRARY CSOUND_INCLUDE_DIR)
-mark_as_advanced(CSOUND_INCLUDE_DIR CSOUND_LIBRARY)
-
-set(CSOUND_INCLUDE_DIRS ${CSOUND_INCLUDE_DIR})
-set(CSOUND_LIBRARIES ${CSOUND_LIBRARY} )
-
-#/usr/local/lib/libcsnd6.6.0.dylib
-#target_link_libraries(gravel PRIVATE)
-##find_path(CSOUND_INCLUDE csound.hpp)
-
-target_include_directories(gravel PRIVATE "${CSOUND_INCLUDE_DIR}")
-
-###find_library(CSOUND_LIB CsoundLib64 REQUIRED PATHS "${CSOUND_LIBRARY}")
-###find_library(CSOUND_LIB "${CSOUND_LIBRARY_NAMES}" REQUIRED PATHS "${CSOUND_LIBRARY}")
-if(APPLE)
-find_library(LIB_CSOUND csnd6.6.0 REQUIRED)
-else()
-find_library(LIB_CSOUND csnd6 REQUIRED)
-endif()
-#add_library(CSOUND "${CSOUND_LIB}")
-#add_library(gravel )
-#target_link_libraries(gravel PRIVATE Qt${QT_VERSION_MAJOR}::Widgets "${CSOUND_LIB}" "${LIB_CSOUND}")
-target_link_libraries(gravel PRIVATE Qt${QT_VERSION_MAJOR}::Widgets "${CSOUND_LIBRARIES}" "${LIB_CSOUND}" Qt6::Multimedia)
-message("LIB_CSOUND : ${LIB_CSOUND}")
-message("CSOUND_LIBRARIES : ${CSOUND_LIBRARIES}")
-
-set_target_properties(gravel PROPERTIES
-    MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
-    MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
-    MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
-    MACOSX_BUNDLE TRUE
-    WIN32_EXECUTABLE TRUE
+    REQUIRED_VARS CSOUND_LIBRARY CSOUND_INCLUDE_DIR
 )
 
-install(TARGETS gravel
-    BUNDLE DESTINATION .
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+if(NOT CSOUND_FOUND)
+    message(WARNING "Csound not found - audio features will be disabled")
+else()
+    target_include_directories(gravel PRIVATE ${CSOUND_INCLUDE_DIR})
+    target_link_libraries(gravel PRIVATE
+        Qt${QT_VERSION_MAJOR}::Widgets
+        ${CSOUND_LIBRARY}
+        ${LIB_CSOUND}
+        Qt6::Multimedia
+    )
+
+    message(STATUS "Found Csound libraries: ${CSOUND_LIBRARY}, ${LIB_CSOUND}")
+    message(STATUS "Csound include path: ${CSOUND_INCLUDE_DIR}")
+endif()
+
+# macOS specific bundle settings
+if(APPLE)
+    set_target_properties(gravel PROPERTIES
+        MACOSX_BUNDLE_GUI_IDENTIFIER www.block4.com
+        MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
+        MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+        MACOSX_BUNDLE TRUE
+    )
+
+    set(CSOUND_FRAMEWORK_PATH "/Library/Frameworks/CsoundLib64.framework")
+    add_custom_command(TARGET gravel POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory
+            "$<TARGET_FILE_DIR:gravel>/../Frameworks"
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+            "${CSOUND_FRAMEWORK_PATH}"
+            "$<TARGET_FILE_DIR:gravel>/../Frameworks/CsoundLib64.framework"
+    )
+else()
+    install(TARGETS gravel
+        BUNDLE DESTINATION .
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+endif()
 
 if(QT_VERSION_MAJOR EQUAL 6)
     qt_finalize_executable(gravel)
 endif()
-
-message("CSOUND_LIB :${CSOUND_LIB}")
-
